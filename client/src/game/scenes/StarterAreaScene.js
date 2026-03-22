@@ -21,6 +21,13 @@ import smallBush from "../../assets/props/small-bush.png";
 import tree from "../../assets/props/tree.png";
 import brich from "../../assets/props/Birch1.png";
 
+import playerIdle from "../../assets/player/player-idle.png";
+import playerWalk from "../../assets/player/player-walk.png";
+import playerRun from "../../assets/player/player-run.png";
+import playerJumpUp from "../../assets/player/player-jump-up.png"
+import playerJumpDown from "../../assets/player/player-jump-down.png"
+import Player from "../objects/Player";
+
 export default class StarterAreaScene extends Phaser.Scene {
     constructor() {
         super("StarterAreaScene");
@@ -117,6 +124,29 @@ export default class StarterAreaScene extends Phaser.Scene {
 
         this.load.image("tree", tree);
         this.load.image("brich", brich);
+
+        this.load.spritesheet("playerIdle", playerIdle, {
+            frameWidth: 18,
+            frameHeight: 45,
+        });
+
+        this.load.spritesheet("playerWalk", playerWalk, {
+            frameWidth: 80,   
+            frameHeight: 45,
+        });
+        this.load.spritesheet("playerRun", playerRun, {
+            frameWidth: 80,   
+            frameHeight: 45,
+        });
+        this.load.spritesheet("playerJumpUp", playerJumpUp, {
+            frameWidth: 21,
+            frameHeight: 47,
+        });
+
+        this.load.spritesheet("playerJumpDown", playerJumpDown, {
+            frameWidth: 24,
+            frameHeight: 49,
+        });
     }
 
     create() {
@@ -199,35 +229,46 @@ export default class StarterAreaScene extends Phaser.Scene {
         // PLAYER
         // -------------------------
 
-        this.player = this.add.rectangle(150, groundY - 60, 32, 48, 0xff0000);
-        this.physics.add.existing(this.player);
-
-        this.player.body.setCollideWorldBounds(true);
-        this.player.body.setGravityY(800);
+        this.anims.create({
+            key: "idle",
+            frames: this.anims.generateFrameNumbers("playerIdle", { start: 0, end: 4 }),
+            frameRate: 6,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: "walk",
+            frames: this.anims.generateFrameNumbers("playerWalk", { start: 0, end: 7 }),
+            frameRate: 10,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: "run",
+            frames: this.anims.generateFrameNumbers("playerRun", { start: 0, end: 7 }), // adjust frame count
+            frameRate: 14,
+            repeat: -1,
+        });
+        this.anims.create({
+            key: "jumpUp",
+            frames: this.anims.generateFrameNumbers("playerJumpUp", { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: 0,
+        });
+        this.anims.create({
+            key: "jumpDown",
+            frames: this.anims.generateFrameNumbers("playerJumpDown", { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: 0,
+        });
+        this.player = new Player(this, 150, groundY - 60);
 
         this.physics.add.collider(this.player, this.groundGroup);
 
-        // camera follow
+        // Camera follow player
         this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-
-        // controls
-        this.cursors = this.input.keyboard.createCursorKeys();
+        
     }
 
     update() {
-        const speed = 220;
-        const body = this.player.body;
-
-        if (this.cursors.left.isDown) {
-            body.setVelocityX(-speed);
-        } else if (this.cursors.right.isDown) {
-            body.setVelocityX(speed);
-        } else {
-            body.setVelocityX(0);
-        }
-
-        if (this.cursors.up.isDown && body.blocked.down) {
-            body.setVelocityY(-450);
-        }
+        this.player.update();
     }
 }
