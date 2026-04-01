@@ -2,19 +2,26 @@ import { useEffect, useRef } from "react";
 import Phaser from "phaser";
 import StarterAreaScene from "./scenes/StarterAreaScene";
 
+const gameContainerStyle = { width: "100%", height: "100%" };
+
 export default function Game() {
   const gameRef = useRef(null);
   const phaserGame = useRef(null);
 
   useEffect(() => {
-    if (phaserGame.current) return;
+    if (phaserGame.current || !gameRef.current) return undefined;
 
     const config = {
       type: Phaser.AUTO,
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: gameRef.current.clientWidth || window.innerWidth,
+      height: gameRef.current.clientHeight || window.innerHeight,
       parent: gameRef.current,
       pixelArt: true,
+      antialias: false,
+      antialiasGL: false,
+      render: {
+        roundPixels: true,
+      },
       physics: {
         default: "arcade",
         arcade: {
@@ -24,8 +31,9 @@ export default function Game() {
       },
       scene: [StarterAreaScene],
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+        mode: Phaser.Scale.RESIZE,
+        width: "100%",
+        height: "100%",
       },
     };
 
@@ -39,5 +47,5 @@ export default function Game() {
     };
   }, []);
 
-  return <div ref={gameRef} />;
+  return <div ref={gameRef} style={gameContainerStyle} />;
 }

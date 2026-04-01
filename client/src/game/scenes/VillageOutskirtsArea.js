@@ -102,53 +102,6 @@ export default class StarterAreaScene extends Phaser.Scene {
         }
     }
 
-    createPlayerAnimations() {
-        if (!this.anims.exists("idle")) {
-            this.anims.create({
-                key: "idle",
-                frames: this.anims.generateFrameNumbers("playerIdle", { start: 0, end: 4 }),
-                frameRate: 6,
-                repeat: -1,
-            });
-        }
-
-        if (!this.anims.exists("walk")) {
-            this.anims.create({
-                key: "walk",
-                frames: this.anims.generateFrameNumbers("playerWalk", { start: 0, end: 7 }),
-                frameRate: 10,
-                repeat: -1,
-            });
-        }
-
-        if (!this.anims.exists("run")) {
-            this.anims.create({
-                key: "run",
-                frames: this.anims.generateFrameNumbers("playerRun", { start: 0, end: 7 }),
-                frameRate: 14,
-                repeat: -1,
-            });
-        }
-
-        if (!this.anims.exists("jumpUp")) {
-            this.anims.create({
-                key: "jumpUp",
-                frames: this.anims.generateFrameNumbers("playerJumpUp", { start: 0, end: 3 }),
-                frameRate: 10,
-                repeat: 0,
-            });
-        }
-
-        if (!this.anims.exists("jumpDown")) {
-            this.anims.create({
-                key: "jumpDown",
-                frames: this.anims.generateFrameNumbers("playerJumpDown", { start: 0, end: 3 }),
-                frameRate: 10,
-                repeat: 0,
-            });
-        }
-    }
-
     preload() {
         this.load.image("mountains", mountains);
         this.load.image("farTrees", farTrees);
