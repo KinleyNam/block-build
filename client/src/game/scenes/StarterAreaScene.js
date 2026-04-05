@@ -133,15 +133,30 @@ export default class StarterAreaScene extends Phaser.Scene {
             scale: 0.85,
         });
 
-        createPlayerAnimations(this);
+            createPlayerAnimations(this);
         this.player = new Player(this, 150, groundY - 60);
 
         this.physics.add.collider(this.player, this.groundGroup);
 
         camera.startFollow(this.player, true);
+
+        // Flag to prevent triggering the transition more than once
+        this.transitioning = false;
     }
 
     update() {
         this.player?.update();
+
+        // When the player reaches the right edge, fade out and go to Village Outskirts
+        if (!this.transitioning && this.player && this.player.x > WORLD_WIDTH - 150) {
+            this.transitioning = true;
+            this.cameras.main.fadeOut(600, 0, 0, 0);
+            this.cameras.main.once("camerafadeoutcomplete", () => {
+                this.scene.start("LoadingScene", {
+                    nextScene: "VillageOutskirtsScene",
+                    loaderKey: "village",
+                });
+            });
+        }
     }
 }
