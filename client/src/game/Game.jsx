@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
+import LoadingScene from "./scenes/LoadingScene";
 import StarterAreaScene from "./scenes/StarterAreaScene";
 
 const gameContainerStyle = { width: "100%", height: "100%" };
@@ -29,7 +30,7 @@ export default function Game() {
           debug: false,
         },
       },
-      scene: [StarterAreaScene],
+      scene: [LoadingScene, StarterAreaScene],
       scale: {
         mode: Phaser.Scale.RESIZE,
         width: "100%",

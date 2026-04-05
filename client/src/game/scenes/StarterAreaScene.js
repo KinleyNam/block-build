@@ -1,31 +1,6 @@
 import Phaser from "phaser";
-
-import mountains from "../../assets/backgrounds/mountains.png";
-import farTrees from "../../assets/backgrounds/far-trees.png";
-import midTrees from "../../assets/backgrounds/mid-trees.png";
-import frontTrees from "../../assets/backgrounds/Front-trees.png";
-import castle from "../../assets/backgrounds/Castle.png";
-
-import ground from "../../assets/platforms/ground.png";
-
-import statue from "../../assets/props/statue.png";
-
-import bigRock from "../../assets/props/big-rock.png";
-import mediumRock from "../../assets/props/medium-rock.png";
-
-import bigBush from "../../assets/props/big-bush.png";
-import midBush from "../../assets/props/mid-bush.png";
-import smallBush from "../../assets/props/small-bush.png";
-
-import tree from "../../assets/props/tree.png";
-import brich from "../../assets/props/Birch1.png";
-
-import playerIdle from "../../assets/player/player-idle.png";
-import playerWalk from "../../assets/player/player-walk.png";
-import playerRun from "../../assets/player/player-run.png";
-import playerJumpUp from "../../assets/player/player-jump-up.png"
-import playerJumpDown from "../../assets/player/player-jump-down.png"
 import Player from "../objects/Player";
+import { createPlayerAnimations } from "../assets";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 1.5;
@@ -102,99 +77,6 @@ export default class StarterAreaScene extends Phaser.Scene {
         }
     }
 
-    createPlayerAnimations() {
-        if (!this.anims.exists("idle")) {
-            this.anims.create({
-                key: "idle",
-                frames: this.anims.generateFrameNumbers("playerIdle", { start: 0, end: 4 }),
-                frameRate: 6,
-                repeat: -1,
-            });
-        }
-
-        if (!this.anims.exists("walk")) {
-            this.anims.create({
-                key: "walk",
-                frames: this.anims.generateFrameNumbers("playerWalk", { start: 0, end: 7 }),
-                frameRate: 10,
-                repeat: -1,
-            });
-        }
-
-        if (!this.anims.exists("run")) {
-            this.anims.create({
-                key: "run",
-                frames: this.anims.generateFrameNumbers("playerRun", { start: 0, end: 7 }),
-                frameRate: 14,
-                repeat: -1,
-            });
-        }
-
-        if (!this.anims.exists("jumpUp")) {
-            this.anims.create({
-                key: "jumpUp",
-                frames: this.anims.generateFrameNumbers("playerJumpUp", { start: 0, end: 3 }),
-                frameRate: 10,
-                repeat: 0,
-            });
-        }
-
-        if (!this.anims.exists("jumpDown")) {
-            this.anims.create({
-                key: "jumpDown",
-                frames: this.anims.generateFrameNumbers("playerJumpDown", { start: 0, end: 3 }),
-                frameRate: 10,
-                repeat: 0,
-            });
-        }
-    }
-
-    preload() {
-        this.load.image("mountains", mountains);
-        this.load.image("farTrees", farTrees);
-        this.load.image("midTrees", midTrees);
-        this.load.image("frontTrees", frontTrees);
-        this.load.image("castle", castle);
-
-        this.load.image("ground", ground);
-
-        this.load.image("statue", statue);
-
-        this.load.image("bigRock", bigRock);
-        this.load.image("mediumRock", mediumRock)
-        ;
-        this.load.image("bigBush", bigBush);
-        this.load.image("midBush", midBush);
-        this.load.image("smallBush", smallBush);
-
-        this.load.image("tree", tree);
-        this.load.image("brich", brich);
-
-        this.load.spritesheet("playerIdle", playerIdle, {
-            frameWidth: 18,
-            frameHeight: 45,
-        });
-
-        this.load.spritesheet("playerWalk", playerWalk, {
-            frameWidth: 19,  
-            frameHeight: 45,
-        });
-        this.load.spritesheet("playerRun", playerRun, {
-            frameWidth: 24,   
-            frameHeight: 45,
-        });
-        this.load.spritesheet("playerJumpUp", playerJumpUp, {
-            frameWidth: 21,
-            frameHeight: 47,
-        });
-
-        this.load.spritesheet("playerJumpDown", playerJumpDown, {
-            frameWidth: 24,
-            frameHeight: 49,
-        });
-    }
-    
-
     create() {
         const height = this.scale.height;
         const camera = this.cameras.main;
@@ -251,7 +133,7 @@ export default class StarterAreaScene extends Phaser.Scene {
             scale: 0.85,
         });
 
-        this.createPlayerAnimations();
+        createPlayerAnimations(this);
         this.player = new Player(this, 150, groundY - 60);
 
         this.physics.add.collider(this.player, this.groundGroup);
