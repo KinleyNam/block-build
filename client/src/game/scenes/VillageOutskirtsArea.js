@@ -8,10 +8,7 @@ const GROUND_TILE_OVERLAP = 1;
 const BUILDING_SCALE = 1;
 const LARGE_BUILDING_SCALE = 1;
 const HORSE_SCALE = 1;
-const CAMP_BARREL_SCALE = 2;
 const CAMP_BOTTLE_SCALE = 1.5;
-const CAMP_APPLE_SCALE = 1;
-const CAMP_SEAT_SCALE = 2;
 
 const CLOUDS = [
   { key: "cloud1", x: 20, y: 24, scale: 0.9, scrollFactor: 0.04, drift: 0.011 },
