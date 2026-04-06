@@ -20,8 +20,8 @@ export default class LoadingScene extends Phaser.Scene {
 
   /** Receives data passed by scene.start("LoadingScene", data) */
   init(data) {
-    this.nextScene = data?.nextScene || "VillageOutskirtsScene";
-    this.loaderKey = data?.loaderKey || "village";
+    this.nextScene = data?.nextScene || "StarterAreaScene";
+    this.loaderKey = data?.loaderKey || "world";
   }
 
   preload() {

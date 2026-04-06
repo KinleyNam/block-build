@@ -25,7 +25,7 @@ import tavernImg from "../assets/VillageOutskirtsAssets/Building/Tavern green ro
 import stableImg from "../assets/VillageOutskirtsAssets/Building/Stable.png";
 import tentImg from "../assets/VillageOutskirtsAssets/Building/Tent.png";
 import wallImg from "../assets/VillageOutskirtsAssets/Building/Wall.png";
-import twoWallsImg from "../assets/VillageOutskirtsAssets/Building/Two-Walls.png";
+import twoWallsImg from "../assets/VillageOutskirtsAssets/Building/Back-walls.png";
 
 import appleTreeImg from "../assets/VillageOutskirtsAssets/props/Apple-tree.png";
 import tallTreeImg from "../assets/VillageOutskirtsAssets/props/Tall-tree.png";

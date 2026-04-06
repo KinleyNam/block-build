@@ -7,7 +7,6 @@ const CAMERA_ZOOM = 2;
 const GROUND_TILE_OVERLAP = 1;
 const BUILDING_SCALE = 1;
 const LARGE_BUILDING_SCALE = 1;
-const HORSE_SCALE = 1;
 const CAMP_BOTTLE_SCALE = 1.5;
 
 const CLOUDS = [
@@ -122,10 +121,10 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       ),
     }));
 
-    this.addRepeatedLayer("mountains", height - 212, 1, 0.2);
-    this.addRepeatedLayer("farTrees", height - 160, 1, 0.34);
-    this.addRepeatedLayer("midTrees", height - 112, 1, 0.48);
-    this.addRepeatedLayer("frontTrees", height - 90, 1, 0.68);
+    this.addRepeatedLayer("mountains", height - 350, 1, 0.2);
+    this.addRepeatedLayer("farTrees", height - 285, 1, 0.34);
+    this.addRepeatedLayer("midTrees", height - 230, 1, 0.48);
+    this.addRepeatedLayer("frontTrees", height - 180, 1, 0.68);
 
     const groundY = this.addGround(height);
 
@@ -150,7 +149,7 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
 
     createPlayerAnimations(this);
 
-    this.player = new Player(this, 170, groundY - 60);
+    this.player = new Player(this, 100, groundY - 60);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
   }
@@ -188,17 +187,22 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
   }
 
   buildStableArea(groundY) {
-    this.prop("stable", 2180, groundY, LARGE_BUILDING_SCALE * 1.02);
-    this.prop("horse", 2080, groundY, HORSE_SCALE);
-    this.prop("blackHorse", 2290, groundY, HORSE_SCALE);
-    this.prop("woodBox", 2388, groundY, 0.92);
-    this.prop("barrel", 2338, groundY, 1.8);
-    this.prop("barrel", 2366, groundY, 1.8);
+    this.prop("wall", 2060, groundY, 1.5);
+    this.prop("wall", 2140, groundY, 1.5);
+    this.prop("horse", 2080, groundY, 0.65);
+    this.flippedProp("blackHorse", 2260, groundY, 0.58);
+    this.prop("stable", 2180, groundY, LARGE_BUILDING_SCALE * 1.5);
+    this.prop("table", 1980, groundY, 2);
+    this.prop("woodBox", 2330, groundY, 1.8);
+    this.prop("woodBox", 2300, groundY, 1.8);
+    this.prop("woodBox", 2315, groundY-29, 1.8);
+    this.prop("barrel", 2055, groundY, 1.8);
+    this.prop("barrel", 2030, groundY, 1.8);
     this.prop("signPost", 2512, groundY, 0.9);
     this.prop("mediumRock", 2448, groundY, 0.92);
-    this.prop("bigRock", 2478, groundY, 0.92);
-    this.prop("wall", 2874, groundY, 1);
-    this.prop("twoWalls", 2945, groundY, 1);
+    this.prop("bigRock", 2420, groundY, 1.2);
+    this.prop("twoWalls", 2975, groundY, 0.9);
+    this.prop("wall", 2988, groundY, 1.4);
   }
 
   update() {
