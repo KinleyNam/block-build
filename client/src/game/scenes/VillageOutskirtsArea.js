@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
 import { createPlayerAnimations } from "../assets";
+import { createVillageAnimations } from "../assets";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -85,17 +86,54 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     return groundY;
   }
 
-  prop(key, x, groundY, scale = 1, offsetY = 0) {
-    return this.addCrispImage(x, groundY + offsetY, key, 0.5, 1, scale);
+  prop(key, x, groundY, scale = 1, offsetY = 0, depth= 1) {
+    return this.addCrispImage(x, groundY + offsetY, key, 0.5, 1, scale).setDepth(depth);
   }
 
-  flippedProp(key, x, groundY, scale = 1, offsetY = 0) {
-    return this.prop(key, x, groundY, scale, offsetY).setFlipX(true);
+  flippedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
+    return this.prop(key, x, groundY, scale, offsetY).setFlipX(true).setDepth(depth);
+  }
+
+  animatedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
+    const sprite = this.add.sprite(
+      Math.round(x),
+      Math.round(groundY + offsetY),
+      key
+    )
+    .setOrigin(0.5, 1)
+    .setScale(scale)
+    .setDepth(depth);
+
+    sprite.play(key);
+
+    return sprite;
+  }
+  flippedAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
+    const sprite = this.add.sprite(
+      Math.round(x),
+      Math.round(groundY + offsetY),
+      key
+    )
+    .setOrigin(0.5, 1)
+    .setScale(scale)
+    .setDepth(depth)
+    .setFlipX(1);
+
+    sprite.play(key);
+
+    return sprite;
+  }
+
+  preload() {
+    this.load.audio("ciaccona", "/ciaccona.mp3");
   }
 
   create() {
     const height = this.scale.height;
     const camera = this.cameras.main;
+
+    createPlayerAnimations(this);
+    createVillageAnimations(this);
 
     this.physics.world.setBounds(0, 0, WORLD_WIDTH, height);
     camera.setBounds(0, 0, WORLD_WIDTH, height);
@@ -103,6 +141,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     camera.setZoom(CAMERA_ZOOM);
     camera.roundPixels = true;
     camera.fadeIn(450, 0, 0, 0);
+
+    this.sound.play("ciaccona", { loop: true, volume: 0.6 });
 
     this.add.rectangle(0, 0, WORLD_WIDTH, height, 0x8fd0e2)
       .setOrigin(0, 0)
@@ -121,10 +161,10 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       ),
     }));
 
-    this.addRepeatedLayer("mountains", height - 350, 1, 0.2);
-    this.addRepeatedLayer("farTrees", height - 285, 1, 0.34);
-    this.addRepeatedLayer("midTrees", height - 230, 1, 0.48);
-    this.addRepeatedLayer("frontTrees", height - 180, 1, 0.68);
+    this.addRepeatedLayer("mountains", height - 270, 1, 0.2);
+    this.addRepeatedLayer("farTrees", height - 205, 1, 0.34);
+    this.addRepeatedLayer("midTrees", height - 150, 1, 0.48);
+    this.addRepeatedLayer("frontTrees", height - 100, 1, 0.68);
 
     const groundY = this.addGround(height);
 
@@ -133,7 +173,6 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     }
 
     this.prop("signPost", 58, groundY, 0.95);
-    this.prop("signPost", 2888, groundY, 0.95);
 
     APPLE_TREES.forEach(({ x }) => {
       this.prop("appleTree", x, groundY, 1.45);
@@ -147,11 +186,14 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.buildTavernArea(groundY);
     this.buildStableArea(groundY);
 
-    createPlayerAnimations(this);
+    
 
     this.player = new Player(this, 100, groundY - 60);
+    this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
+
+    
   }
 
   buildCamp(groundY) {
@@ -161,20 +203,44 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("woodBox", 220, groundY, 1.8);
     this.prop("basketApple", 140, groundY-38, 1.6);
     this.prop("apples", 220, groundY-29, 1.3);
-    this.prop("cookingPot", 455, groundY, CAMP_BOTTLE_SCALE);
     this.prop("stool", 338, groundY, 1.6);
+
+    this.animatedProp("sittingKnight", 375, groundY, 1.75);
+    this.animatedProp("cookingPot", 455, groundY, CAMP_BOTTLE_SCALE);
+
     this.prop("stool", 405, groundY, 1.6);
+    this.flippedAnimatedProp("ladyChef", 415, groundY, 1.75);
+    this.flippedAnimatedProp("sittingKnight", 515, groundY, 1.75);
+
     this.prop("bunchBottles", 300, groundY, CAMP_BOTTLE_SCALE);
+
+    this.animatedProp("archerIdle", 300, groundY, 1.75);
+
     this.prop("barrel", 658, groundY, 1.8);
+
+    this.animatedProp("beerMan", 590, groundY, 1.75);
+    this.animatedProp("blueLady", 630, groundY, 1.75);
   }
 
   buildTavernArea(groundY) {
     this.prop("tavern", 1180, groundY, LARGE_BUILDING_SCALE*1.9);
+    
     this.prop("pot", 1058, groundY-36, 1.8);
     this.prop("basketApple", 1088, groundY-36, 1.6);
     this.prop("threeBottles", 1115, groundY-36, CAMP_BOTTLE_SCALE);
     this.prop("table", 850, groundY, 2);
     this.prop("threeBottles", 850, groundY-38, CAMP_BOTTLE_SCALE);
+
+    this.animatedProp("dancingCouple", 830, groundY, 1.75);
+    this.animatedProp("femaleSittingCross", 900, groundY, 1.75);
+    this.animatedProp("guitaristKnight", 940, groundY, 1.75);
+    this.animatedProp("fluteGuy", 990, groundY, 1.75);
+    this.animatedProp("gutaristGuy", 1045, groundY, 1.75);
+    this.animatedProp("lyingFemale", 1110, groundY-17, 1.75);
+    
+
+    this.flippedAnimatedProp("pubWaiter", 1250, groundY, 1.75);
+    this.animatedProp("pubWaitress", 1170, groundY, 1.75);
 
     this.prop("chair", 1455, groundY, 1.8);
     this.prop("oneBottle", 1510, groundY-38, CAMP_BOTTLE_SCALE);
@@ -183,6 +249,9 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("barrel", 1330, groundY, 1.8);
     this.prop("barrel", 1310, groundY, 1.8);
     this.prop("basketBread", 1280, groundY, 1.6);
+
+    this.animatedProp("sittingKnight", 1460, groundY, 1.75);
+    this.animatedProp("fatKnightBeer", 1550, groundY, 1.75);
 
   }
 
@@ -198,11 +267,21 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("woodBox", 2315, groundY-29, 1.8);
     this.prop("barrel", 2055, groundY, 1.8);
     this.prop("barrel", 2030, groundY, 1.8);
-    this.prop("signPost", 2512, groundY, 0.9);
+
+    this.animatedProp("romanYellowGirl", 2090, groundY, 1.75);
+    this.animatedProp("spanishInquisition", 2180, groundY, 1.75);
+    this.animatedProp("romanBlueGirl", 2210, groundY, 1.75);
+
+    this.prop("signPost", 2800, groundY, 0.9);
     this.prop("mediumRock", 2448, groundY, 0.92);
     this.prop("bigRock", 2420, groundY, 1.2);
     this.prop("twoWalls", 2975, groundY, 0.9);
-    this.prop("wall", 2988, groundY, 1.4);
+
+    this.flippedAnimatedProp("baldKnight", 2830, groundY, 2);
+    this.animatedProp("shieldKnight", 2900, groundY, 1.75);
+    this.animatedProp("shieldKnight", 2920, groundY, 1.75);
+
+    this.prop("wall", 2988, groundY, 1.4, 0, 10);
   }
 
   update() {

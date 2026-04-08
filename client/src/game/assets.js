@@ -33,7 +33,7 @@ import barrelImg from "../assets/VillageOutskirtsAssets/props/Barrel.png";
 import chairImg from "../assets/VillageOutskirtsAssets/props/Chair.png";
 import tableImg from "../assets/VillageOutskirtsAssets/props/Table.png";
 import stoolImg from "../assets/VillageOutskirtsAssets/props/Stool.png";
-import cookingPotImg from "../assets/VillageOutskirtsAssets/props/Cooking-pot.png";
+import cookingPotAnim from "../assets/VillageOutskirtsAssets/props/Cooking-pot.png";
 import signPostImg from "../assets/VillageOutskirtsAssets/props/Sign-post.png";
 import applesImg from "../assets/VillageOutskirtsAssets/props/Apples.png";
 import basketAppleImg from "../assets/VillageOutskirtsAssets/props/Basket-apple.png";
@@ -55,6 +55,20 @@ import pubWaiterImg from "../assets/VillageOutskirtsAssets/npc/Pub-waiter-idle.p
 import beerManImg from "../assets/VillageOutskirtsAssets/npc/Man-holding-beer-cup-idle.png";
 import blueLadyImg from "../assets/VillageOutskirtsAssets/npc/Blue-grape-lady-idle.png";
 import ladyChefImg from "../assets/VillageOutskirtsAssets/npc/Ladychef-idle.png";
+import redArcherIdle from "../assets/VillageOutskirtsAssets/npc/Archer-idle.png";
+import sittingKnightIdle from "../assets/VillageOutskirtsAssets/npc/Sitting-Knight-idle.png";
+import dancingCouple from "../assets/VillageOutskirtsAssets/npc/Dancing-couple-idle.png";
+import femaleSittingCross from "../assets/VillageOutskirtsAssets/npc/Female-sitting-cross-legged-idle.png";
+import guitaristKnight from "../assets/VillageOutskirtsAssets/npc/Guitarist-Kinght-idle.png";
+import fluteGuy from "../assets/VillageOutskirtsAssets/npc/Tavern-flutist-idle.png";
+import gutaristGuy from "../assets/VillageOutskirtsAssets/npc/Tavern-Bard-idle.png";
+import lyingFemale from "../assets/VillageOutskirtsAssets/npc/Lying-lady.png";
+import fatKnightBeer from "../assets/VillageOutskirtsAssets/npc/Fat-knight-beer-idle.png";
+import romanYellowGirl from "../assets/VillageOutskirtsAssets/npc/yellow-Roman-female-idle.png";
+import romanBlueGirl from "../assets/VillageOutskirtsAssets/npc/Blue-Roman-female-idle.png";
+import spanishInquisition from "../assets/VillageOutskirtsAssets/npc/Spanishinquisition-idle.png";
+import baldKnight from "../assets/VillageOutskirtsAssets/npc/Bald-Knight-idle.png";
+import shieldKnight from "../assets/VillageOutskirtsAssets/npc/Shielded-Knight-idle.png";
 
 function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRate = 6) {
   if (!scene.anims.exists(animationKey)) {
@@ -125,7 +139,6 @@ export function preloadVillageAssets(scene) {
   scene.load.image("chair", chairImg);
   scene.load.image("table", tableImg);
   scene.load.image("stool", stoolImg);
-  scene.load.image("cookingPot", cookingPotImg);
   scene.load.image("signPost", signPostImg);
   scene.load.image("apples", applesImg);
   scene.load.image("basketApple", basketAppleImg);
@@ -160,6 +173,66 @@ export function preloadVillageAssets(scene) {
   scene.load.spritesheet("ladyChef", ladyChefImg, {
     frameWidth: 24,
     frameHeight: 48,
+  });
+  scene.load.spritesheet("cookingPot", cookingPotAnim, {
+    frameWidth: 32,
+    frameHeight: 32,
+  });
+  scene.load.spritesheet("archerIdle", redArcherIdle, {
+    frameWidth: 32,
+    frameHeight: 43,
+  });
+  scene.load.spritesheet("sittingKnight", sittingKnightIdle, {
+    frameWidth: 31,
+    frameHeight: 34,
+  });
+  scene.load.spritesheet("dancingCouple", dancingCouple, {
+    frameWidth: 36,
+    frameHeight: 43,
+  });
+  scene.load.spritesheet("femaleSittingCross", femaleSittingCross, {
+    frameWidth: 24,
+    frameHeight: 29,
+  });
+  scene.load.spritesheet("guitaristKnight", guitaristKnight, {
+    frameWidth: 30,
+    frameHeight: 29,
+  });
+  scene.load.spritesheet("fluteGuy", fluteGuy, {
+    frameWidth: 25,
+    frameHeight: 45,
+  });
+  scene.load.spritesheet("gutaristGuy", gutaristGuy, {
+    frameWidth: 28,
+    frameHeight: 43,
+  });
+  scene.load.spritesheet("lyingFemale", lyingFemale, {
+    frameWidth: 38,
+    frameHeight: 19,
+  });
+  scene.load.spritesheet("fatKnightBeer", fatKnightBeer, {
+    frameWidth: 29,
+    frameHeight: 42,
+  });
+  scene.load.spritesheet("romanYellowGirl", romanYellowGirl, {
+    frameWidth: 18,
+    frameHeight: 43,
+  });
+  scene.load.spritesheet("romanBlueGirl", romanBlueGirl, {
+    frameWidth: 23,
+    frameHeight: 46,
+  });
+  scene.load.spritesheet("spanishInquisition", spanishInquisition, {
+    frameWidth: 22,
+    frameHeight: 45,
+  });
+  scene.load.spritesheet("baldKnight", baldKnight, {
+    frameWidth: 28,
+    frameHeight: 42,
+  });
+  scene.load.spritesheet("shieldKnight", shieldKnight, {
+    frameWidth: 34,
+    frameHeight: 46,
   });
 }
 
@@ -221,4 +294,19 @@ export function createVillageAnimations(scene) {
   createIdleAnimation(scene, "beerMan", "beerMan", 4, 6);
   createIdleAnimation(scene, "blueLady", "blueLady", 4, 6);
   createIdleAnimation(scene, "ladyChef", "ladyChef", 4, 6);
+  createIdleAnimation(scene, "cookingPot", "cookingPot", 4, 6);
+  createIdleAnimation(scene, "archerIdle", "archerIdle", 4, 6);
+  createIdleAnimation(scene, "sittingKnight", "sittingKnight", 4, 6);
+  createIdleAnimation(scene, "dancingCouple", "dancingCouple", 4, 6);
+  createIdleAnimation(scene, "femaleSittingCross", "femaleSittingCross", 4, 6);
+  createIdleAnimation(scene, "guitaristKnight", "guitaristKnight", 4, 6);
+  createIdleAnimation(scene, "fluteGuy", "fluteGuy", 4, 6);
+  createIdleAnimation(scene, "gutaristGuy", "gutaristGuy", 4, 6);
+  createIdleAnimation(scene, "lyingFemale", "lyingFemale", 4, 6);
+  createIdleAnimation(scene, "fatKnightBeer", "fatKnightBeer", 4, 6);
+  createIdleAnimation(scene, "romanYellowGirl", "romanYellowGirl", 4, 6);
+  createIdleAnimation(scene, "romanBlueGirl", "romanBlueGirl", 4, 6);
+  createIdleAnimation(scene, "spanishInquisition", "spanishInquisition", 4, 6);
+  createIdleAnimation(scene, "baldKnight", "baldKnight", 4, 6);
+  createIdleAnimation(scene, "shieldKnight", "shieldKnight", 4, 6);
 }
