@@ -3,6 +3,7 @@ import Phaser from "phaser";
 import LoadingScene from "./scenes/LoadingScene";
 import StarterAreaScene from "./scenes/StarterAreaScene";
 import VillageOutskirtsScene from "./scenes/VillageOutskirtsArea";
+import MarketPlace from"./scenes/MarketPlace";
 
 const gameContainerStyle = { width: "100%", height: "100%" };
 
@@ -31,7 +32,7 @@ export default function Game() {
           debug: false,
         },
       },
-      scene: [LoadingScene, StarterAreaScene, VillageOutskirtsScene],
+      scene: [LoadingScene, StarterAreaScene, VillageOutskirtsScene, MarketPlace],
       scale: {
         mode: Phaser.Scale.RESIZE,
         width: "100%",

@@ -69,6 +69,9 @@ import romanBlueGirl from "../assets/VillageOutskirtsAssets/npc/Blue-Roman-femal
 import spanishInquisition from "../assets/VillageOutskirtsAssets/npc/Spanishinquisition-idle.png";
 import baldKnight from "../assets/VillageOutskirtsAssets/npc/Bald-Knight-idle.png";
 import shieldKnight from "../assets/VillageOutskirtsAssets/npc/Shielded-Knight-idle.png";
+import helmetDog from "../assets/VillageOutskirtsAssets/Animals/Helmet-doggy-idle.png";
+
+import pussInBoots from "../assets/VillageOutskirtsAssets/Animals/Puss-in-Boots-idle.png";
 
 function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRate = 6) {
   if (!scene.anims.exists(animationKey)) {
@@ -234,6 +237,14 @@ export function preloadVillageAssets(scene) {
     frameWidth: 34,
     frameHeight: 46,
   });
+  scene.load.spritesheet("helmetDog", helmetDog, {
+    frameWidth: 21,
+    frameHeight: 33,
+  });
+  scene.load.spritesheet("pussInBoots", pussInBoots, {
+    frameWidth: 25,
+    frameHeight: 23,
+  });
 }
 
 export function createPlayerAnimations(scene) {
@@ -309,4 +320,7 @@ export function createVillageAnimations(scene) {
   createIdleAnimation(scene, "spanishInquisition", "spanishInquisition", 4, 6);
   createIdleAnimation(scene, "baldKnight", "baldKnight", 4, 6);
   createIdleAnimation(scene, "shieldKnight", "shieldKnight", 4, 6);
+}
+export function createMarketAnimations(scene){
+
 }
