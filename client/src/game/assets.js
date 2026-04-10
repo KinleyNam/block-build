@@ -1,3 +1,4 @@
+import ciaccona from "../assets/music/ciaccona.mp3";
 import mountains from "../assets/backgrounds/mountains.png";
 import farTrees from "../assets/backgrounds/far-trees.png";
 import midTrees from "../assets/backgrounds/mid-trees.png";
@@ -73,6 +74,30 @@ import helmetDog from "../assets/VillageOutskirtsAssets/Animals/Helmet-doggy-idl
 
 import pussInBoots from "../assets/VillageOutskirtsAssets/Animals/Puss-in-Boots-idle.png";
 
+import blueStall from "../assets/Marketplace/Buildings/Blue-stall.png";
+import gate from "../assets/Marketplace/Buildings/Gate.png";
+import longStoneHouse from "../assets/Marketplace/Buildings/Long-Stone-house.png";
+import redStall from "../assets/Marketplace/Buildings/Red-stall.png";
+import stoneHouse from "../assets/Marketplace/Buildings/Stone-house.png";
+import villageTownhall from "../assets/Marketplace/Buildings/Village-townhall.png";
+import woodHouse from "../assets/Marketplace/Buildings/Wood-house.png";
+
+import appleGirl from "../assets/Marketplace/npc/apple-girl-idle.png";
+import blackMarketDealer from "../assets/Marketplace/npc/Black-Market-Dealer-idle.png";
+import darkRobedNun from "../assets/Marketplace/npc/Dark-Robed-Nun-idle.png";
+import farmer from "../assets/Marketplace/npc/Farmer-idle.png";
+import femaleKnight from "../assets/Marketplace/npc/Female-Knight-idle.png";
+import femaleWizard from "../assets/Marketplace/npc/Female-Wizard-idle.png";
+import ladySittingDown from "../assets/Marketplace/npc/Lady-sitting-down-idle.png";
+import miner from "../assets/Marketplace/npc/Miner-idle.png";
+import plagueDoctor from "../assets/Marketplace/npc/Plague Doctor idle.png";
+import readingGirl from "../assets/Marketplace/npc/Reading-Girl-idle.png";
+import shopkeeper from "../assets/Marketplace/npc/Shopkeeper-idle.png";
+
+import clothHang from "../assets/Marketplace/props/Cloth-hang.png";
+import doorSign from "../assets/Marketplace/props/Door-sign.png";
+import vasePurple from "../assets/Marketplace/props/Vase-purple.png";
+
 function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRate = 6) {
   if (!scene.anims.exists(animationKey)) {
     scene.anims.create({
@@ -88,6 +113,7 @@ function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRat
 }
 
 export function preloadWorldAssets(scene) {
+  scene.load.audio("ciaccona", ciaccona);
   scene.load.image("mountains", mountains);
   scene.load.image("farTrees", farTrees);
   scene.load.image("midTrees", midTrees);
@@ -321,6 +347,49 @@ export function createVillageAnimations(scene) {
   createIdleAnimation(scene, "baldKnight", "baldKnight", 4, 6);
   createIdleAnimation(scene, "shieldKnight", "shieldKnight", 4, 6);
 }
-export function createMarketAnimations(scene){
+export function preloadMarketplaceAssets(scene) {
+  preloadWorldAssets(scene);
 
+  scene.load.image("wall", wallImg);
+
+  scene.load.image("blueStall", blueStall);
+  scene.load.image("gate", gate);
+  scene.load.image("longStoneHouse", longStoneHouse);
+  scene.load.image("redStall", redStall);
+  scene.load.image("stoneHouse", stoneHouse);
+  scene.load.image("villageTownhall", villageTownhall);
+  scene.load.image("woodHouse", woodHouse);
+  scene.load.image("stable", stableImg);
+
+  scene.load.image("clothHang", clothHang);
+  scene.load.image("doorSign", doorSign);
+  scene.load.image("vasePurple", vasePurple);
+  scene.load.image("woodBox", woodBoxImg);
+  scene.load.image("barrel", barrelImg);
+
+  scene.load.spritesheet("appleGirl", appleGirl, { frameWidth: 21, frameHeight: 42 });
+  scene.load.spritesheet("blackMarketDealer", blackMarketDealer, { frameWidth: 33, frameHeight: 44 });
+  scene.load.spritesheet("darkRobedNun", darkRobedNun, { frameWidth: 19, frameHeight: 42 });
+  scene.load.spritesheet("farmer", farmer, { frameWidth: 28, frameHeight: 48 });
+  scene.load.spritesheet("femaleKnight", femaleKnight, { frameWidth: 38, frameHeight: 49 });
+  scene.load.spritesheet("femaleWizard", femaleWizard, { frameWidth: 34, frameHeight: 55 });
+  scene.load.spritesheet("ladySittingDown", ladySittingDown, { frameWidth: 21, frameHeight: 36 });
+  scene.load.spritesheet("miner", miner, { frameWidth: 29, frameHeight: 45 });
+  scene.load.spritesheet("plagueDoctor", plagueDoctor, { frameWidth: 32, frameHeight: 44 });
+  scene.load.spritesheet("readingGirl", readingGirl, { frameWidth: 24, frameHeight: 44 });
+  scene.load.spritesheet("shopkeeper", shopkeeper, { frameWidth: 22, frameHeight: 44 });
+}
+
+export function createMarketAnimations(scene) {
+  createIdleAnimation(scene, "appleGirl", "appleGirl", 4, 6);
+  createIdleAnimation(scene, "blackMarketDealer", "blackMarketDealer", 4, 6);
+  createIdleAnimation(scene, "darkRobedNun", "darkRobedNun", 4, 6);
+  createIdleAnimation(scene, "farmer", "farmer", 4, 6);
+  createIdleAnimation(scene, "femaleKnight", "femaleKnight", 4, 6);
+  createIdleAnimation(scene, "femaleWizard", "femaleWizard", 4, 6);
+  createIdleAnimation(scene, "ladySittingDown", "ladySittingDown", 4, 6);
+  createIdleAnimation(scene, "miner", "miner", 4, 6);
+  createIdleAnimation(scene, "plagueDoctor", "plagueDoctor", 4, 6);
+  createIdleAnimation(scene, "readingGirl", "readingGirl", 4, 6);
+  createIdleAnimation(scene, "shopkeeper", "shopkeeper", 4, 6);
 }

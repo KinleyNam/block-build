@@ -1,40 +1,10 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
-import { createPlayerAnimations } from "../assets";
-import { createVillageAnimations } from "../assets";
+import { createPlayerAnimations, preloadMarketplaceAssets, createMarketAnimations } from "../assets";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
 const GROUND_TILE_OVERLAP = 1;
-const BUILDING_SCALE = 1;
-const LARGE_BUILDING_SCALE = 1;
-const CAMP_BOTTLE_SCALE = 1.5;
-
-const CLOUDS = [
-  { key: "cloud1", x: 20, y: 24, scale: 0.9, scrollFactor: 0.04, drift: 0.011 },
-  { key: "cloud2", x: 650, y: 44, scale: 0.95, scrollFactor: 0.06, drift: 0.015 },
-  { key: "cloud1", x: 1210, y: 18, scale: 0.82, scrollFactor: 0.05, drift: 0.012 },
-  { key: "cloud2", x: 1720, y: 42, scale: 0.92, scrollFactor: 0.06, drift: 0.014 },
-  { key: "cloud1", x: 2380, y: 20, scale: 0.88, scrollFactor: 0.05, drift: 0.013 },
-];
-
-const APPLE_TREES = [
-  { x: 150, scale: 0.88 },
-  { x: 560, scale: 0.92 },
-  { x: 1010, scale: 0.9 },
-  { x: 1490, scale: 0.94 },
-  { x: 2140, scale: 0.9 },
-  { x: 2810, scale: 0.92 },
-];
-
-const PINE_TREES = [
-  { x: 1900, scale: 0.72 },
-  { x: 2075, scale: 0.78 },
-  { x: 2260, scale: 0.82 },
-  { x: 2440, scale: 0.84 },
-  { x: 2620, scale: 0.8 },
-  { x: 2795, scale: 0.76 },
-];
 
 export default class MarketPlace extends Phaser.Scene {
   constructor() {
@@ -86,51 +56,33 @@ export default class MarketPlace extends Phaser.Scene {
     return groundY;
   }
 
-  prop(key, x, groundY, scale = 1, offsetY = 0, depth= 1) {
+  prop(key, x, groundY, scale = 1, offsetY = 0, depth = 1) {
     return this.addCrispImage(x, groundY + offsetY, key, 0.5, 1, scale).setDepth(depth);
   }
-
   flippedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
     return this.prop(key, x, groundY, scale, offsetY).setFlipX(true).setDepth(depth);
   }
+  rotatedProp(key, x, groundY, angle = 0, scale = 1, offsetY = 0, depth = 1) {
+    return this.prop(key, x, groundY, scale, offsetY).setRotation(Phaser.Math.DegToRad(angle)).setDepth(depth);
+  }
 
-  animatedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
-    const sprite = this.add.sprite(
-      Math.round(x),
-      Math.round(groundY + offsetY),
-      key
-    )
-    .setOrigin(0.5, 1)
-    .setScale(scale)
-    .setDepth(depth);
-
+  animatedProp(key, x, groundY, scale = 1, offsetY = 0, depth = 1) {
+    const sprite = this.add.sprite(Math.round(x), Math.round(groundY + offsetY), key)
+      .setOrigin(0.5, 1)
+      .setScale(scale)
+      .setDepth(depth);
     sprite.play(key);
-
     return sprite;
   }
-  flippedAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
-    const sprite = this.add.sprite(
-      Math.round(x),
-      Math.round(groundY + offsetY),
-      key
-    )
-    .setOrigin(0.5, 1)
-    .setScale(scale)
-    .setDepth(depth)
-    .setFlipX(1);
 
-    sprite.play(key);
-
-    return sprite;
-  }
-  addWalls(distance, elevation, amount){
-    for(let i = 0;i<amount;i++){
-        this.prop("wall", distance*i, elevation, 1.4,0,0.5);
+  addWalls(distance, elevation, amount) {
+    for (let i = 0; i < amount; i++) {
+      this.prop("wall", distance * i, elevation, 1.4, 0, 0.5);
     }
   }
 
   preload() {
-    this.load.audio("ciaccona", "/ciaccona.mp3");
+    preloadMarketplaceAssets(this);
   }
 
   create() {
@@ -138,7 +90,7 @@ export default class MarketPlace extends Phaser.Scene {
     const camera = this.cameras.main;
 
     createPlayerAnimations(this);
-    createVillageAnimations(this);
+    createMarketAnimations(this);
 
     this.physics.world.setBounds(0, 0, WORLD_WIDTH, height);
     camera.setBounds(0, 0, WORLD_WIDTH, height);
@@ -147,162 +99,100 @@ export default class MarketPlace extends Phaser.Scene {
     camera.roundPixels = true;
     camera.fadeIn(450, 0, 0, 0);
 
-    this.sound.play("ciaccona", { loop: true, volume: 0.6 });
-
     this.add.rectangle(0, 0, WORLD_WIDTH, height, 0x8fd0e2)
       .setOrigin(0, 0)
       .setScrollFactor(0);
-
-    this.clouds = CLOUDS.map((cloud) => ({
-      drift: cloud.drift,
-      image: this.addCrispImage(
-        cloud.x,
-        cloud.y,
-        cloud.key,
-        0,
-        0,
-        cloud.scale,
-        cloud.scrollFactor,
-      ),
-    }));
 
     this.addRepeatedLayer("mountains", height - 270, 1, 0.2);
     this.addRepeatedLayer("farTrees", height - 205, 1, 0.34);
     this.addRepeatedLayer("midTrees", height - 150, 1, 0.48);
     this.addRepeatedLayer("frontTrees", height - 100, 1, 0.68);
-    
+
     const groundY = this.addGround(height);
 
+    this.addWalls(58, groundY, 53);
 
-    for (let x = 30; x < WORLD_WIDTH; x += 76) {
-      this.prop("grass", x, groundY, 0.78 + ((x / 76) % 3) * 0.08);
-    }
+    this.buildShop(groundY);
+    this.buildStable(groundY);
+    this.buildTownHall(groundY);
 
-    this.prop("signPost", 58, groundY, 0.95);
-
-    APPLE_TREES.forEach(({ x }) => {
-      this.prop("appleTree", x, groundY, 1.45);
-    });
-
-    PINE_TREES.forEach(({ x }) => {
-      this.prop("tallTree", x, groundY, 0.5);
-    });
-
-    this.buildCamp(groundY);
-    this.buildTavernArea(groundY);
-    this.buildStableArea(groundY);
-    this.buildWalls(groundY);
-
-    
-
-    this.player = new Player(this, 100, groundY - 60);
+    this.player = new Player(this, 1900, groundY - 60);
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
 
     
   }
+  buildShop(groundY) {
 
-  buildCamp(groundY) {
-    this.prop("tent", 250, groundY, BUILDING_SCALE * 2.6);
-    this.flippedProp("tent", 655, groundY, LARGE_BUILDING_SCALE * 2.6);
-    this.prop("table", 140, groundY, 2);
-    this.prop("woodBox", 220, groundY, 1.8);
-    this.prop("basketApple", 140, groundY-38, 1.6);
-    this.prop("apples", 220, groundY-29, 1.3);
-    this.prop("stool", 338, groundY, 1.6);
-
-    this.animatedProp("sittingKnight", 375, groundY, 1.75);
-    this.animatedProp("cookingPot", 455, groundY, CAMP_BOTTLE_SCALE);
-
-    this.prop("stool", 405, groundY, 1.6);
-    this.flippedAnimatedProp("ladyChef", 415, groundY, 1.75);
-    this.flippedAnimatedProp("sittingKnight", 515, groundY, 1.75);
-
-    this.prop("bunchBottles", 300, groundY, CAMP_BOTTLE_SCALE);
-
-    this.animatedProp("archerIdle", 300, groundY, 1.75);
-
-    this.prop("barrel", 658, groundY, 1.8);
-
-    this.animatedProp("beerMan", 590, groundY, 1.75);
-    this.animatedProp("blueLady", 630, groundY, 1.75);
-  }
-
-  buildTavernArea(groundY) {
-    this.prop("tavern", 1180, groundY, LARGE_BUILDING_SCALE*1.9);
-    
-    this.prop("pot", 1058, groundY-36, 1.8);
-    this.prop("basketApple", 1088, groundY-36, 1.6);
-    this.prop("threeBottles", 1115, groundY-36, CAMP_BOTTLE_SCALE);
-    this.prop("table", 850, groundY, 2);
-    this.prop("threeBottles", 850, groundY-38, CAMP_BOTTLE_SCALE);
-
-    this.animatedProp("dancingCouple", 830, groundY, 1.75);
-    this.animatedProp("femaleSittingCross", 900, groundY, 1.75);
-    this.animatedProp("guitaristKnight", 940, groundY, 1.75);
-    this.animatedProp("fluteGuy", 990, groundY, 1.75);
-    this.animatedProp("gutaristGuy", 1045, groundY, 1.75);
-    this.animatedProp("lyingFemale", 1110, groundY-17, 1.75);
-    
-
-    this.flippedAnimatedProp("pubWaiter", 1250, groundY, 1.75);
-    this.animatedProp("pubWaitress", 1170, groundY, 1.75);
-
-    this.prop("chair", 1455, groundY, 1.8);
-    this.prop("oneBottle", 1510, groundY-38, CAMP_BOTTLE_SCALE);
-    this.prop("table", 1510, groundY, 2);
-    this.prop("basketBread", 1405, groundY-17, 1.6);
-    this.prop("barrel", 1330, groundY, 1.8);
-    this.prop("barrel", 1310, groundY, 1.8);
-    this.prop("basketBread", 1280, groundY, 1.6);
-
-    this.animatedProp("sittingKnight", 1460, groundY, 1.75);
-    this.animatedProp("fatKnightBeer", 1550, groundY, 1.75);
+    this.prop("woodHouse", 500, groundY, 2);
+    this.prop("redStall", 300, groundY, 1.8);
+    this.prop("woodHouse", 250, groundY, 1.3, 0, 0.4);
+    this.prop("doorSign", 573, groundY-55, 1.8);
+    this.prop("woodHouse", 755, groundY, 1.3, 0, 0.4);
+    this.prop("woodHouse", 880, groundY, 1, 0, 0.3);
+    this.prop("clothHang", 870, groundY, 1.55);
+    this.prop("gate", 987, groundY, 1.13);
 
   }
 
-  buildStableArea(groundY) {
-    this.prop("wall", 2060, groundY, 1.5);
-    this.prop("wall", 2140, groundY, 1.5);
-    this.prop("horse", 2080, groundY, 0.65);
-    this.flippedProp("blackHorse", 2260, groundY, 0.58);
-    this.prop("stable", 2180, groundY, LARGE_BUILDING_SCALE * 1.5);
-    this.prop("table", 1980, groundY, 2);
-    this.prop("woodBox", 2330, groundY, 1.8);
-    this.prop("woodBox", 2300, groundY, 1.8);
-    this.prop("woodBox", 2315, groundY-29, 1.8);
-    this.prop("barrel", 2055, groundY, 1.8);
-    this.prop("barrel", 2030, groundY, 1.8);
+  buildStable(groundY){
 
-    this.animatedProp("romanYellowGirl", 2090, groundY, 1.75);
-    this.animatedProp("spanishInquisition", 2180, groundY, 1.75);
-    this.animatedProp("romanBlueGirl", 2210, groundY, 1.75);
+    this.prop("woodBox", 1100, groundY, 1.8)
+    this.prop("woodBox", 1149, groundY, 1.8)
+    this.prop("woodBox", 1198, groundY, 1.8)
+    this.prop("woodBox", 1246, groundY, 1.8)
+    this.prop("woodBox", 1124, groundY-29, 1.8)
+    this.prop("woodBox", 1173, groundY-29, 1.8)
+    this.prop("woodBox", 1237, groundY-29, 1.8)
+    this.prop("woodBox", 1211, groundY-58, 1.8)
 
-    this.prop("signPost", 2800, groundY, 0.9);
-    this.prop("mediumRock", 2448, groundY, 0.92);
-    this.prop("bigRock", 2420, groundY, 1.2);
-    this.prop("twoWalls", 2975, groundY, 0.9);
+    this.prop("barrel", 1300, groundY, 1.8)
+    this.prop("barrel", 1325, groundY, 1.8)
+    this.prop("barrel", 1350, groundY, 1.8)
+    this.prop("barrel", 1375, groundY, 1.8)
+    this.prop("barrel", 1400, groundY, 1.8)
+    this.prop("barrel", 1425, groundY, 1.8)
 
-    this.flippedAnimatedProp("baldKnight", 2830, groundY, 2);
-    this.animatedProp("shieldKnight", 2900, groundY, 1.75);
-    this.animatedProp("shieldKnight", 2920, groundY, 1.75);
+    this.prop("barrel", 1313, groundY-32, 1.8)
+    this.prop("barrel", 1338, groundY-32, 1.8)
+    this.prop("barrel", 1363, groundY-32, 1.8)
+    this.prop("barrel", 1388, groundY-32, 1.8)
+    this.prop("barrel", 1413, groundY-32, 1.8)
 
-    this.prop("wall", 2988, groundY, 1.4, 0, 10);
+    this.rotatedProp("barrel", 1321, groundY-77, 90, 1.8)
+    this.rotatedProp("barrel", 1353, groundY-77, 90, 1.8)
+    this.rotatedProp("barrel", 1385, groundY-77, 90, 1.8)
+
+    this.prop("stable", 1255, groundY, 1.65)
+    this.prop("clothHang", 1150, groundY, 1.55);
+
   }
-  buildWalls(groundY){
-    this.addWalls(58, groundY, 50)
+  buildTownHall(groundY){
+    this.prop("villageTownhall", 2300, groundY, 2);
+
+    this.prop("longStoneHouse", 1940, groundY, 1.925, 0 , 0.8);
+    this.prop("stoneHouse", 2630, groundY, 1.3 , 0 , 0.4);
+
+    this.prop("vasePurple", 2080, groundY, 1.6);
+    this.prop("vasePurple", 2100, groundY, 1.6);
+
+    this.flippedProp("blueStall", 1840, groundY, 1.8, 0 ,2);
+
+    this.animatedProp("shopkeeper", 2030, groundY, 1.75);
+    this.animatedProp("femaleWizard", 1825, groundY, 1.75);
+    this.animatedProp("darkRobedNun", 2180, groundY, 1.75);
+    this.animatedProp("farmer", 2460, groundY, 1.75);
+    this.animatedProp("readingGirl", 2520, groundY, 1.75);
+    this.animatedProp("plagueDoctor", 2580, groundY, 1.75);
+    this.animatedProp("appleGirl", 2750, groundY, 1.75);
+    this.animatedProp("blackMarketDealer", 2820, groundY, 1.75);
+    this.animatedProp("femaleKnight", 2900, groundY, 1.75);
+    this.animatedProp("miner", 2960, groundY, 1.75);
   }
-  
+
 
   update() {
     this.player?.update();
-
-    this.clouds?.forEach(({ image, drift }) => {
-      image.x += drift;
-      if (image.x > WORLD_WIDTH + 220) {
-        image.x = -image.displayWidth - 40;
-      }
-    });
   }
 }

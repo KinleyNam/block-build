@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
-import { createPlayerAnimations } from "../assets";
-import { createVillageAnimations } from "../assets";
+import { createPlayerAnimations, createVillageAnimations, preloadVillageAssets } from "../assets";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -125,7 +124,7 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.audio("ciaccona", "/ciaccona.mp3");
+    preloadVillageAssets(this);
   }
 
   create() {
@@ -297,6 +296,7 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       this.transitioning = true;
       this.cameras.main.fadeOut(600, 0, 0, 0);
       this.cameras.main.once("camerafadeoutcomplete", () => {
+        this.sound.stopAll();
         this.scene.start("LoadingScene", {
           nextScene: "MarketPlace",
           loaderKey: "Nocstella",
@@ -307,6 +307,7 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       this.transitioning = true;
       this.cameras.main.fadeOut(600, 0, 0, 0);
       this.cameras.main.once("camerafadeoutcomplete", () => {
+        this.sound.stopAll();
         this.scene.start("LoadingScene", {
           nextScene: "MarketPlace",
           loaderKey: "Nocstella",
