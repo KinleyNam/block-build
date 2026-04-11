@@ -74,6 +74,21 @@ export default class MarketPlace extends Phaser.Scene {
     sprite.play(key);
     return sprite;
   }
+  flippedAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth=1) {
+    const sprite = this.add.sprite(
+      Math.round(x),
+      Math.round(groundY + offsetY),
+      key
+    )
+    .setOrigin(0.5, 1)
+    .setScale(scale)
+    .setDepth(depth)
+    .setFlipX(1);
+
+    sprite.play(key);
+
+    return sprite;
+  }
 
   addWalls(distance, elevation, amount) {
     for (let i = 0; i < amount; i++) {
@@ -116,7 +131,7 @@ export default class MarketPlace extends Phaser.Scene {
     this.buildStable(groundY);
     this.buildTownHall(groundY);
 
-    this.player = new Player(this, 1900, groundY - 60);
+    this.player = new Player(this, 400, groundY - 60);
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
@@ -126,9 +141,24 @@ export default class MarketPlace extends Phaser.Scene {
   buildShop(groundY) {
 
     this.prop("woodHouse", 500, groundY, 2);
+
+    this.animatedProp("shopkeeper", 295, groundY, 1.75);
     this.prop("redStall", 300, groundY, 1.8);
+    this.flippedAnimatedProp("appleGirl", 170, groundY, 1.75);
+    this.animatedProp("romanYellowGirl", 200, groundY, 1.75);
+    this.animatedProp("baroness", 380, groundY, 1.75);
+    this.animatedProp("blueLady", 410, groundY, 1.75);
+
     this.prop("woodHouse", 250, groundY, 1.3, 0, 0.4);
     this.prop("doorSign", 573, groundY-55, 1.8);
+    this.prop("apple", 573, groundY-63, 1.8);
+
+    this.flippedAnimatedProp("farmer", 595, groundY, 1.75);
+    this.flippedAnimatedProp("plagueDoctor", 640, groundY, 1.75);
+    this.animatedProp("blackMarketDealer", 685, groundY, 1.75);
+    this.animatedProp("miner", 735, groundY, 1.75);
+    this.animatedProp("darkRobedNun", 775, groundY, 1.75);
+
     this.prop("woodHouse", 755, groundY, 1.3, 0, 0.4);
     this.prop("woodHouse", 880, groundY, 1, 0, 0.3);
     this.prop("clothHang", 870, groundY, 1.55);
@@ -172,6 +202,7 @@ export default class MarketPlace extends Phaser.Scene {
     this.prop("villageTownhall", 2300, groundY, 2);
 
     this.prop("longStoneHouse", 1940, groundY, 1.925, 0 , 0.8);
+    this.flippedAnimatedProp("archerIdle", 1670, groundY, 1.75);
     this.prop("stoneHouse", 2630, groundY, 1.3 , 0 , 0.4);
 
     this.prop("vasePurple", 2080, groundY, 1.6);
@@ -179,7 +210,7 @@ export default class MarketPlace extends Phaser.Scene {
 
     this.flippedProp("blueStall", 1840, groundY, 1.8, 0 ,2);
 
-    this.animatedProp("shopkeeper", 2030, groundY, 1.75);
+    
     this.animatedProp("femaleWizard", 1825, groundY, 1.75);
     this.animatedProp("darkRobedNun", 2180, groundY, 1.75);
     this.animatedProp("farmer", 2460, groundY, 1.75);
