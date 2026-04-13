@@ -1,4 +1,5 @@
 import ciaccona from "../assets/music/ciaccona.mp3";
+import eKeyPrompt from "../assets/intereaction/ButtonE.png";
 import mountains from "../assets/backgrounds/mountains.png";
 import farTrees from "../assets/backgrounds/far-trees.png";
 import midTrees from "../assets/backgrounds/mid-trees.png";
@@ -94,11 +95,14 @@ import plagueDoctor from "../assets/Marketplace/npc/Plague Doctor idle.png";
 import readingGirl from "../assets/Marketplace/npc/Reading-Girl-idle.png";
 import shopkeeper from "../assets/Marketplace/npc/Shopkeeper-idle.png";
 import baroness from "../assets/VillageOutskirtsAssets/npc/Baroness-Idle.png";
+import goddess from "../assets/Marketplace/npc/Goddes.png";
 
 import clothHang from "../assets/Marketplace/props/Cloth-hang.png";
 import doorSign from "../assets/Marketplace/props/Door-sign.png";
 import vasePurple from "../assets/Marketplace/props/Vase-purple.png";
 import Apple from "../assets/Marketplace/props/Apple.png";
+import stallInv from "../assets/Marketplace/props/stallInventory.png";
+import bunchOfApples from "../assets/Marketplace/props/Bunch-of-apples.png";
 
 function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRate = 6) {
   if (!scene.anims.exists(animationKey)) {
@@ -116,6 +120,7 @@ function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRat
 
 export function preloadWorldAssets(scene) {
   scene.load.audio("ciaccona", ciaccona);
+  scene.load.image("eKeyPrompt", eKeyPrompt);
   scene.load.image("mountains", mountains);
   scene.load.image("farTrees", farTrees);
   scene.load.image("midTrees", midTrees);
@@ -349,6 +354,9 @@ export function createVillageAnimations(scene) {
   createIdleAnimation(scene, "baldKnight", "baldKnight", 4, 6);
   createIdleAnimation(scene, "shieldKnight", "shieldKnight", 4, 6);
 }
+
+
+
 export function preloadMarketplaceAssets(scene) {
   preloadWorldAssets(scene);
 
@@ -369,6 +377,8 @@ export function preloadMarketplaceAssets(scene) {
   scene.load.image("vasePurple", vasePurple);
   scene.load.image("woodBox", woodBoxImg);
   scene.load.image("barrel", barrelImg);
+  scene.load.image("stallInv", stallInv);
+  scene.load.image("bunchOfApples", bunchOfApples);
 
   scene.load.spritesheet("appleGirl", appleGirl, { 
     frameWidth: 21, 
@@ -391,7 +401,7 @@ export function preloadMarketplaceAssets(scene) {
     frameHeight: 48 
   });
   scene.load.spritesheet("femaleKnight", femaleKnight, { 
-    frameWidth: 38, 
+    frameWidth: 39, 
     frameHeight: 49 
   });
   scene.load.spritesheet("femaleWizard", femaleWizard, { 
@@ -434,6 +444,22 @@ export function preloadMarketplaceAssets(scene) {
     frameWidth: 24,
     frameHeight: 43,
   });
+  scene.load.spritesheet("romanBlueGirl", romanBlueGirl, {
+    frameWidth: 23,
+    frameHeight: 46,
+  });
+  scene.load.spritesheet("goddess", goddess, {
+    frameWidth: 30,
+    frameHeight: 47,
+  });
+  scene.load.spritesheet("helmetDog", helmetDog, {
+    frameWidth: 21,
+    frameHeight: 33,
+  });
+  scene.load.spritesheet("shieldKnight", shieldKnight, {
+    frameWidth: 34,
+    frameHeight: 46,
+  });
 }
 
 export function createMarketAnimations(scene) {
@@ -452,4 +478,8 @@ export function createMarketAnimations(scene) {
   createIdleAnimation(scene, "plagueDoctor", "plagueDoctor", 4, 6);
   createIdleAnimation(scene, "readingGirl", "readingGirl", 4, 6);
   createIdleAnimation(scene, "shopkeeper", "shopkeeper", 4, 6);
+  createIdleAnimation(scene, "romanBlueGirl", "romanBlueGirl", 4, 6);
+  createIdleAnimation(scene, "goddess", "goddess", 4, 6);
+  createIdleAnimation(scene, "helmetDog", "helmetDog", 4, 6);
+  createIdleAnimation(scene, "shieldKnight", "shieldKnight", 4, 6);
 }

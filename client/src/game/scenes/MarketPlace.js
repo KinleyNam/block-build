@@ -131,7 +131,7 @@ export default class MarketPlace extends Phaser.Scene {
     this.buildStable(groundY);
     this.buildTownHall(groundY);
 
-    this.player = new Player(this, 400, groundY - 60);
+    this.player = new Player(this, 350, groundY - 60);
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
@@ -144,6 +144,13 @@ export default class MarketPlace extends Phaser.Scene {
 
     this.animatedProp("shopkeeper", 295, groundY, 1.75);
     this.prop("redStall", 300, groundY, 1.8);
+    this.prop("stallInv", 270, groundY, 1.6);
+
+    this.prop("bunchOfApples", 232, groundY-24, 1);
+    this.prop("bunchOfApples", 252, groundY-24, 1);
+    this.prop("bunchOfApples", 273, groundY-24, 1);
+    this.prop("bunchOfApples", 293, groundY-24, 1);
+
     this.flippedAnimatedProp("appleGirl", 170, groundY, 1.75);
     this.animatedProp("romanYellowGirl", 200, groundY, 1.75);
     this.animatedProp("baroness", 380, groundY, 1.75);
@@ -195,6 +202,7 @@ export default class MarketPlace extends Phaser.Scene {
     this.rotatedProp("barrel", 1385, groundY-77, 90, 1.8)
 
     this.prop("stable", 1255, groundY, 1.65)
+    this.prop("longStoneHouse", 1600, groundY, 1.3, 0 , 0.4);
     this.prop("clothHang", 1150, groundY, 1.55);
 
   }
@@ -205,25 +213,41 @@ export default class MarketPlace extends Phaser.Scene {
     this.flippedAnimatedProp("archerIdle", 1670, groundY, 1.75);
     this.prop("stoneHouse", 2630, groundY, 1.3 , 0 , 0.4);
 
-    this.prop("vasePurple", 2080, groundY, 1.6);
-    this.prop("vasePurple", 2100, groundY, 1.6);
+    this.prop("vasePurple", 2020, groundY, 1.6);
+    this.prop("vasePurple", 2240, groundY, 1.6);
+    this.prop("vasePurple", 2463, groundY, 1.6);
+    this.prop("vasePurple", 2605, groundY, 1.6);
 
-    this.flippedProp("blueStall", 1840, groundY, 1.8, 0 ,2);
+    this.flippedProp("blueStall", 1840, groundY, 1.8, 0 ,1.5);
 
     
     this.animatedProp("femaleWizard", 1825, groundY, 1.75);
-    this.animatedProp("darkRobedNun", 2180, groundY, 1.75);
-    this.animatedProp("farmer", 2460, groundY, 1.75);
-    this.animatedProp("readingGirl", 2520, groundY, 1.75);
-    this.animatedProp("plagueDoctor", 2580, groundY, 1.75);
-    this.animatedProp("appleGirl", 2750, groundY, 1.75);
-    this.animatedProp("blackMarketDealer", 2820, groundY, 1.75);
-    this.animatedProp("femaleKnight", 2900, groundY, 1.75);
-    this.animatedProp("miner", 2960, groundY, 1.75);
+    this.animatedProp("ladySittingDown", 1875, groundY, 1.75, 0 ,2);
+    this.animatedProp("romanBlueGirl", 1915, groundY, 1.75, 0 ,2);
+    this.flippedAnimatedProp("romanYellowGirl", 1970, groundY, 1.75, 0 ,2);
+    this.animatedProp("readingGirl", 1940, groundY, 1.75, 0 ,2);
+    this.animatedProp("goddess", 2175, groundY, 1.75, 0 ,2);
+    this.flippedAnimatedProp("helmetDog", 2215, groundY, 1.75, 0 ,2);
+    
+    this.animatedProp("femaleKnight", 2290, groundY, 1.75);
+    this.animatedProp("archerIdle", 2625, groundY, 1.75);
+    this.animatedProp("shieldKnight", 2750, groundY, 1.75);
   }
 
 
   update() {
     this.player?.update();
+    if (!this.transitioning && this.player && this.player.x < 15 ) {
+      this.transitioning = true;
+      this.cameras.main.fadeOut(600, 0, 0, 0);
+      this.cameras.main.once("camerafadeoutcomplete", () => {
+        this.sound.stopAll();
+        this.scene.start("LoadingScene", {
+          nextScene: "VillageOutskirtsScene",
+          loaderKey: "village",
+        });
+      });
+    }
+    
   }
 }
