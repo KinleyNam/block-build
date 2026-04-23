@@ -304,7 +304,7 @@ export default class MarketPlace extends Phaser.Scene {
       }
     }
 
-    if (!this.transitioning && this.player && this.player.x < 150 ) {
+    if (!this.transitioning && this.player && this.player.x < 150) {
       this.transitioning = true;
       this.cameras.main.fadeOut(600, 0, 0, 0);
       this.cameras.main.once("camerafadeoutcomplete", () => {
@@ -315,6 +315,7 @@ export default class MarketPlace extends Phaser.Scene {
         });
       });
     }
+
     
   }
 }

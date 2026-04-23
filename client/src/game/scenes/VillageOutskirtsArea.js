@@ -383,8 +383,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       this.cameras.main.once("camerafadeoutcomplete", () => {
         this.sound.stopAll();
         this.scene.start("LoadingScene", {
-          nextScene: "MarketPlace",
-          loaderKey: "Nocstella",
+          nextScene: "ComDistrictScene",
+          loaderKey: "commercial",
         });
       });
     }

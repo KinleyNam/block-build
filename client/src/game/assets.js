@@ -75,6 +75,17 @@ import helmetDog from "../assets/VillageOutskirtsAssets/Animals/Helmet-doggy-idl
 
 import pussInBoots from "../assets/VillageOutskirtsAssets/Animals/Puss-in-Boots-idle.png";
 
+import grassyMountains from "../assets/CommercialDistrict/backgrounds/grassy_mountains.png";
+import cdHill from "../assets/CommercialDistrict/backgrounds/hill.png";
+import cloudsMid from "../assets/CommercialDistrict/backgrounds/clouds_mid.png";
+import cloudsFront from "../assets/CommercialDistrict/backgrounds/clouds_front.png";
+import cdSmallBush from "../assets/CommercialDistrict/props/small_bush.png";
+import cdBigBush from "../assets/CommercialDistrict/props/big_bush.png";
+import cdBushes from "../assets/CommercialDistrict/props/bushes.png";
+import cdSmallRocks from "../assets/CommercialDistrict/props/small_rocks.png";
+import cdMediumRocks from "../assets/CommercialDistrict/props/medium_rocks.png";
+import cdBigRock from "../assets/CommercialDistrict/props/big_rock.png";
+
 import blueStall from "../assets/Marketplace/Buildings/Blue-stall.png";
 import gate from "../assets/Marketplace/Buildings/Gate.png";
 import longStoneHouse from "../assets/Marketplace/Buildings/Long-Stone-house.png";
@@ -460,6 +471,22 @@ export function preloadMarketplaceAssets(scene) {
     frameWidth: 34,
     frameHeight: 46,
   });
+}
+
+export function preloadCommercialAssets(scene) {
+  preloadWorldAssets(scene);
+
+  scene.load.image("grassy_mountains", grassyMountains);
+  scene.load.image("hill", cdHill);
+  scene.load.image("clouds_mid", cloudsMid);
+  scene.load.image("clouds_front", cloudsFront);
+
+  scene.load.image("small_bush", cdSmallBush);
+  scene.load.image("big_bush", cdBigBush);
+  scene.load.image("bushes", cdBushes);
+  scene.load.image("small_rocks", cdSmallRocks);
+  scene.load.image("medium_rocks", cdMediumRocks);
+  scene.load.image("big_rock", cdBigRock);
 }
 
 export function createMarketAnimations(scene) {
