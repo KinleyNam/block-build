@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
 import { createPlayerAnimations, preloadMarketplaceAssets, createMarketAnimations } from "../assets";
+import DialogueBox from "../objects/NpcInteraction";
+import DIALOGUES from "../dialouge/marketPlaceDialogue";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -90,6 +92,20 @@ export default class MarketPlace extends Phaser.Scene {
     return sprite;
   }
 
+  npcAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth = 1, dialogueKey = null) {
+    const sprite = this.animatedProp(key, x, groundY, scale, offsetY, depth);
+    sprite.dialogueKey = dialogueKey ?? key;
+    this.npcs.push(sprite);
+    return sprite;
+  }
+
+  npcFlippedAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth = 1, dialogueKey = null) {
+    const sprite = this.flippedAnimatedProp(key, x, groundY, scale, offsetY, depth);
+    sprite.dialogueKey = dialogueKey ?? key;
+    this.npcs.push(sprite);
+    return sprite;
+  }
+
   addWalls(distance, elevation, amount) {
     for (let i = 0; i < amount; i++) {
       this.prop("wall", distance * i, elevation, 1.4, 0, 0.5);
@@ -127,6 +143,7 @@ export default class MarketPlace extends Phaser.Scene {
 
     this.addWalls(58, groundY, 53);
 
+    this.npcs = [];
     this.buildShop(groundY);
     this.buildStable(groundY);
     this.buildTownHall(groundY);
@@ -136,13 +153,19 @@ export default class MarketPlace extends Phaser.Scene {
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
 
-    
+    this.ePrompt = this.add.image(0, 0, "eKeyPrompt")
+      .setScale(1)
+      .setDepth(10)
+      .setVisible(false);
+
+    this.eKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.dialogueBox = new DialogueBox(this);
   }
   buildShop(groundY) {
 
     this.prop("woodHouse", 500, groundY, 2);
 
-    this.animatedProp("shopkeeper", 295, groundY, 1.75);
+    this.npcAnimatedProp("shopkeeper", 295, groundY, 1.75);
     this.prop("redStall", 300, groundY, 1.8);
     this.prop("stallInv", 270, groundY, 1.6);
 
@@ -151,20 +174,20 @@ export default class MarketPlace extends Phaser.Scene {
     this.prop("bunchOfApples", 273, groundY-24, 1);
     this.prop("bunchOfApples", 293, groundY-24, 1);
 
-    this.flippedAnimatedProp("appleGirl", 170, groundY, 1.75);
-    this.animatedProp("romanYellowGirl", 200, groundY, 1.75);
-    this.animatedProp("baroness", 380, groundY, 1.75);
-    this.animatedProp("blueLady", 410, groundY, 1.75);
+    this.npcFlippedAnimatedProp("appleGirl", 170, groundY, 1.75);
+    this.npcAnimatedProp("romanYellowGirl", 200, groundY, 1.75, 0, 1, "romanYellowGirl_shop");
+    this.npcAnimatedProp("baroness", 380, groundY, 1.75);
+    this.npcAnimatedProp("blueLady", 410, groundY, 1.75);
 
     this.prop("woodHouse", 250, groundY, 1.3, 0, 0.4);
     this.prop("doorSign", 573, groundY-55, 1.8);
     this.prop("apple", 573, groundY-63, 1.8);
 
-    this.flippedAnimatedProp("farmer", 595, groundY, 1.75);
-    this.flippedAnimatedProp("plagueDoctor", 640, groundY, 1.75);
-    this.animatedProp("blackMarketDealer", 685, groundY, 1.75);
-    this.animatedProp("miner", 735, groundY, 1.75);
-    this.animatedProp("darkRobedNun", 775, groundY, 1.75);
+    this.npcFlippedAnimatedProp("farmer", 595, groundY, 1.75);
+    this.npcFlippedAnimatedProp("plagueDoctor", 640, groundY, 1.75);
+    this.npcAnimatedProp("blackMarketDealer", 685, groundY, 1.75);
+    this.npcAnimatedProp("miner", 735, groundY, 1.75);
+    this.npcAnimatedProp("darkRobedNun", 775, groundY, 1.75);
 
     this.prop("woodHouse", 755, groundY, 1.3, 0, 0.4);
     this.prop("woodHouse", 880, groundY, 1, 0, 0.3);
@@ -210,7 +233,7 @@ export default class MarketPlace extends Phaser.Scene {
     this.prop("villageTownhall", 2300, groundY, 2);
 
     this.prop("longStoneHouse", 1940, groundY, 1.925, 0 , 0.8);
-    this.flippedAnimatedProp("archerIdle", 1670, groundY, 1.75);
+    this.npcFlippedAnimatedProp("archerIdle", 1670, groundY, 1.75, 0, 1, "archerLeft");
     this.prop("stoneHouse", 2630, groundY, 1.3 , 0 , 0.4);
 
     this.prop("vasePurple", 2020, groundY, 1.6);
@@ -220,24 +243,68 @@ export default class MarketPlace extends Phaser.Scene {
 
     this.flippedProp("blueStall", 1840, groundY, 1.8, 0 ,1.5);
 
-    
-    this.animatedProp("femaleWizard", 1825, groundY, 1.75);
-    this.animatedProp("ladySittingDown", 1875, groundY, 1.75, 0 ,2);
-    this.animatedProp("romanBlueGirl", 1915, groundY, 1.75, 0 ,2);
-    this.flippedAnimatedProp("romanYellowGirl", 1970, groundY, 1.75, 0 ,2);
-    this.animatedProp("readingGirl", 1940, groundY, 1.75, 0 ,2);
-    this.animatedProp("goddess", 2175, groundY, 1.75, 0 ,2);
-    this.flippedAnimatedProp("helmetDog", 2215, groundY, 1.75, 0 ,2);
-    
-    this.animatedProp("femaleKnight", 2290, groundY, 1.75);
-    this.animatedProp("archerIdle", 2625, groundY, 1.75);
-    this.animatedProp("shieldKnight", 2750, groundY, 1.75);
+    this.npcAnimatedProp("femaleWizard", 1825, groundY, 1.75);
+    this.npcAnimatedProp("ladySittingDown", 1875, groundY, 1.75, 0 ,2);
+    this.npcAnimatedProp("romanBlueGirl", 1915, groundY, 1.75, 0 ,2);
+    this.npcFlippedAnimatedProp("romanYellowGirl", 1970, groundY, 1.75, 0, 2, "romanYellowGirl_town");
+    this.npcAnimatedProp("readingGirl", 1940, groundY, 1.75, 0 ,2);
+    this.npcAnimatedProp("goddess", 2175, groundY, 1.75, 0 ,2);
+    this.npcFlippedAnimatedProp("helmetDog", 2215, groundY, 1.75, 0 ,2);
+
+    this.npcAnimatedProp("femaleKnight", 2290, groundY, 1.75);
+    this.npcAnimatedProp("archerIdle", 2625, groundY, 1.75, 0, 1, "archerRight");
+    this.npcAnimatedProp("shieldKnight", 2750, groundY, 1.75);
   }
 
 
   update() {
-    this.player?.update();
-    if (!this.transitioning && this.player && this.player.x < 15 ) {
+    if (this.dialogueBox?.isOpen) {
+      this.player?.body?.setVelocityX(0);
+      this.player?.playAnimation("idle");
+    } else {
+      this.player?.update();
+    }
+
+    if (this.player && this.npcs?.length) {
+      const px = this.player.x;
+      const py = this.player.y;
+      let nearest = null;
+      let nearestDist = Infinity;
+
+      for (const npc of this.npcs) {
+        const dx = npc.x - px;
+        const dy = npc.y - py;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearest = npc;
+        }
+      }
+
+      const PROXIMITY = 80;
+      const inRange = nearest && nearestDist < PROXIMITY;
+
+      if (inRange && !this.dialogueBox.isOpen) {
+        const bob = Math.sin(this.time.now / 250) * 0;
+        this.ePrompt.setVisible(true);
+        this.ePrompt.setPosition(nearest.x, nearest.y - nearest.displayHeight - 8 + bob);
+      } else {
+        this.ePrompt.setVisible(false);
+      }
+
+      if (Phaser.Input.Keyboard.JustDown(this.eKey)) {
+        if (this.dialogueBox.isOpen) {
+          this.dialogueBox.advance();
+        } else if (inRange) {
+          const data = DIALOGUES[nearest.dialogueKey];
+          if (data) {
+            this.dialogueBox.show(data.name, data.lines);
+          }
+        }
+      }
+    }
+
+    if (!this.transitioning && this.player && this.player.x < 150) {
       this.transitioning = true;
       this.cameras.main.fadeOut(600, 0, 0, 0);
       this.cameras.main.once("camerafadeoutcomplete", () => {
@@ -248,6 +315,7 @@ export default class MarketPlace extends Phaser.Scene {
         });
       });
     }
+
     
   }
 }

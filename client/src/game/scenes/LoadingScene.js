@@ -1,18 +1,20 @@
 import Phaser from "phaser";
-import { preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets } from "../assets";
+import { preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets, preloadCommercialAssets } from "../assets";
 
 // Map of loaderKey → asset loader function
 const LOADERS = {
-  world:   preloadWorldAssets,
-  village: preloadVillageAssets,
-  market: preloadMarketplaceAssets,
+  world:      preloadWorldAssets,
+  village:    preloadVillageAssets,
+  market:     preloadMarketplaceAssets,
+  commercial: preloadCommercialAssets,
 };
 
 // Map of loaderKey → flavour text shown during loading
 const LOADER_TEXT = {
-  world:   { title: "BLOCK BUILD",        subtitle: "Preparing the world..."        },
-  village: { title: "VILLAGE OUTSKIRTS",  subtitle: "Entering the village..."       },
-  market: { title: "Nokstella",  subtitle: "Entering the Market Place..."       },
+  world:      { title: "BLOCK BUILD",         subtitle: "Preparing the world..."       },
+  village:    { title: "VILLAGE OUTSKIRTS",   subtitle: "Entering the village..."      },
+  market:     { title: "Nokstella",           subtitle: "Entering the Market Place..." },
+  commercial: { title: "COMMERCIAL DISTRICT", subtitle: "Entering the district..."    },
 };
 
 export default class LoadingScene extends Phaser.Scene {
@@ -22,8 +24,8 @@ export default class LoadingScene extends Phaser.Scene {
 
   /** Receives data passed by scene.start("LoadingScene", data) */
   init(data) {
-    this.nextScene = data?.nextScene || "MarketPlace";
-    this.loaderKey = data?.loaderKey || "market";
+    this.nextScene = data?.nextScene || "ComDistrictScene";
+    this.loaderKey = data?.loaderKey || "commercial";
   }
 
   preload() {

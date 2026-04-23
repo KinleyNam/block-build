@@ -86,6 +86,7 @@ export default class StarterAreaScene extends Phaser.Scene {
         camera.setBackgroundColor("#87c9e8");
         camera.setZoom(CAMERA_ZOOM);
         camera.roundPixels = true;
+        camera.fadeIn(450, 0, 0, 0);
 
         this.add.rectangle(0, 0, WORLD_WIDTH, height, 0x87c9e8)
         .setOrigin(0, 0)
@@ -147,24 +148,14 @@ export default class StarterAreaScene extends Phaser.Scene {
     update() {
         this.player?.update();
 
-        // When the player reaches the right edge, fade out and go to Village Outskirts
         if (!this.transitioning && this.player && this.player.x > WORLD_WIDTH - 150) {
             this.transitioning = true;
             this.cameras.main.fadeOut(600, 0, 0, 0);
             this.cameras.main.once("camerafadeoutcomplete", () => {
+                this.sound.stopAll();
                 this.scene.start("LoadingScene", {
-                    nextScene: "VillageOutskirtsScene",
-                    loaderKey: "village",
-                });
-            });
-        }
-        if (!this.transitioning && this.player && this.player.x < 150) {
-            this.transitioning = true;
-            this.cameras.main.fadeOut(600, 0, 0, 0);
-            this.cameras.main.once("camerafadeoutcomplete", () => {
-                this.scene.start("LoadingScene", {
-                    nextScene: "VillageOutskirtsScene",
-                    loaderKey: "village",
+                    nextScene: "ComDistrictScene",
+                    loaderKey: "commercial",
                 });
             });
         }

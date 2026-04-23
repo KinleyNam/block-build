@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
 import { createPlayerAnimations, createVillageAnimations, preloadVillageAssets } from "../assets";
+import DialogueBox from "../objects/NpcInteraction";
+import DIALOGUES from "../dialouge/villageDialogue";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -123,6 +125,20 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     return sprite;
   }
 
+  npcAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth = 1, dialogueKey = null) {
+    const sprite = this.animatedProp(key, x, groundY, scale, offsetY, depth);
+    sprite.dialogueKey = dialogueKey ?? key;
+    this.npcs.push(sprite);
+    return sprite;
+  }
+
+  npcFlippedAnimatedProp(key, x, groundY, scale = 1, offsetY = 0, depth = 1, dialogueKey = null) {
+    const sprite = this.flippedAnimatedProp(key, x, groundY, scale, offsetY, depth);
+    sprite.dialogueKey = dialogueKey ?? key;
+    this.npcs.push(sprite);
+    return sprite;
+  }
+
   preload() {
     preloadVillageAssets(this);
   }
@@ -140,8 +156,6 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     camera.setZoom(CAMERA_ZOOM);
     camera.roundPixels = true;
     camera.fadeIn(450, 0, 0, 0);
-
-    this.sound.play("ciaccona", { loop: true, volume: 0.6 });
 
     this.add.rectangle(0, 0, WORLD_WIDTH, height, 0x8fd0e2)
       .setOrigin(0, 0)
@@ -181,18 +195,29 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       this.prop("tallTree", x, groundY, 0.5);
     });
 
+    this.npcs = [];
     this.buildCamp(groundY);
     this.buildTavernArea(groundY);
     this.buildStableArea(groundY);
-
-    
 
     this.player = new Player(this, 100, groundY - 60);
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
 
-    
+    this.ePrompt = this.add.image(0, 0, "eKeyPrompt")
+      .setScale(1)
+      .setDepth(10)
+      .setVisible(false);
+
+    this.eKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.dialogueBox = new DialogueBox(this);
+
+    this.music = null;
+    if (this.cache.audio.has("ciaccona")) {
+      this.music = this.sound.add("ciaccona", { loop: true, volume: 0.04 });
+      this.music.play();
+    }
   }
 
   buildCamp(groundY) {
@@ -204,21 +229,21 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("apples", 220, groundY-29, 1.3);
     this.prop("stool", 338, groundY, 1.6);
 
-    this.animatedProp("sittingKnight", 375, groundY, 1.75);
+    this.npcAnimatedProp("sittingKnight", 375, groundY, 1.75, 0, 1, "sittingKnight_camp1");
     this.animatedProp("cookingPot", 455, groundY, CAMP_BOTTLE_SCALE);
 
     this.prop("stool", 405, groundY, 1.6);
-    this.flippedAnimatedProp("ladyChef", 415, groundY, 1.75);
-    this.flippedAnimatedProp("sittingKnight", 515, groundY, 1.75);
+    this.npcFlippedAnimatedProp("ladyChef", 415, groundY, 1.75, 0, 1, "ladyChef");
+    this.npcFlippedAnimatedProp("sittingKnight", 515, groundY, 1.75, 0, 1, "sittingKnight_camp2");
 
     this.prop("bunchBottles", 300, groundY, CAMP_BOTTLE_SCALE);
 
-    this.animatedProp("archerIdle", 300, groundY, 1.75);
+    this.npcAnimatedProp("archerIdle", 300, groundY, 1.75, 0, 1, "archerCamp");
 
     this.prop("barrel", 658, groundY, 1.8);
 
-    this.animatedProp("beerMan", 590, groundY, 1.75);
-    this.animatedProp("blueLady", 630, groundY, 1.75);
+    this.npcAnimatedProp("beerMan", 590, groundY, 1.75, 0, 1, "beerMan");
+    this.npcAnimatedProp("blueLady", 630, groundY, 1.75, 0, 1, "blueLady");
   }
 
   buildTavernArea(groundY) {
@@ -230,16 +255,15 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("table", 850, groundY, 2);
     this.prop("threeBottles", 850, groundY-38, CAMP_BOTTLE_SCALE);
 
-    this.animatedProp("dancingCouple", 830, groundY, 1.75);
-    this.animatedProp("femaleSittingCross", 900, groundY, 1.75);
-    this.animatedProp("guitaristKnight", 940, groundY, 1.75);
-    this.animatedProp("fluteGuy", 990, groundY, 1.75);
-    this.animatedProp("gutaristGuy", 1045, groundY, 1.75);
-    this.animatedProp("lyingFemale", 1110, groundY-17, 1.75);
-    
+    this.npcAnimatedProp("dancingCouple", 830, groundY, 1.75, 0, 1, "dancingCouple");
+    this.npcAnimatedProp("femaleSittingCross", 900, groundY, 1.75, 0, 1, "femaleSittingCross");
+    this.npcAnimatedProp("guitaristKnight", 940, groundY, 1.75, 0, 1, "guitaristKnight");
+    this.npcAnimatedProp("fluteGuy", 990, groundY, 1.75, 0, 1, "fluteGuy");
+    this.npcAnimatedProp("gutaristGuy", 1045, groundY, 1.75, 0, 1, "gutaristGuy");
+    this.npcAnimatedProp("lyingFemale", 1110, groundY-17, 1.75, 0, 1, "lyingFemale");
 
-    this.flippedAnimatedProp("pubWaiter", 1250, groundY, 1.75);
-    this.animatedProp("pubWaitress", 1170, groundY, 1.75);
+    this.npcFlippedAnimatedProp("pubWaiter", 1250, groundY, 1.75, 0, 1, "pubWaiter");
+    this.npcAnimatedProp("pubWaitress", 1170, groundY, 1.75, 0, 1, "pubWaitress");
 
     this.prop("chair", 1455, groundY, 1.8);
     this.prop("oneBottle", 1510, groundY-38, CAMP_BOTTLE_SCALE);
@@ -249,8 +273,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("barrel", 1310, groundY, 1.8);
     this.prop("basketBread", 1280, groundY, 1.6);
 
-    this.animatedProp("sittingKnight", 1460, groundY, 1.75);
-    this.animatedProp("fatKnightBeer", 1550, groundY, 1.75);
+    this.npcAnimatedProp("sittingKnight", 1460, groundY, 1.75, 0, 1, "sittingKnight_tavern");
+    this.npcAnimatedProp("fatKnightBeer", 1550, groundY, 1.75, 0, 1, "fatKnightBeer");
 
   }
 
@@ -267,24 +291,74 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("barrel", 2055, groundY, 1.8);
     this.prop("barrel", 2030, groundY, 1.8);
 
-    this.animatedProp("romanYellowGirl", 2090, groundY, 1.75);
-    this.animatedProp("spanishInquisition", 2180, groundY, 1.75);
-    this.animatedProp("romanBlueGirl", 2210, groundY, 1.75);
+    this.npcAnimatedProp("romanYellowGirl", 2090, groundY, 1.75, 0, 1, "romanYellowGirl");
+    this.npcAnimatedProp("spanishInquisition", 2180, groundY, 1.75, 0, 1, "spanishInquisition");
+    this.npcAnimatedProp("romanBlueGirl", 2210, groundY, 1.75, 0, 1, "romanBlueGirl");
 
     this.prop("signPost", 2800, groundY, 0.9);
     this.prop("mediumRock", 2448, groundY, 0.92);
     this.prop("bigRock", 2420, groundY, 1.2);
     this.prop("twoWalls", 2975, groundY, 0.9);
 
-    this.flippedAnimatedProp("baldKnight", 2830, groundY, 2);
-    this.animatedProp("shieldKnight", 2900, groundY, 1.75);
-    this.animatedProp("shieldKnight", 2920, groundY, 1.75);
+    this.npcFlippedAnimatedProp("baldKnight", 2830, groundY, 2, 0, 1, "baldKnight");
+    this.npcAnimatedProp("shieldKnight", 2900, groundY, 1.75, 0, 1, "shieldKnight1");
+    this.npcAnimatedProp("shieldKnight", 2920, groundY, 1.75, 0, 1, "shieldKnight2");
 
     this.prop("wall", 2988, groundY, 1.4, 0, 10);
   }
 
   update() {
-    this.player?.update();
+    if (this.dialogueBox?.isOpen) {
+      this.player?.body?.setVelocityX(0);
+      this.player?.playAnimation("idle");
+    } else {
+      this.player?.update();
+    }
+
+    if (this.player && this.npcs?.length) {
+      const px = this.player.x;
+      const py = this.player.y;
+      let nearest = null;
+      let nearestDist = Infinity;
+
+      for (const npc of this.npcs) {
+        const dx = npc.x - px;
+        const dy = npc.y - py;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearest = npc;
+        }
+      }
+
+      const PROXIMITY = 80;
+      const inRange = nearest && nearestDist < PROXIMITY;
+
+      if (inRange && !this.dialogueBox.isOpen) {
+        const bob = Math.sin(this.time.now / 250) * 0;
+        this.ePrompt.setVisible(true);
+        this.ePrompt.setPosition(nearest.x, nearest.y - nearest.displayHeight - 8 + bob);
+      } else {
+        this.ePrompt.setVisible(false);
+      }
+
+      if (Phaser.Input.Keyboard.JustDown(this.eKey)) {
+        if (this.dialogueBox.isOpen) {
+          this.dialogueBox.advance();
+        } else if (inRange) {
+          const data = DIALOGUES[nearest.dialogueKey];
+          if (data) {
+            this.dialogueBox.show(data.name, data.lines);
+          }
+        }
+      }
+    }
+
+    if (this.player && this.music) {
+      const dist = Math.abs(this.player.x - 1180);
+      const t = Phaser.Math.Clamp(dist / 700, 0, 1);
+      this.music.setVolume(0.04 + (0.65 - 0.04) * (1 - t));
+    }
 
     this.clouds?.forEach(({ image, drift }) => {
       image.x += drift;
@@ -309,8 +383,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
       this.cameras.main.once("camerafadeoutcomplete", () => {
         this.sound.stopAll();
         this.scene.start("LoadingScene", {
-          nextScene: "MarketPlace",
-          loaderKey: "Nocstella",
+          nextScene: "ComDistrictScene",
+          loaderKey: "commercial",
         });
       });
     }
