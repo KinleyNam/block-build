@@ -71,7 +71,9 @@ contract BlockBuild is ERC1155, Ownable {
 
     // UPGRADE BUILDING
     function upgradeBuilding(uint256 id) external {
+        require(buildings[id].owner != address(0), "Does not exist");
         require(buildings[id].owner == msg.sender, "Not owner");
+        require(buildings[id].level < 3, "Max level reached");
         buildings[id].level++;
     }
 
@@ -99,5 +101,8 @@ contract BlockBuild is ERC1155, Ownable {
         _safeTransferFrom(item.seller, msg.sender, assetId, 1, "");
 
         listings[assetId].active = false;
+
+        if (assetId >= 2000) buildings[assetId].owner = msg.sender;
+        else if (assetId >= 1000) lands[assetId].owner = msg.sender;
     }
 }
