@@ -1,159 +1,178 @@
-const DIALOGUES = {
-  // ── Shop area ────────────────────────────────────────────────────────────────
-  shopkeeper: {
-    name: "Shopkeeper",
+const VILLAGE_DIALOGUES = {
+  // ── Camp area ────────────────────────────────────────────────────────────────
+  sittingKnight_camp1: {
+    name: "Resting Soldier",
     lines: [
-      "Welcome, traveler! Finest goods in all the land.",
-      "Take a look around — I'm sure you'll find something you need.",
+      "Ah, finally a moment to sit.",
+      "We've been marching for three days straight.",
+      "The captain says we rest here until dawn.",
     ],
   },
-  appleGirl: {
-    name: "Apple Girl",
+  ladyChef: {
+    name: "Camp Cook",
     lines: [
-      "Fresh apples straight from the eastern orchards!",
-      "Sweet as honey, I promise. Buy a basket!",
+      "Stand back — the stew is nearly ready!",
+      "It's nothing fancy. Turnips, barley, a bit of salted pork.",
+      "But out here, it tastes better than a royal feast.",
     ],
   },
-  romanYellowGirl_shop: {
-    name: "Roman Merchant",
+  sittingKnight_camp2: {
+    name: "Weary Guard",
     lines: [
-      "The finest silks from across the sea.",
-      "You won't find better prices anywhere in the kingdom.",
+      "I just need five minutes.",
+      "Don't tell the captain you saw me sitting.",
     ],
   },
-  baroness: {
-    name: "Baroness",
+  archerCamp: {
+    name: "Camp Archer",
     lines: [
-      "Hmm? Oh, I'm just browsing.",
-      "The market has nothing truly worthy of my coin today.",
+      "Eyes on the tree line, traveler.",
+      "There've been wolves spotted near the camp at night.",
+      "My bow is ready. Theirs aren't.",
+    ],
+  },
+  beerMan: {
+    name: "Off-Duty Soldier",
+    lines: [
+      "Nothing like a cold cup after a long patrol.",
+      "You look like you could use one too.",
+      "Pull up a stump. I'll find another cup.",
     ],
   },
   blueLady: {
-    name: "Blue Lady",
+    name: "Grape Merchant",
     lines: [
-      "Excuse me, do you know where I can find a decent tailor?",
-      "My dress needs mending before the feast tonight.",
-    ],
-  },
-  farmer: {
-    name: "Farmer",
-    lines: [
-      "Harvest was good this year!",
-      "Plenty of grain and vegetables for the whole town.",
-    ],
-  },
-  plagueDoctor: {
-    name: "Plague Doctor",
-    lines: [
-      "Keep your distance, please!",
-      "I am treating a contagion that spreads through the air.",
-      "For your own safety — step back.",
-    ],
-  },
-  blackMarketDealer: {
-    name: "Black Market Dealer",
-    lines: [
-      "Psst... looking for something special?",
-      "I might have just what you need.",
-      "Come back after dark. Alone.",
-    ],
-  },
-  miner: {
-    name: "Miner",
-    lines: [
-      "Just finished a long shift down in the mines.",
-      "Nothing beats a cold drink after hard work.",
-    ],
-  },
-  darkRobedNun: {
-    name: "Dark Robed Nun",
-    lines: [
-      "The gods watch over this market.",
-      "Let us hope greed does not corrupt the people within it.",
+      "Finest grapes in the region, right here.",
+      "Grown in the southern valleys — sweet as wine before they're pressed.",
+      "Care to try one?",
     ],
   },
 
-  // ── Town Hall area ───────────────────────────────────────────────────────────
-  archerLeft: {
-    name: "Town Guard",
+  // ── Tavern area ──────────────────────────────────────────────────────────────
+  dancingCouple: {
+    name: "Dancing Couple",
     lines: [
-      "Move along, traveler.",
-      "I'm keeping watch over the western road.",
+      "Don't just stand there — join us!",
+      "The night is young and the music is good.",
     ],
   },
-  femaleWizard: {
-    name: "Arcane Scholar",
+  femaleSittingCross: {
+    name: "Travelling Merchant",
     lines: [
-      "I'm researching ancient artifacts.",
-      "This market sometimes turns up the most surprising finds.",
+      "I've been on the road for six weeks.",
+      "Sometimes you just need to sit and breathe for a moment.",
+      "The next town is two days away. No rush.",
     ],
   },
-  ladySittingDown: {
-    name: "Resting Noble",
+  guitaristKnight: {
+    name: "Guitarist Knight",
     lines: [
-      "My feet are absolutely killing me.",
-      "I've been walking through this market since sunrise.",
+      "♪ They said knights don't play guitar... ♪",
+      "♪ ...they were wrong. ♪",
+    ],
+  },
+  fluteGuy: {
+    name: "Tavern Flutist",
+    lines: [
+      "I've played this tavern every night for four years.",
+      "The regulars know every melody by heart now.",
+      "Sometimes they hum along. That's the best part.",
+    ],
+  },
+  gutaristGuy: {
+    name: "Tavern Bard",
+    lines: [
+      "I know a hundred songs.",
+      "Tragedies, ballads, battle hymns — you name it.",
+      "Tonight the crowd wants something merry, though.",
+    ],
+  },
+  lyingFemale: {
+    name: "Resting Traveller",
+    lines: [
+      "Please... don't wake me.",
+      "I walked fifteen miles today.",
+    ],
+  },
+  pubWaiter: {
+    name: "Pub Waiter",
+    lines: [
+      "What'll it be?",
+      "We've got ale, mead, and whatever's left in that barrel.",
+      "I'd recommend the mead. The ale's been sitting a while.",
+    ],
+  },
+  pubWaitress: {
+    name: "Pub Waitress",
+    lines: [
+      "Coming through! Hot food, watch your elbows.",
+      "We're packed tonight — the troubadours always draw a crowd.",
+    ],
+  },
+  sittingKnight_tavern: {
+    name: "Drinking Knight",
+    lines: [
+      "I used to slay dragons, you know.",
+      "Now I slay... tankards.",
+      "Retirement suits me fine.",
+    ],
+  },
+  fatKnightBeer: {
+    name: "Sir Broadgirth",
+    lines: [
+      "Ahh — that's the stuff.",
+      "The tavern here brews the finest ale north of the capital.",
+      "I come here every week. My horse knows the way on its own.",
+    ],
+  },
+
+  // ── Stable area ──────────────────────────────────────────────────────────────
+  romanYellowGirl: {
+    name: "Roman Trader",
+    lines: [
+      "I'm waiting on a shipment from the eastern road.",
+      "It's late. Three days late.",
+      "If it doesn't arrive by tomorrow, I'm riding out to find it myself.",
+    ],
+  },
+  spanishInquisition: {
+    name: "Inquisitor",
+    lines: [
+      "Nobody expects—",
+      "...well. You know the rest.",
+      "State your business, traveler.",
     ],
   },
   romanBlueGirl: {
     name: "Roman Noblewoman",
     lines: [
-      "The architecture here is rather crude compared to the capital.",
-      "Don't you think?",
+      "My horse needs new shoes before we continue.",
+      "The stable master here is skilled, at least.",
     ],
   },
-  romanYellowGirl_town: {
-    name: "Roman Merchant",
+  baldKnight: {
+    name: "Gate Warden",
     lines: [
-      "I traveled three days to reach this market.",
-      "The profits are well worth the journey.",
+      "HALT.",
+      "...Alright, you don't look dangerous. Pass.",
+      "But I'm watching you.",
     ],
   },
-  readingGirl: {
-    name: "Scholar",
+  shieldKnight1: {
+    name: "Border Knight",
     lines: [
-      "Shh, I'm reading.",
-      "This scroll contains knowledge from centuries past.",
-      "Please don't disturb me.",
+      "The road beyond here gets rough.",
+      "Bandits have been spotted near the old mill.",
+      "Travel in groups if you can.",
     ],
   },
-  goddess: {
-    name: "Goddess",
+  shieldKnight2: {
+    name: "Border Knight",
     lines: [
-      "Mortal...",
-      "Seek wisdom before you seek power.",
-      "The path ahead grows darker than you know.",
-    ],
-  },
-  helmetDog: {
-    name: "Helmet Dog",
-    lines: [
-      "...Woof.",
-      "I mean — greetings, traveler.",
-      "Nothing unusual here. Carry on.",
-    ],
-  },
-  femaleKnight: {
-    name: "Female Knight",
-    lines: [
-      "I guard the town hall.",
-      "No trouble-makers allowed inside. State your business.",
-    ],
-  },
-  archerRight: {
-    name: "Town Archer",
-    lines: [
-      "My aim is true.",
-      "No bandit dares approach this market while I stand watch.",
-    ],
-  },
-  shieldKnight: {
-    name: "Shield Knight",
-    lines: [
-      "The town hall stands under my protection.",
-      "As does every soul within these walls.",
+      "We guard this pass day and night.",
+      "Nothing gets through without my knowing.",
     ],
   },
 };
 
-export default DIALOGUES;
+export default VILLAGE_DIALOGUES;
