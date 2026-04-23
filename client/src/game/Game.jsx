@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import Phaser from "phaser";
 import ComDistrictScene from "./scenes/ComDistrictScene";
+import MaResAreaScene from "./scenes/MaResAreaScene";
 
 const gameContainerStyle = { width: "100%", height: "100%" };
 
@@ -27,7 +28,7 @@ export default function Game() {
       debug: false,
     },
   },
-  scene: [ComDistrictScene],
+  scene: [/*ComDistrictScene,*/ MaResAreaScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

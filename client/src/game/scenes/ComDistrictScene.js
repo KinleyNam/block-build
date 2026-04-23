@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
-import {createPlayerAnimations, preloadWorldAssets} from "../assets";
+import {createPlayerAnimations, preloadWorldAssets, preloadVillageAssets} from "../assets";
 
 
 const WORLD_WIDTH = 3000;
@@ -9,10 +9,12 @@ const GROUND_TILE_OVERLAP = 1;
 const ROCK_PATTERN = ["medium_rocks", "medium_rocks", "small_rocks", "big_rock", "medium_rocks" ]
 const BUSH_PATTERN = ["small_bush", "small_bush", "bushes", "big_bush", "bushes"]
 
-const DECORATIONS = [
-  {},
-  {},
-  {},
+const DECORATIONS = [  
+  {x: 1000, key: "magic_research_lvl1",scale: 0.7},  
+  {x: 1700, key: "carpentry_lvl2", scale: 1},
+  {x: 2500, key: "blacksmith_lvl3", scale: 1.1}
+
+
 ]
 
 
@@ -24,6 +26,7 @@ export default class ComDistrictScene extends Phaser.Scene {
 
   preload() {
     preloadWorldAssets(this);
+    preloadVillageAssets(this);
   }
 
   addRepeatedLayer(key, y, scale, scrollFactor){
@@ -156,13 +159,22 @@ export default class ComDistrictScene extends Phaser.Scene {
 
     // Bushes and rocks on ground
     this.spawnBushPattern({ startX: 0, endX: WORLD_WIDTH, y: groundY, spacing: 130, scale: 0.12 });
-    this.spawnRockPattern({ startX: 0, endX: WORLD_WIDTH, y: groundY, spacing: 100, scale: 0.75 });
+    this.spawnRockPattern({ startX: 0, endX: WORLD_WIDTH, y: groundY, spacing: 100, scale: 0.75 });  
 
+
+    DECORATIONS.forEach(({x, key, scale}) => {
+      this.add.image(x, groundY, key)
+        .setOrigin(0.9, 0.97)
+        .setScale(scale);
+    });
     createPlayerAnimations(this);
     this.player = new Player(this, 150, groundY - 60);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true, 0.1, 0);
     camera.scrollY = 0;
+
+
+
 }
 
   update() {
