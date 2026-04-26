@@ -5,21 +5,17 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
-    // TOKEN TYPES
     uint256 public constant GOLD = 1;
 
     uint256 public nextLandId = 1000;
     uint256 public nextBuildingId = 2000;
 
-    // STRUCTS
-    struct Land {
-        address owner;
-    }
-
     struct Building {
         uint256 landId;
-        address owner;
+
+        
         uint8 level;
     }
 
@@ -29,13 +25,14 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
         bool active;
     }
 
-    mapping(uint256 => Land) public lands;
+    mapping(uint256 => bool) public lands; // just existence
     mapping(uint256 => Building) public buildings;
     mapping(uint256 => Listing) public listings;
 
-    constructor(
-        address initialOwner
-    ) ERC1155("ipfs://metadata/{id}.json") Ownable(initialOwner) {}
+    constructor(address initialOwner)
+        ERC1155("ipfs://metadata/{id}.json")
+        Ownable(initialOwner)
+    {}
 
     // GOLD
     function mintGold(address to, uint256 amount) external onlyOwner {
@@ -47,22 +44,24 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
         uint256 id = nextLandId++;
 
         _mint(to, id, 1, "");
-        lands[id] = Land({owner: to});
+        lands[id] = true;
+
         return id;
     }
 
     // BUILDING
-    function mintBuilding(
-        address to,
-        uint256 landId
-    ) external onlyOwner returns (uint256) {
-        require(lands[landId].owner != address(0), "Land does not exist");
-        require(lands[landId].owner == to, "Not land owner");
+    function mintBuilding(address to, uint256 landId)
+        external
+        onlyOwner
+        returns (uint256)
+    {
+        require(lands[landId], "Land does not exist");
+        require(balanceOf(to, landId) > 0, "Not land owner");
 
         uint256 id = nextBuildingId++;
 
         _mint(to, id, 1, "");
-        buildings[id] = Building(landId, to, 1);
+        buildings[id] = Building(landId, 1);
 
         return id;
     }
@@ -71,8 +70,7 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
     function upgradeBuilding(uint256 id) external {
         Building storage b = buildings[id];
 
-        require(b.owner != address(0), "Building not found");
-        require(b.owner == msg.sender, "Not owner");
+        require(balanceOf(msg.sender, id) > 0, "Not owner");
         require(b.level < 3, "Max level reached");
 
         b.level++;
@@ -104,26 +102,13 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
         require(item.active, "Not for sale");
         require(balanceOf(msg.sender, GOLD) >= item.price, "Not enough GOLD");
 
-        // mark inactive first
         item.active = false;
 
         // transfer GOLD
         _safeTransferFrom(msg.sender, item.seller, GOLD, item.price, "");
 
-        // transfer asset first (important for consistency)
+        // transfer asset
         _safeTransferFrom(item.seller, msg.sender, assetId, 1, "");
-
-        // NOW update ownership safely AFTER transfer
-        if (assetId >= 2000) {
-            require(
-                buildings[assetId].owner != address(0),
-                "Building not found"
-            );
-            buildings[assetId].owner = msg.sender;
-        } else if (assetId >= 1000) {
-            require(lands[assetId].owner != address(0), "Land not found");
-            lands[assetId].owner = msg.sender;
-        }
     }
 
     // REQUIRED OVERRIDE
