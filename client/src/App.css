@@ -180,6 +180,15 @@
   outline-offset: 2px;
 }
 
+.character-screen__error {
+  margin: 0.4rem 0 0;
+  color: #e8735a;
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 .character-screen__gender-row {
   display: flex;
   align-items: center;

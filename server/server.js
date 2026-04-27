@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -26,6 +27,8 @@ app.get("/", (req, res) => {
     message: "Block Build backend is running",
   });
 });
+
+app.use("/api/users", userRoutes);
 
 const io = new Server(httpServer, {
   cors: {

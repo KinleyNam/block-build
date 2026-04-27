@@ -9,7 +9,7 @@ import UIScene from "./scenes/UIScene";
 
 const gameContainerStyle = { width: "100%", height: "100%" };
 
-export default function Game() {
+export default function Game({ user }) {
   const gameRef = useRef(null);
   const phaserGame = useRef(null);
 
@@ -43,6 +43,10 @@ export default function Game() {
     };
 
     phaserGame.current = new Phaser.Game(config);
+
+    if (user) {
+      phaserGame.current.registry.set("user", user);
+    }
 
     return () => {
       if (phaserGame.current) {

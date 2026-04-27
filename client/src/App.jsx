@@ -8,22 +8,60 @@ import malePreviewImg from "./assets/player/male-player-character.png";
 import femalePreviewImg from "./assets/player/female-player-character.png";
 import "./App.css";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const GENDERS = [
   { label: "Male", preview: malePreviewImg, className: "character-screen__preview--male" },
   { label: "Female", preview: femalePreviewImg, className: "character-screen__preview--female" },
 ];
 
+function generateDummyWallet() {
+  return "0x" + Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+}
+
 function App() {
   const [screen, setScreen] = useState("title");
   const [username, setUsername] = useState("");
   const [genderIndex, setGenderIndex] = useState(0);
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (screen === "game") {
-    return <Game />;
+    return <Game user={user} />;
   }
 
   if (screen === "character") {
     const gender = GENDERS[genderIndex];
+
+    async function handleNext() {
+      const trimmed = username.trim();
+      if (!trimmed) {
+        setError("Please enter a username.");
+        return;
+      }
+      setError("");
+      setLoading(true);
+      try {
+        const walletAddress = generateDummyWallet();
+        const res = await fetch(`${API_URL}/api/users`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: trimmed, walletAddress, gender: gender.label }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Something went wrong.");
+          return;
+        }
+        setUser(data);
+        setScreen("game");
+      } catch {
+        setError("Could not reach the server. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
 
     return (
       <div className="character-screen">
@@ -44,8 +82,10 @@ function App() {
             value={username}
             maxLength={18}
             placeholder="_____"
-            onChange={(event) => setUsername(event.target.value)}
+            onChange={(event) => { setUsername(event.target.value); setError(""); }}
           />
+
+          {error && <p className="character-screen__error">{error}</p>}
 
           <div className="character-screen__gender-row">
             <button
@@ -87,9 +127,10 @@ function App() {
           <button
             className="character-screen__next button-shell"
             type="button"
-            onClick={() => setScreen("game")}
+            disabled={loading}
+            onClick={handleNext}
           >
-            <span className="button-shell__inner">Next</span>
+            <span className="button-shell__inner">{loading ? "..." : "Next"}</span>
           </button>
         </div>
       </div>
