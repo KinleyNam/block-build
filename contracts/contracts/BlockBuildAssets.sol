@@ -1,202 +1,123 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract BlockBuildGame is ERC1155, Ownable, ERC1155Supply {
+contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
+    uint256 public constant GOLD = 1;
 
-    // ────────────────────────────────
-    // TOKEN TYPES
-    // ────────────────────────────────
-    uint256 public constant GOLD = 0;
-
-    uint256 public nextLandId = 1;
-    uint256 public nextBuildingId = 10000;
-
-    // ────────────────────────────────
-    // STRUCTS
-    // ────────────────────────────────
-    struct Land {
-        string coordinates;
-        address owner;
-        uint8 sizeLevel;
-    }
+    uint256 public nextLandId = 1000;
+    uint256 public nextBuildingId = 2000;
 
     struct Building {
         uint256 landId;
-        string buildingType;
+
+        
         uint8 level;
-        address owner;
-        uint256 lastClaimTime;
     }
 
-    // ────────────────────────────────
-    // STORAGE
-    // ────────────────────────────────
-    mapping(uint256 => Land) public lands;
+    struct Listing {
+        address seller;
+        uint256 price;
+        bool active;
+    }
+
+    mapping(uint256 => bool) public lands; // just existence
     mapping(uint256 => Building) public buildings;
+    mapping(uint256 => Listing) public listings;
 
-    mapping(address => uint256[]) public playerLands;
-    mapping(address => uint256[]) public playerBuildings;
+    constructor(address initialOwner)
+        ERC1155("ipfs://metadata/{id}.json")
+        Ownable(initialOwner)
+    {}
 
-    // Prices (in GOLD)
-    uint256 public landPrice = 100;
-    uint256 public buildingPrice = 50;
-    uint256 public upgradeCost = 30;
-
-    // ────────────────────────────────
-    // EVENTS
-    // ────────────────────────────────
-    event Worked(address player, uint256 reward);
-    event LandBought(address player, uint256 landId);
-    event BuildingConstructed(address player, uint256 buildingId);
-    event BuildingUpgraded(uint256 buildingId, uint8 level);
-    event IncomeClaimed(address player, uint256 amount);
-
-    // ────────────────────────────────
-    // CONSTRUCTOR
-    // ────────────────────────────────
-    constructor() ERC1155("ipfs://YOUR_METADATA/{id}.json") Ownable() {}
-
-    // ────────────────────────────────
-    // 1️⃣ WORK → EARN GOLD
-    // ────────────────────────────────
-    function work() external {
-        uint256 reward = 20;
-        _mint(msg.sender, GOLD, reward, "");
-        emit Worked(msg.sender, reward);
+    // GOLD
+    function mintGold(address to, uint256 amount) external onlyOwner {
+        _mint(to, GOLD, amount, "");
     }
 
-    // ────────────────────────────────
-    // 2️⃣ BUY LAND (NFT)
-    // ────────────────────────────────
-    function buyLand(string memory coordinates) external {
-        require(balanceOf(msg.sender, GOLD) >= landPrice, "Not enough gold");
+    // LAND
+    function mintLand(address to) external onlyOwner returns (uint256) {
+        uint256 id = nextLandId++;
 
-        _burn(msg.sender, GOLD, landPrice);
+        _mint(to, id, 1, "");
+        lands[id] = true;
 
-        uint256 landId = nextLandId++;
-
-        _mint(msg.sender, landId, 1, "");
-
-        lands[landId] = Land({
-            coordinates: coordinates,
-            owner: msg.sender,
-            sizeLevel: 1
-        });
-
-        playerLands[msg.sender].push(landId);
-
-        emit LandBought(msg.sender, landId);
+        return id;
     }
 
-    // ────────────────────────────────
-    // 3️⃣ BUILD ON LAND (NFT)
-    // ────────────────────────────────
-    function build(uint256 landId, string memory buildingType) external {
-        require(lands[landId].owner == msg.sender, "Not land owner");
-        require(balanceOf(msg.sender, GOLD) >= buildingPrice, "Not enough gold");
+    // BUILDING
+    function mintBuilding(address to, uint256 landId)
+        external
+        onlyOwner
+        returns (uint256)
+    {
+        require(lands[landId], "Land does not exist");
+        require(balanceOf(to, landId) > 0, "Not land owner");
 
-        _burn(msg.sender, GOLD, buildingPrice);
+        uint256 id = nextBuildingId++;
 
-        uint256 buildingId = nextBuildingId++;
+        _mint(to, id, 1, "");
+        buildings[id] = Building(landId, 1);
 
-        _mint(msg.sender, buildingId, 1, "");
-
-        buildings[buildingId] = Building({
-            landId: landId,
-            buildingType: buildingType,
-            level: 1,
-            owner: msg.sender,
-            lastClaimTime: block.timestamp
-        });
-
-        playerBuildings[msg.sender].push(buildingId);
-
-        emit BuildingConstructed(msg.sender, buildingId);
+        return id;
     }
 
-    // ────────────────────────────────
-    // 4️⃣ CLAIM PASSIVE INCOME
-    // ────────────────────────────────
-    function claimIncome(uint256 buildingId) external {
-        Building storage b = buildings[buildingId];
+    // UPGRADE
+    function upgradeBuilding(uint256 id) external {
+        Building storage b = buildings[id];
 
-        require(b.owner == msg.sender, "Not owner");
-
-        uint256 timePassed = block.timestamp - b.lastClaimTime;
-
-        require(timePassed > 10, "Wait before claiming"); // simple cooldown
-
-        uint256 reward = (b.level * timePassed) / 10;
-
-        b.lastClaimTime = block.timestamp;
-
-        _mint(msg.sender, GOLD, reward, "");
-
-        emit IncomeClaimed(msg.sender, reward);
-    }
-
-    // ────────────────────────────────
-    // 5️⃣ UPGRADE BUILDING
-    // ────────────────────────────────
-    function upgradeBuilding(uint256 buildingId) external {
-        Building storage b = buildings[buildingId];
-
-        require(b.owner == msg.sender, "Not owner");
-        require(balanceOf(msg.sender, GOLD) >= upgradeCost, "Not enough gold");
-        require(b.level < 10, "Max level");
-
-        _burn(msg.sender, GOLD, upgradeCost);
+        require(balanceOf(msg.sender, id) > 0, "Not owner");
+        require(b.level < 3, "Max level reached");
 
         b.level++;
-
-        emit BuildingUpgraded(buildingId, b.level);
     }
 
-    // ────────────────────────────────
-    // 6️⃣ UPGRADE LAND SIZE
-    // ────────────────────────────────
-    function upgradeLand(uint256 landId) external {
-        Land storage l = lands[landId];
+    // LIST
+    function listAsset(uint256 assetId, uint256 price) external {
+        require(balanceOf(msg.sender, assetId) > 0, "Not owner");
+        require(price > 0, "Price must be > 0");
+        require(!listings[assetId].active, "Already listed");
 
-        require(l.owner == msg.sender, "Not owner");
-        require(balanceOf(msg.sender, GOLD) >= upgradeCost, "Not enough gold");
-        require(l.sizeLevel < 5, "Max size");
-
-        _burn(msg.sender, GOLD, upgradeCost);
-
-        l.sizeLevel++;
+        listings[assetId] = Listing(msg.sender, price, true);
     }
 
-    // ────────────────────────────────
-    // VIEW FUNCTIONS
-    // ────────────────────────────────
-    function getGold(address player) external view returns (uint256) {
-        return balanceOf(player, GOLD);
+    // CANCEL LIST
+    function cancelListing(uint256 assetId) external {
+        Listing storage item = listings[assetId];
+
+        require(item.active, "Not listed");
+        require(item.seller == msg.sender, "Not seller");
+
+        item.active = false;
     }
 
-    function getPlayerLands(address player) external view returns (uint256[] memory) {
-        return playerLands[player];
+    // BUY
+    function buyAsset(uint256 assetId) external nonReentrant {
+        Listing storage item = listings[assetId];
+
+        require(item.active, "Not for sale");
+        require(balanceOf(msg.sender, GOLD) >= item.price, "Not enough GOLD");
+
+        item.active = false;
+
+        // transfer GOLD
+        _safeTransferFrom(msg.sender, item.seller, GOLD, item.price, "");
+
+        // transfer asset
+        _safeTransferFrom(item.seller, msg.sender, assetId, 1, "");
     }
 
-    function getPlayerBuildings(address player) external view returns (uint256[] memory) {
-        return playerBuildings[player];
-    }
-
-    // ────────────────────────────────
     // REQUIRED OVERRIDE
-    // ────────────────────────────────
-    function _beforeTokenTransfer(
-        address operator,
+    function _update(
         address from,
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory values
     ) internal override(ERC1155, ERC1155Supply) {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        super._update(from, to, ids, values);
     }
 }
