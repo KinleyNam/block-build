@@ -1,6 +1,9 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
+import MultiplayerManager from "../MultiplayerManager";
 import { createPlayerAnimations } from "../assets";
+import { ensureHud } from "./UIScene";
+import TutorialController from "../objects/TutorialController";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 1.5;
@@ -77,9 +80,15 @@ export default class StarterAreaScene extends Phaser.Scene {
         }
     }
 
+    init(data) {
+        this.spawnSide = data?.spawnSide || "left";
+    }
+
     create() {
         const height = this.scale.height;
         const camera = this.cameras.main;
+
+        ensureHud(this);
 
         this.physics.world.setBounds(0, 0, WORLD_WIDTH, height);
         camera.setBounds(0, 0, WORLD_WIDTH, height);
@@ -135,20 +144,44 @@ export default class StarterAreaScene extends Phaser.Scene {
         });
 
             createPlayerAnimations(this);
-        this.player = new Player(this, 150, groundY - 60);
+        const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 150;
+        this.player = new Player(this, spawnX, groundY - 60);
+        this.player.setFlipX(this.spawnSide !== "right");
 
         this.physics.add.collider(this.player, this.groundGroup);
 
         camera.startFollow(this.player, true);
 
-        // Flag to prevent triggering the transition more than once
         this.transitioning = false;
+
+        this.multiplayer = new MultiplayerManager(this, "StarterAreaScene");
+        this.multiplayer.create(this.player);
+
+        // hardcoded true for now — swap for a backend/save check later
+        const isNewPlayer = true;
+        this.tutorial = null;
+        if (isNewPlayer) {
+            this.tutorial = new TutorialController(this, this.player, groundY);
+            this.tutorial.start();
+        }
     }
 
-    update() {
-        this.player?.update();
+    update(time, delta) {
+        this.multiplayer?.update(delta);
+        this.multiplayer?.emitMove(this.player, time);
 
-        if (!this.transitioning && this.player && this.player.x > WORLD_WIDTH - 150) {
+        // Always tick the tutorial (handles goddess exit animation after tutorial ends)
+        this.tutorial?.update(time, delta);
+
+        // Only hand input back to the player when the tutorial isn't locking it
+        if (!this.tutorial?.inputLocked) {
+            this.player?.update();
+        }
+
+        // Cap player position after player.update() so it overrides player-set velocity
+        this.tutorial?.postUpdate();
+
+        if (!this.transitioning && !this.tutorial?.inputLocked && this.player && this.player.x > WORLD_WIDTH - 150) {
             this.transitioning = true;
             this.cameras.main.fadeOut(600, 0, 0, 0);
             this.cameras.main.once("camerafadeoutcomplete", () => {
@@ -156,6 +189,7 @@ export default class StarterAreaScene extends Phaser.Scene {
                 this.scene.start("LoadingScene", {
                     nextScene: "ComDistrictScene",
                     loaderKey: "commercial",
+                    spawnSide: "left",
                 });
             });
         }

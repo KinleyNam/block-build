@@ -24,8 +24,9 @@ export default class LoadingScene extends Phaser.Scene {
 
   /** Receives data passed by scene.start("LoadingScene", data) */
   init(data) {
-    this.nextScene = data?.nextScene || "ComDistrictScene";
-    this.loaderKey = data?.loaderKey || "commercial";
+    this.nextScene  = data?.nextScene  || "MarketPlace";
+    this.loaderKey  = data?.loaderKey  || "market";
+    this.spawnSide  = data?.spawnSide  || "left";
   }
 
   preload() {
@@ -87,7 +88,7 @@ export default class LoadingScene extends Phaser.Scene {
     this.load.once("complete", () => {
       statusText.setText("Ready!");
       this.time.delayedCall(150, () => {
-        this.scene.start(this.nextScene);
+        this.scene.start(this.nextScene, { spawnSide: this.spawnSide });
       });
     });
 

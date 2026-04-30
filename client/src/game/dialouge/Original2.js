@@ -11,7 +11,7 @@ const DIALOGUES = {
     name: "Apple Girl",
     lines: [
       "Fresh apples straight from the eastern orchards!",
-      "Even Eve would eat this one too!",
+      "Sweet as honey, I promise. Buy a basket!",
     ],
   },
   romanYellowGirl_shop: {
@@ -55,14 +55,14 @@ const DIALOGUES = {
     lines: [
       "Psst... looking for something special?",
       "I might have just what you need.",
-      "It might be the One Piece you're looking for.",
+      "Come back after dark. Alone.",
     ],
   },
   miner: {
     name: "Miner",
     lines: [
       "Just finished a long shift down in the mines.",
-      "I found a large man with two clubs as fists.",
+      "Nothing beats a cold drink after hard work.",
     ],
   },
   darkRobedNun: {
@@ -113,7 +113,7 @@ const DIALOGUES = {
     name: "Scholar",
     lines: [
       "Shh, I'm reading.",
-      "This scroll contains a cantrip that can summon a small flame.",
+      "This scroll contains knowledge from centuries past.",
       "Please don't disturb me.",
     ],
   },
@@ -151,7 +151,7 @@ const DIALOGUES = {
     name: "Shield Knight",
     lines: [
       "The town hall stands under my protection.",
-      "It is my duty as a Paladin.",
+      "As does every soul within these walls.",
     ],
   },
 };
