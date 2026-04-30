@@ -12,10 +12,13 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
     uint256 public nextLandId = 1000;
     uint256 public nextBuildingId = 2000;
 
+    struct Land {
+        uint256 landId;
+        address owner;
+    }
+
     struct Building {
         uint256 landId;
-
-        
         uint8 level;
     }
 
@@ -25,14 +28,13 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
         bool active;
     }
 
-    mapping(uint256 => bool) public lands; // just existence
+    mapping(uint256 => Land) public lands;
     mapping(uint256 => Building) public buildings;
     mapping(uint256 => Listing) public listings;
 
-    constructor(address initialOwner)
-        ERC1155("ipfs://metadata/{id}.json")
-        Ownable(initialOwner)
-    {}
+    constructor(
+        address initialOwner
+    ) ERC1155("ipfs://metadata/{id}.json") Ownable(initialOwner) {}
 
     // GOLD
     function mintGold(address to, uint256 amount) external onlyOwner {
@@ -44,18 +46,17 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
         uint256 id = nextLandId++;
 
         _mint(to, id, 1, "");
-        lands[id] = true;
+        lands[id] = Land(id, to);
 
         return id;
     }
 
     // BUILDING
-    function mintBuilding(address to, uint256 landId)
-        external
-        onlyOwner
-        returns (uint256)
-    {
-        require(lands[landId], "Land does not exist");
+    function mintBuilding(
+        address to,
+        uint256 landId
+    ) external onlyOwner returns (uint256) {
+        require(lands[landId].landId != 0, "Land does not exist");
         require(balanceOf(to, landId) > 0, "Not land owner");
 
         uint256 id = nextBuildingId++;
@@ -119,5 +120,14 @@ contract BlockBuild is ERC1155, ERC1155Supply, Ownable, ReentrancyGuard {
         uint256[] memory values
     ) internal override(ERC1155, ERC1155Supply) {
         super._update(from, to, ids, values);
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            uint256 id = ids[i];
+
+            // Only update LAND ownership
+            if (lands[id].landId != 0 && values[i] == 1 && to != address(0)) {
+                lands[id].owner = to;
+            }
+        }
     }
 }
