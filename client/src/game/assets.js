@@ -1,5 +1,11 @@
 import ciaccona from "../assets/music/ciaccona.mp3";
+import goddessWalkImg from "../assets/tutorial/godess-walk.png";
 import eKeyPrompt from "../assets/intereaction/ButtonE.png";
+import escapeKeyImg from "../assets/UIElement/Escape-key.png";
+import goldHolderImg from "../assets/UIElement/Gold-holder.png";
+import leaderBoardImg from "../assets/UIElement/leaderBoard.png";
+import titleBgImg from "../assets/UIElement/title-background.png";
+import buttonBgImg from "../assets/UIElement/Button-Background.png";
 import mountains from "../assets/backgrounds/mountains.png";
 import farTrees from "../assets/backgrounds/far-trees.png";
 import midTrees from "../assets/backgrounds/mid-trees.png";
@@ -9,6 +15,7 @@ import castle from "../assets/backgrounds/Castle.png";
 import ground from "../assets/platforms/ground.png";
 
 import statue from "../assets/props/statue.png";
+import ownerSignboard from "../assets/props/OwnerSignboard.png";
 import bigRock from "../assets/props/big-rock.png";
 import mediumRock from "../assets/props/medium-rock.png";
 import bigBush from "../assets/props/big-bush.png";
@@ -132,6 +139,11 @@ function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRat
 export function preloadWorldAssets(scene) {
   scene.load.audio("ciaccona", ciaccona);
   scene.load.image("eKeyPrompt", eKeyPrompt);
+  scene.load.image("uiEscapeKey", escapeKeyImg);
+  scene.load.image("uiGoldHolder", goldHolderImg);
+  scene.load.image("uiLeaderBoard", leaderBoardImg);
+  scene.load.image("titleBg", titleBgImg);
+  scene.load.image("buttonBg", buttonBgImg);
   scene.load.image("mountains", mountains);
   scene.load.image("farTrees", farTrees);
   scene.load.image("midTrees", midTrees);
@@ -148,6 +160,11 @@ export function preloadWorldAssets(scene) {
   scene.load.image("smallBush", smallBush);
   scene.load.image("tree", tree);
   scene.load.image("brich", brich);
+
+  scene.load.spritesheet("goddessWalk", goddessWalkImg, {
+    frameWidth: 29,
+    frameHeight: 47,
+  });
 
   scene.load.spritesheet("playerIdle", playerIdle, {
     frameWidth: 18,
@@ -476,6 +493,7 @@ export function preloadMarketplaceAssets(scene) {
 export function preloadCommercialAssets(scene) {
   preloadWorldAssets(scene);
 
+  scene.load.image("ownerSignboard", ownerSignboard);
   scene.load.image("grassy_mountains", grassyMountains);
   scene.load.image("hill", cdHill);
   scene.load.image("clouds_mid", cloudsMid);

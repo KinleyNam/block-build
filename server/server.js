@@ -1,54 +1,56 @@
-import express from "express";
-import http from "http";
-import { Server } from "socket.io";
-import cors from "cors";
-import dotenv from "dotenv";
-import { connectDB } from "./config/db.js";
-
-dotenv.config();
-
-await connectDB();
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
 
 const app = express();
-const httpServer = http.createServer(app);
+app.use(cors());
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    methods: ["GET", "POST"],
-  })
-);
-
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "Block Build backend is running",
-  });
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.CLIENT_URL,
-    methods: ["GET", "POST"],
-  },
-});
+const players = {};
 
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
+  console.log(`Player connected: ${socket.id}`);
 
-  socket.emit("welcome", {
-    message: "Socket.IO backend connected successfully",
-    socketId: socket.id,
+  socket.emit("currentPlayers", players);
+
+  players[socket.id] = { id: socket.id, x: 400, y: 300, anim: "idle", flipX: true, scene: "StarterAreaScene" };
+
+  socket.broadcast.emit("playerJoined", players[socket.id]);
+
+  socket.on("playerMoved", (data) => {
+    if (players[socket.id]) {
+      players[socket.id].x     = data.x;
+      players[socket.id].y     = data.y;
+      players[socket.id].anim  = data.anim;
+      players[socket.id].flipX = data.flipX;
+      players[socket.id].scene = data.scene;
+      socket.broadcast.emit("playerMoved", players[socket.id]);
+    }
+  });
+
+  socket.on("joinScene", (sceneName) => {
+    if (players[socket.id]) {
+      players[socket.id].scene = sceneName;
+      socket.broadcast.emit("playerMoved", players[socket.id]);
+    }
+  });
+
+  // Client requests current player list after its scene is ready
+  socket.on("getPlayers", () => {
+    socket.emit("currentPlayers", players);
   });
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
+    console.log(`Player disconnected: ${socket.id}`);
+    delete players[socket.id];
+    io.emit("playerLeft", socket.id);
   });
 });
 
 const PORT = process.env.PORT || 3000;
-
-httpServer.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

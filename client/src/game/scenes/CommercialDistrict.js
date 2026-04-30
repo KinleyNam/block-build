@@ -1,6 +1,10 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
+import MultiplayerManager from "../MultiplayerManager";
 import { createPlayerAnimations, preloadCommercialAssets } from "../assets";
+import { ensureHud } from "./UIScene";
+import gameState, { LAND_PARCELS } from "../gameState";
+import LandSignboard from "../objects/LandSignboard";
 
 // Total horizontal size of the level in pixels
 const WORLD_WIDTH = 3000;
@@ -86,6 +90,10 @@ export default class ComDistrictScene extends Phaser.Scene {
             .setScale(0.5)
             .setScrollFactor(scrollFactor); // each hill moves differently for depth
     });
+  }
+
+  init(data) {
+    this.spawnSide = data?.spawnSide || "left";
   }
 
  create() {
@@ -178,10 +186,43 @@ export default class ComDistrictScene extends Phaser.Scene {
     camera.startFollow(this.player, true);
 
     this.transitioning = false;
+
+    this.multiplayer = new MultiplayerManager(this, "ComDistrictScene");
+    this.multiplayer.create(this.player);
+
+    // ── Land signboards ───────────────────────────────────────────
+    this._groundY   = groundY;
+    this._signboards = {};
+    this._spawnSignboards();
+
+    const ui = this.scene.get("UIScene");
+    ui?.setGold(gameState.gold);
+
+    this._onStateChange = () => {
+      this._spawnSignboards();
+      this.scene.get("UIScene")?.setGold(gameState.gold);
+    };
+    gameState.on(this._onStateChange);
+    this.events.once("shutdown", () => gameState.off(this._onStateChange));
 }
 
-  update() {
+  _spawnSignboards() {
+    LAND_PARCELS.forEach(parcel => {
+      const owner = gameState.landOwnership[parcel.id];
+      if (owner && !this._signboards[parcel.id]) {
+        const centerX = (parcel.startX + parcel.endX) / 2;
+        this._signboards[parcel.id] = new LandSignboard(
+          this, centerX, this._groundY, parcel.id, owner,
+        );
+      }
+    });
+  }
+
+  update(time, delta) {
+    this.multiplayer?.update(delta);
+    this.multiplayer?.emitMove(this.player, time);
     this.player?.update();
+    Object.values(this._signboards ?? {}).forEach(sb => sb.update(this.player));
 
     // Move back to previous scene if player reaches left edge
     if (!this.transitioning && this.player && this.player.x < 150) {
@@ -192,6 +233,7 @@ export default class ComDistrictScene extends Phaser.Scene {
         this.scene.start("LoadingScene", {
           nextScene: "StarterAreaScene",
           loaderKey: "world",
+          spawnSide: "right",
         });
       });
     }
@@ -205,6 +247,7 @@ export default class ComDistrictScene extends Phaser.Scene {
         this.scene.start("LoadingScene", {
           nextScene: "VillageOutskirtsScene",
           loaderKey: "village",
+          spawnSide: "left",
         });
       });
     }
