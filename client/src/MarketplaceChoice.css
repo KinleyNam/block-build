@@ -1,0 +1,73 @@
+.mchoice {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2rem;
+  pointer-events: none;
+}
+
+.mchoice__box {
+  pointer-events: all;
+  width: min(84vw, 720px);
+  background: rgba(13, 6, 0, 0.95);
+  border: 2px solid #c89030;
+  border-radius: 6px;
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+.mchoice__speaker {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #d4a030;
+  margin: 0 0 0.35rem;
+}
+
+.mchoice__text {
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  color: #ede0c4;
+  margin: 0 0 0.85rem;
+  line-height: 1.5;
+}
+
+.mchoice__buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Reuse the title-screen button-shell design */
+.mchoice__btn {
+  background: #694230;
+  border: none;
+  border-radius: 5px;
+  padding: 0.35rem;
+  box-shadow: 0 0 0 2px rgba(48, 28, 19, 0.7);
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+
+.mchoice__btn:hover  { filter: brightness(1.18); }
+.mchoice__btn:active { filter: brightness(0.9); }
+
+.mchoice__btn-inner {
+  display: block;
+  border: 2px solid #a37764;
+  border-radius: 4px;
+  background: #694230;
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.4rem 1.25rem;
+  text-shadow: 0 2px 0 rgba(52, 29, 20, 0.45);
+}
+
+.mchoice__btn--confirm .mchoice__btn-inner {
+  border-color: #d4a030;
+  color: #ffe8a0;
+}

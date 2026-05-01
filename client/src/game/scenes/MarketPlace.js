@@ -1,8 +1,10 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
+import MultiplayerManager from "../MultiplayerManager";
 import { createPlayerAnimations, preloadMarketplaceAssets, createMarketAnimations } from "../assets";
 import DialogueBox from "../objects/NpcInteraction";
 import DIALOGUES from "../dialouge/marketPlaceDialogue";
+import { ensureHud } from "./UIScene";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -112,6 +114,10 @@ export default class MarketPlace extends Phaser.Scene {
     }
   }
 
+  init(data) {
+    this.spawnSide = data?.spawnSide || "left";
+  }
+
   preload() {
     preloadMarketplaceAssets(this);
   }
@@ -119,6 +125,8 @@ export default class MarketPlace extends Phaser.Scene {
   create() {
     const height = this.scale.height;
     const camera = this.cameras.main;
+
+    ensureHud(this);
 
     createPlayerAnimations(this);
     createMarketAnimations(this);
@@ -148,10 +156,16 @@ export default class MarketPlace extends Phaser.Scene {
     this.buildStable(groundY);
     this.buildTownHall(groundY);
 
-    this.player = new Player(this, 350, groundY - 60);
+    const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200;
+    this.player = new Player(this, spawnX, groundY - 60);
+    this.player.setFlipX(this.spawnSide !== "right");
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
+    this.transitioning = false;
+
+    this.multiplayer = new MultiplayerManager(this, "MarketPlace");
+    this.multiplayer.create(this.player);
 
     this.ePrompt = this.add.image(0, 0, "eKeyPrompt")
       .setScale(1)
@@ -257,7 +271,10 @@ export default class MarketPlace extends Phaser.Scene {
   }
 
 
-  update() {
+  update(time, delta) {
+    this.multiplayer?.update(delta);
+    this.multiplayer?.emitMove(this.player, time);
+
     if (this.dialogueBox?.isOpen) {
       this.player?.body?.setVelocityX(0);
       this.player?.playAnimation("idle");
@@ -298,7 +315,10 @@ export default class MarketPlace extends Phaser.Scene {
         } else if (inRange) {
           const data = DIALOGUES[nearest.dialogueKey];
           if (data) {
-            this.dialogueBox.show(data.name, data.lines);
+            const needsChoice = nearest.dialogueKey === "goddess";
+            this.dialogueBox.show(data.name, data.lines, needsChoice ? () => {
+              window.dispatchEvent(new CustomEvent("show-marketplace-choice"));
+            } : undefined);
           }
         }
       }
@@ -312,6 +332,7 @@ export default class MarketPlace extends Phaser.Scene {
         this.scene.start("LoadingScene", {
           nextScene: "VillageOutskirtsScene",
           loaderKey: "village",
+          spawnSide: "right",
         });
       });
     }

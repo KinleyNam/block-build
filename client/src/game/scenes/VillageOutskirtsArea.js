@@ -1,8 +1,10 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
+import MultiplayerManager from "../MultiplayerManager";
 import { createPlayerAnimations, createVillageAnimations, preloadVillageAssets } from "../assets";
 import DialogueBox from "../objects/NpcInteraction";
 import DIALOGUES from "../dialouge/villageDialogue";
+import { ensureHud } from "./UIScene";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -139,6 +141,10 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     return sprite;
   }
 
+  init(data) {
+    this.spawnSide = data?.spawnSide || "left";
+  }
+
   preload() {
     preloadVillageAssets(this);
   }
@@ -146,6 +152,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
   create() {
     const height = this.scale.height;
     const camera = this.cameras.main;
+
+    ensureHud(this);
 
     createPlayerAnimations(this);
     createVillageAnimations(this);
@@ -200,7 +208,9 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.buildTavernArea(groundY);
     this.buildStableArea(groundY);
 
-    this.player = new Player(this, 100, groundY - 60);
+    const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200;
+    this.player = new Player(this, spawnX, groundY - 60);
+    this.player.setFlipX(this.spawnSide !== "right");
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
@@ -212,6 +222,10 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
 
     this.eKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.dialogueBox = new DialogueBox(this);
+    this.transitioning = false;
+
+    this.multiplayer = new MultiplayerManager(this, "VillageOutskirtsScene");
+    this.multiplayer.create(this.player);
 
     this.music = null;
     if (this.cache.audio.has("ciaccona")) {
@@ -307,7 +321,10 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.prop("wall", 2988, groundY, 1.4, 0, 10);
   }
 
-  update() {
+  update(time, delta) {
+    this.multiplayer?.update(delta);
+    this.multiplayer?.emitMove(this.player, time);
+
     if (this.dialogueBox?.isOpen) {
       this.player?.body?.setVelocityX(0);
       this.player?.playAnimation("idle");
@@ -373,11 +390,12 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
         this.sound.stopAll();
         this.scene.start("LoadingScene", {
           nextScene: "MarketPlace",
-          loaderKey: "Nocstella",
+          loaderKey: "market",
+          spawnSide: "left",
         });
       });
     }
-    if (!this.transitioning && this.player && this.player.x < 70) {
+    if (!this.transitioning && this.player && this.player.x < 150) {
       this.transitioning = true;
       this.cameras.main.fadeOut(600, 0, 0, 0);
       this.cameras.main.once("camerafadeoutcomplete", () => {
@@ -385,6 +403,7 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
         this.scene.start("LoadingScene", {
           nextScene: "ComDistrictScene",
           loaderKey: "commercial",
+          spawnSide: "right",
         });
       });
     }

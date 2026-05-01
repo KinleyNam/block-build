@@ -13,10 +13,11 @@ export default class DialogueBox {
     return this.scene.scene.get("UIScene");
   }
 
-  show(npcName, lines) {
+  show(npcName, lines, onClose) {
     this.isOpen = true;
     this._ui()?.showDialogue(npcName, lines, () => {
       this.isOpen = false;
+      onClose?.();
     });
   }
 

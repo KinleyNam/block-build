@@ -4,8 +4,8 @@ const VILLAGE_DIALOGUES = {
     name: "Resting Soldier",
     lines: [
       "Ah, finally a moment to sit.",
-      "This metal gear is pretty solid.",
-      "It's like as if it was made from the finest steel in the land.",
+      "We've been marching for three days straight.",
+      "The captain says we rest here until dawn.",
     ],
   },
   ladyChef: {
@@ -13,37 +13,37 @@ const VILLAGE_DIALOGUES = {
     lines: [
       "Stand back — the stew is nearly ready!",
       "It's nothing fancy. Turnips, barley, a bit of salted pork.",
-      "Oh how I miss the fresh vegetables near Baldur's Gate",
+      "But out here, it tastes better than a royal feast.",
     ],
   },
   sittingKnight_camp2: {
     name: "Weary Guard",
     lines: [
       "I just need five minutes.",
-      "And five hundred of those smoking pipe",
+      "Don't tell the captain you saw me sitting.",
     ],
   },
   archerCamp: {
     name: "Camp Archer",
     lines: [
       "Eyes on the tree line, traveler.",
-      "I heard there was a Barbarian King out there somewhere.",
-      "My bow is ready. Give me a target",
+      "There've been wolves spotted near the camp at night.",
+      "My bow is ready. Theirs aren't.",
     ],
   },
   beerMan: {
     name: "Off-Duty Soldier",
     lines: [
       "Nothing like a cold cup after a long patrol.",
-      "I heard of a story about a Monkey King",
-      "I believe he was a strong warrior",
+      "You look like you could use one too.",
+      "Pull up a stump. I'll find another cup.",
     ],
   },
   blueLady: {
     name: "Grape Merchant",
     lines: [
       "Finest grapes in the region, right here.",
-      "Do not be the fox that misses the grapes just because they are out of reach.",
+      "Grown in the southern valleys — sweet as wine before they're pressed.",
       "Care to try one?",
     ],
   },
@@ -60,15 +60,15 @@ const VILLAGE_DIALOGUES = {
     name: "Travelling Merchant",
     lines: [
       "I've been on the road for six weeks.",
-      "I pray my back doesn't give out before I reach the next town.",
-      "The next town is two days away. Gotta rest for now.",
+      "Sometimes you just need to sit and breathe for a moment.",
+      "The next town is two days away. No rush.",
     ],
   },
   guitaristKnight: {
     name: "Guitarist Knight",
     lines: [
-      "♪ Toss a coin to the Witcher ♪",
-      "♪ Oh valley of plenty ♪",
+      "♪ They said knights don't play guitar... ♪",
+      "♪ ...they were wrong. ♪",
     ],
   },
   fluteGuy: {
@@ -91,7 +91,7 @@ const VILLAGE_DIALOGUES = {
     name: "Resting Traveller",
     lines: [
       "Please... don't wake me.",
-      "Wake me up when September ends.",
+      "I walked fifteen miles today.",
     ],
   },
   pubWaiter: {
@@ -121,8 +121,8 @@ const VILLAGE_DIALOGUES = {
     name: "Sir Broadgirth",
     lines: [
       "Ahh — that's the stuff.",
-      "I heard this song on a land where there are wuthering waves.",
-      "A green dressed elf sang this song on a tavern at that place.",
+      "The tavern here brews the finest ale north of the capital.",
+      "I come here every week. My horse knows the way on its own.",
     ],
   },
 
@@ -132,7 +132,7 @@ const VILLAGE_DIALOGUES = {
     lines: [
       "I'm waiting on a shipment from the eastern road.",
       "It's late. Three days late.",
-      "A certain man named Shylock will be angry at me",
+      "If it doesn't arrive by tomorrow, I'm riding out to find it myself.",
     ],
   },
   spanishInquisition: {
@@ -147,23 +147,23 @@ const VILLAGE_DIALOGUES = {
     name: "Roman Noblewoman",
     lines: [
       "My horse needs new shoes before we continue.",
-      "We are bound for Constantinople, Belisarius awaits me.",
+      "The stable master here is skilled, at least.",
     ],
   },
   baldKnight: {
     name: "Gate Warden",
     lines: [
-      "I have worked as a doctor, a bartender, a blacksmith, a mage and now as a guard",
-      "I am tired of all these jobs.",
-      "I wish to meet more damsels in distress.",
+      "HALT.",
+      "...Alright, you don't look dangerous. Pass.",
+      "But I'm watching you.",
     ],
   },
   shieldKnight1: {
     name: "Border Knight",
     lines: [
       "The road beyond here gets rough.",
-      "But it's not rougher than the road to Athens",
-      "I stumbled across a man famed to be the God of War. It wasn't a pleasant encounter.",
+      "Bandits have been spotted near the old mill.",
+      "Travel in groups if you can.",
     ],
   },
   shieldKnight2: {

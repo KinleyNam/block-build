@@ -1,6 +1,10 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
+import MultiplayerManager from "../MultiplayerManager";
 import { createPlayerAnimations, preloadCommercialAssets } from "../assets";
+import { ensureHud } from "./UIScene";
+import gameState, { LAND_PARCELS } from "../gameState";
+import LandSignboard from "../objects/LandSignboard";
 
 
 const WORLD_WIDTH = 3000;
@@ -78,9 +82,15 @@ export default class ComDistrictScene extends Phaser.Scene {
 }
 
 
+  init(data) {
+    this.spawnSide = data?.spawnSide || "left";
+  }
+
  create() {
     const height = this.scale.height;
     const camera = this.cameras.main;
+
+    ensureHud(this);
 
     this.physics.world.setBounds(0, 0, WORLD_WIDTH, height);
     camera.setBounds(0, 0, WORLD_WIDTH, height);
@@ -156,14 +166,49 @@ export default class ComDistrictScene extends Phaser.Scene {
     this.spawnRockPattern({ startX: 0, endX: WORLD_WIDTH, y: groundY+1, spacing: 100, scale: 0.75 });
 
     createPlayerAnimations(this);
-    this.player = new Player(this, 150, groundY - 60);
+    const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200;
+    this.player = new Player(this, spawnX, groundY - 60);
+    this.player.setFlipX(this.spawnSide !== "right");
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
     this.transitioning = false;
+
+    this.multiplayer = new MultiplayerManager(this, "ComDistrictScene");
+    this.multiplayer.create(this.player);
+
+    // ── Land signboards ───────────────────────────────────────────
+    this._groundY   = groundY;
+    this._signboards = {};
+    this._spawnSignboards();
+
+    const ui = this.scene.get("UIScene");
+    ui?.setGold(gameState.gold);
+
+    this._onStateChange = () => {
+      this._spawnSignboards();
+      this.scene.get("UIScene")?.setGold(gameState.gold);
+    };
+    gameState.on(this._onStateChange);
+    this.events.once("shutdown", () => gameState.off(this._onStateChange));
 }
 
-  update() {
+  _spawnSignboards() {
+    LAND_PARCELS.forEach(parcel => {
+      const owner = gameState.landOwnership[parcel.id];
+      if (owner && !this._signboards[parcel.id]) {
+        const centerX = (parcel.startX + parcel.endX) / 2;
+        this._signboards[parcel.id] = new LandSignboard(
+          this, centerX, this._groundY, parcel.id, owner,
+        );
+      }
+    });
+  }
+
+  update(time, delta) {
+    this.multiplayer?.update(delta);
+    this.multiplayer?.emitMove(this.player, time);
     this.player?.update();
+    Object.values(this._signboards ?? {}).forEach(sb => sb.update(this.player));
 
     if (!this.transitioning && this.player && this.player.x < 150) {
       this.transitioning = true;
@@ -173,6 +218,7 @@ export default class ComDistrictScene extends Phaser.Scene {
         this.scene.start("LoadingScene", {
           nextScene: "StarterAreaScene",
           loaderKey: "world",
+          spawnSide: "right",
         });
       });
     }
@@ -185,6 +231,7 @@ export default class ComDistrictScene extends Phaser.Scene {
         this.scene.start("LoadingScene", {
           nextScene: "VillageOutskirtsScene",
           loaderKey: "village",
+          spawnSide: "left",
         });
       });
     }
