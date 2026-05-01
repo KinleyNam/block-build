@@ -15,7 +15,7 @@ const GENDERS = [
 ];
 
 function App() {
-  const [screen, setScreen] = useState("BuyAndSell");
+  const [screen, setScreen] = useState("title");
   const [username, setUsername] = useState("");
   const [genderIndex, setGenderIndex] = useState(0);
 

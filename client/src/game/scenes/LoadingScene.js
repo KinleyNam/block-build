@@ -24,8 +24,8 @@ export default class LoadingScene extends Phaser.Scene {
 
   /** Receives data passed by scene.start("LoadingScene", data) */
   init(data) {
-    this.nextScene  = data?.nextScene  || "MarketPlace";
-    this.loaderKey  = data?.loaderKey  || "market";
+    this.nextScene  = data?.nextScene  || "StarterAreaScene";
+    this.loaderKey  = data?.loaderKey  || "world";
     this.spawnSide  = data?.spawnSide  || "left";
   }
 

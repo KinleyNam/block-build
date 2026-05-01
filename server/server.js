@@ -1,14 +1,19 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const cors = require("cors");
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
 
 const app = express();
-app.use(cors());
+const httpServer = http.createServer(app);
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] }
+app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
+
+app.get("/", (req, res) => {
+  res.json({ message: "Block Build backend is running" });
+});
+
+const io = new Server(httpServer, {
+  cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
 const players = {};
@@ -40,7 +45,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Client requests current player list after its scene is ready
   socket.on("getPlayers", () => {
     socket.emit("currentPlayers", players);
   });
@@ -53,4 +57,5 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+httpServer.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
