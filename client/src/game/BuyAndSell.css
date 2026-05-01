@@ -1,0 +1,285 @@
+.buy-sell-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #a7dcea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buy-sell-screen__background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+  z-index: 0;
+}
+
+.buy-sell-screen__panels {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.buy-sell-screen__panel-wrap {
+  position: relative;
+  width: min(21rem, 28vw);
+  padding-bottom: 90px;
+}
+
+.buy-sell-screen__panel-wrap--right {
+  width: min(30rem, 44vw);
+}
+
+.buy-sell-screen__panel {
+  width: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.buy-sell-screen__panel-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 14%;
+  box-sizing: border-box;
+}
+
+/* ── Left panel buttons ─────────────────────────────────────── */
+.buy-sell-screen__action-btn {
+  cursor: pointer;
+  width: 80%;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.buy-sell-screen__action-btn .button-shell__inner {
+  font-size: clamp(0.75rem, 1.1vw, 1rem);
+  min-width: unset;
+  width: 100%;
+  padding: 0.3rem 0.1rem;
+  box-sizing: border-box;
+  transition: color 0.15s, background 0.15s;
+}
+
+.buy-sell-screen__action-btn:hover .button-shell__inner {
+  color: #000;
+  background: #e8a830;
+}
+
+.buy-sell-screen__building-item:hover,
+.buy-sell-screen__item:hover {
+  border-color: #f7d060;
+}
+
+.buy-sell-screen__building-item:hover span,
+.buy-sell-screen__item:hover span {
+  color: #000;
+}
+
+/* ── Right panel nav ────────────────────────────────────────── */
+.buy-sell-screen__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 90%;
+  flex-shrink: 0;
+  margin-bottom: 0.5rem;
+  background: transparent;
+}
+
+.buy-sell-screen__nav .button-shell__inner {
+  font-size: clamp(0.75rem, 1vw, 0.95rem);
+  min-width: 4.5rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.buy-sell-screen__arrow {
+  border: 0;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 900;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buy-sell-screen__arrow:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Fixed height content area ──────────────────────────────── */
+.buy-sell-screen__items-area {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Land grid — 3 cards in one row ────────────────────────── */
+.buy-sell-screen__grid {
+  display: flex;
+  flex-direction: row;    /* horizontal, one row */
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  justify-content: center;
+  align-items: flex-start;
+  width: 90%;
+}
+
+.buy-sell-screen__item {
+  display: flex;
+  flex-direction: column; /* image top, text below */
+  align-items: center;
+  flex: 1;
+  gap: 0.15rem;
+  padding: 0.25rem;
+  border: 2px solid #8b6914;
+  border-radius: 3px;
+  cursor: pointer;
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: 0.6rem;
+  box-sizing: border-box;
+  background: #694230;
+  transition: border-color 0.15s;
+}
+
+.buy-sell-screen__item--selected {
+  border-color: #f7d060;
+  background: rgba(200, 160, 40, 0.2);
+}
+
+.buy-sell-screen__item-thumb {
+  width: 100%;
+  height: 54px;
+  object-fit: cover;
+  image-rendering: pixelated;
+  border: 1px solid #8b6914;
+}
+
+/* ── Building list — stacked vertically, full width ─────────── */
+.buy-sell-screen__building-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 90%;
+  padding-top: 1rem;
+  overflow: hidden;
+}
+
+.buy-sell-screen__building-item {
+  display: flex;
+  flex-direction: column; /* image top, text below */
+  align-items: center;
+  gap: 0.25rem;
+  background: #694230;
+  border: 2px solid #8b6914;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0.25rem;
+  padding-bottom: 0.7rem;
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: 0.65rem;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.buy-sell-screen__building-item--selected {
+  border-color: #f7d060;
+  background: rgba(200, 160, 40, 0.2);
+}
+
+.buy-sell-screen__building-thumb {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  image-rendering: pixelated;
+  border: 1px solid #8b6914;
+  flex-shrink: 0;
+}
+
+/* ── Override padding for right panel only ───────────────────── */
+.buy-sell-screen__panel-wrap--right .buy-sell-screen__panel-content {
+  padding-top: 28%;
+  padding-bottom: 12%;
+  padding-left: 12%;
+  padding-right: 12%;
+  justify-content: flex-start;
+}
+
+/* ── Confirm dialog ──────────────────────────────────────────── */
+.buy-sell-screen__confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.buy-sell-screen__confirm-text {
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.buy-sell-screen__confirm-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.buy-sell-screen__confirm-yes .button-shell__inner {
+  background: #2a7a2a;
+  border-color: #1a5a1a;
+  min-width: 4.5rem;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.buy-sell-screen__confirm-yes:hover .button-shell__inner {
+  color: #000;
+  background: #3aaa3a;
+}
+
+.buy-sell-screen__confirm-no .button-shell__inner {
+  background: #8a2040;
+  border-color: #5a1020;
+  min-width: 4.5rem;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.buy-sell-screen__confirm-no:hover .button-shell__inner {
+  color: #000;
+  background: #cc3a5a;
+}

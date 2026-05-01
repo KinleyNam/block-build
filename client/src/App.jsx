@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Game from "./game/Game";
+import BuyAndSell from "./game/BuyAndSell";
 import logoImg from "./assets/UIElement/Block-Build-Logo.png";
 import menuPanelImg from "./assets/UIElement/main-menu-with-Chains.png";
 import titleBackgroundImg from "./assets/UIElement/title-background.png";
@@ -14,13 +15,16 @@ const GENDERS = [
 ];
 
 function App() {
-  const [screen, setScreen] = useState("title");
+  const [screen, setScreen] = useState("BuyAndSell");
   const [username, setUsername] = useState("");
   const [genderIndex, setGenderIndex] = useState(0);
 
   if (screen === "game") {
     return <Game />;
   }
+  if (screen === "BuyAndSell") {
+  return <BuyAndSell onBack={() => setScreen("game")} />;
+}
 
   if (screen === "character") {
     const gender = GENDERS[genderIndex];
