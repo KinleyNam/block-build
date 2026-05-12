@@ -6,6 +6,8 @@ import titleBackgroundImg from "./assets/UIElement/title-background.png";
 import userCreationBackgroundImg from "./assets/UIElement/user-creation-background.png";
 import malePreviewImg from "./assets/player/male-player-character.png";
 import femalePreviewImg from "./assets/player/female-player-character.png";
+import { createUser, getSkills } from "./api";
+import gameState from "./game/gameState";
 import "./App.css";
 
 const GENDERS = [
@@ -14,9 +16,28 @@ const GENDERS = [
 ];
 
 function App() {
-  const [screen, setScreen] = useState("title");
-  const [username, setUsername] = useState("");
+  const [screen,      setScreen]      = useState("title");
+  const [username,    setUsername]    = useState("");
   const [genderIndex, setGenderIndex] = useState(0);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState("");
+
+  async function handleStart() {
+    if (!username.trim()) { setError("Please enter a username."); return; }
+    setLoading(true);
+    setError("");
+    try {
+      const gender   = GENDERS[genderIndex].label;
+      const userData = await createUser(username.trim(), gender);
+      const skills   = await getSkills(userData.username);
+      gameState.setUser(userData, skills);
+      setScreen("game");
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (screen === "game") {
     return <Game />;
@@ -44,8 +65,10 @@ function App() {
             value={username}
             maxLength={18}
             placeholder="_____"
-            onChange={(event) => setUsername(event.target.value)}
+            onChange={(e) => { setUsername(e.target.value); setError(""); }}
           />
+
+          {error && <p className="character-screen__error">{error}</p>}
 
           <div className="character-screen__gender-row">
             <button
@@ -87,9 +110,12 @@ function App() {
           <button
             className="character-screen__next button-shell"
             type="button"
-            onClick={() => setScreen("game")}
+            onClick={handleStart}
+            disabled={loading}
           >
-            <span className="button-shell__inner">Next</span>
+            <span className="button-shell__inner">
+              {loading ? "Creating..." : "Next"}
+            </span>
           </button>
         </div>
       </div>

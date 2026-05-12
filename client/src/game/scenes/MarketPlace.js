@@ -5,6 +5,7 @@ import { createPlayerAnimations, preloadMarketplaceAssets, createMarketAnimation
 import DialogueBox from "../objects/NpcInteraction";
 import DIALOGUES from "../dialouge/marketPlaceDialogue";
 import { ensureHud } from "./UIScene";
+import gameState from "../gameState";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -166,6 +167,12 @@ export default class MarketPlace extends Phaser.Scene {
 
     this.multiplayer = new MultiplayerManager(this, "MarketPlace");
     this.multiplayer.create(this.player);
+
+    const ui = this.scene.get("UIScene");
+    ui?.setGold(gameState.gold);
+    this._onStateChange = () => this.scene.get("UIScene")?.setGold(gameState.gold);
+    gameState.on(this._onStateChange);
+    this.events.once("shutdown", () => gameState.off(this._onStateChange));
 
     this.ePrompt = this.add.image(0, 0, "eKeyPrompt")
       .setScale(1)

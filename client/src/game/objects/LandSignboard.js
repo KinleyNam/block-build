@@ -11,10 +11,10 @@ export default class LandSignboard {
 
     this.sprite = scene.add.image(x, y, "ownerSignboard")
       .setOrigin(0.5, 1)
-      .setScale(0.5);
+      .setScale(1);
 
     this._ePrompt = scene.add.image(x, y - this.sprite.displayHeight - 8, "eKeyPrompt")
-      .setScale(0.5)
+      .setScale(1)
       .setVisible(false);
 
     this._dialogue = new DialogueBox(scene);

@@ -154,8 +154,6 @@ export default function BuyAndSell({ onBack }) {
               </button>
             ))}
 
-            <div className="buy-sell-screen__gold">Gold: {gold}G</div>
-
             <button
               className="button-shell buy-sell-screen__action-btn"
               type="button"

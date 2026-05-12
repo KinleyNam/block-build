@@ -1,22 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import titleBgImg     from "./assets/UIElement/title-background.png";
 import mainMenuImg    from "./assets/UIElement/main-menu-with-Chains.png";
 import buttonBgImg    from "./assets/UIElement/Button-Background.png";
 import landImage      from "./assets/UIElement/land-Image.png";
 import maleAvatarImg  from "./assets/player/profile.png";
+import gameState      from "./game/gameState";
 import "./BuyAndSell.css";
 import "./EscapeMenu.css";
 
-const PROFILE = {
-  username: "Kami_Sama_910",
-  nfts: 4,
-  gold: 324,
-  skills: [
-    { name: "Carpentry (Level-1)",     sub: "to-next: 250 exp" },
-    { name: "Blacksmithing (Level-1)", sub: "to-next: 250 exp" },
-    { name: "Magic (Level-3)",         sub: "to-next: Max Lvl"  },
-  ],
+const SKILL_LABELS = {
+  carpentry:     "Carpentry",
+  blacksmithing: "Blacksmithing",
+  magicResearch: "Magic Research",
 };
+
+function formatSkills(skills) {
+  return Object.entries(SKILL_LABELS).map(([key, label]) => {
+    const { exp = 0, level = 1 } = skills?.[key] ?? {};
+    const toNext = level * 100 - exp;
+    return { name: `${label} (Level-${level})`, sub: `to-next: ${toNext} exp` };
+  });
+}
 
 const REQUESTS = {
   capacity: "0/2",
@@ -68,19 +72,34 @@ function NftTab({ items, category }) {
 }
 
 function ProfileTab() {
+  const [profile, setProfile] = useState({
+    username: gameState.username,
+    gold:     gameState.gold,
+    skills:   formatSkills(gameState.skills),
+  });
+
+  useEffect(() => {
+    const sync = () => setProfile({
+      username: gameState.username,
+      gold:     gameState.gold,
+      skills:   formatSkills(gameState.skills),
+    });
+    gameState.on(sync);
+    return () => gameState.off(sync);
+  }, []);
+
   return (
     <div className="emenu__tab emenu__tab--profile">
       <div className="emenu__profile-top">
         <img className="emenu__avatar" src={maleAvatarImg} alt="avatar" />
         <div className="emenu__profile-stats">
-          <div className="emenu__stat emenu__stat--name">{PROFILE.username}</div>
-          <div className="emenu__stat">Nfts: {PROFILE.nfts}</div>
-          <div className="emenu__stat">Gold: {PROFILE.gold}G</div>
+          <div className="emenu__stat emenu__stat--name">{profile.username}</div>
+          <div className="emenu__stat">Gold: {profile.gold}G</div>
         </div>
       </div>
       <div className="emenu__skills-box">
         <div className="emenu__skills-title">Skill Lvl</div>
-        {PROFILE.skills.map((s, i) => (
+        {profile.skills.map((s, i) => (
           <div key={i} className="emenu__skill">
             <div className="emenu__skill-name">{s.name}</div>
             <div className="emenu__skill-sub">{s.sub}</div>

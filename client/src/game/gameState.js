@@ -6,15 +6,35 @@ export const LAND_PARCELS = [
   { id: "A5", label: "A-5", startX: 2000, endX: 2500, price: 180 },
 ];
 
+const DEFAULT_SKILLS = {
+  carpentry:     { exp: 0, level: 1 },
+  blacksmithing: { exp: 0, level: 1 },
+  magicResearch: { exp: 0, level: 1 },
+};
+
 const gameState = {
-  username: "Kami_Sama_910",
-  gold: 1000,
+  username:      "",
+  gender:        "Male",
+  gold:          1000,
+  skills:        { ...DEFAULT_SKILLS },
   landOwnership: {},
-  _listeners: [],
+  _listeners:    [],
 
   on(fn)  { this._listeners.push(fn); },
   off(fn) { this._listeners = this._listeners.filter(f => f !== fn); },
   _emit() { this._listeners.forEach(fn => fn()); },
+
+  setUser(userData, skillsData) {
+    this.username = userData.username;
+    this.gender   = userData.gender;
+    if (skillsData) this.skills = skillsData;
+    this._emit();
+  },
+
+  setSkills(skillsData) {
+    this.skills = skillsData;
+    this._emit();
+  },
 
   buyLand(landId) {
     const parcel = LAND_PARCELS.find(p => p.id === landId);

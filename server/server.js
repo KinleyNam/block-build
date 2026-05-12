@@ -1,16 +1,29 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const cors = require("cors");
+import "dotenv/config";
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import mongoose from "mongoose";
+import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
+app.use(express.json());
+
+app.use("/users", userRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] }
+  cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
+// ── MongoDB ───────────────────────────────────────────────────────────────
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB error:", err));
+
+// ── Socket.io multiplayer ─────────────────────────────────────────────────
 const players = {};
 
 io.on("connection", (socket) => {
@@ -40,7 +53,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Client requests current player list after its scene is ready
   socket.on("getPlayers", () => {
     socket.emit("currentPlayers", players);
   });

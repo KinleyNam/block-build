@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import gameState from "../gameState";
 
 // ── Dialogue box constants ──────────────────────────────────────
 const BOX_H      = 110;
@@ -39,10 +40,16 @@ export default class UIScene extends Phaser.Scene {
     this.goldHolderImage  = this.add.image(0, 0, "uiGoldHolder").setOrigin(1, 0);
     this.leaderBoardImage = this.add.image(0, 0, "uiLeaderBoard").setOrigin(1, 0);
 
-    this.goldText = this.add.text(0, 0, "0", {
+    this.goldText = this.add.text(0, 0, String(gameState.gold), {
       fontFamily: "monospace", fontSize: "20px",
       color: "#fff4cf", fontStyle: "bold",
     }).setOrigin(0.5, 0.5);
+
+    this._onGoldChange = () => {
+      this.goldText.setText(String(gameState.gold));
+      this._layout();
+    };
+    gameState.on(this._onGoldChange);
 
     this.leaderboardText = this.add.text(0, 0, DEFAULT_LEADERBOARD.join("\n"), {
       fontFamily: "monospace", fontSize: "22px",
@@ -86,6 +93,7 @@ export default class UIScene extends Phaser.Scene {
     this.events.once("shutdown", () => {
       this.scale.off("resize", this._layout, this);
       window.removeEventListener("escape-menu", this._onEscapeMenu);
+      gameState.off(this._onGoldChange);
     });
   }
 
@@ -127,6 +135,7 @@ export default class UIScene extends Phaser.Scene {
   }
 
   setGold(amount) {
+    if (!this.goldText) return;
     this.goldText.setText(String(amount));
     this._layout();
   }
