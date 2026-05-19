@@ -28,6 +28,9 @@ const userSchema = new mongoose.Schema(
       blacksmithing: { type: skillSchema, default: () => ({}) },
       magicResearch: { type: skillSchema, default: () => ({}) },
     },
+    lastScene: { type: String,  default: null },
+    lastX:     { type: Number,  default: null },
+    lastY:     { type: Number,  default: null },
   },
   { timestamps: true }
 );

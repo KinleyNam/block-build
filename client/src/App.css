@@ -92,34 +92,87 @@
   image-rendering: pixelated;
 }
 
-.title-screen__start {
+.title-screen__buttons {
   position: absolute;
-  bottom: calc(20% + 120px);
+  bottom: calc(18% + 50px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
   width: 62%;
-  padding: 0;
-  border: 0;
-  background: transparent;
+}
+
+.title-screen__menu-btn {
+  width: 100%;
   cursor: pointer;
 }
 
-.title-screen__start-inner {
+.title-screen__menu-btn .button-shell__inner {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: clamp(0.6rem, 2.8vw, 1.3rem);
+  white-space: nowrap;
+}
+
+.wallet-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wallet-modal {
+  position: relative;
+  width: min(27rem, 90vw);
+}
+
+.wallet-modal__panel {
+  width: 100%;
+  image-rendering: pixelated;
   display: block;
 }
 
-.title-screen__start-inner::before {
-  content: "Start";
-  display: block;
-  border: 2px solid #a37764;
-  border-radius: 5px;
-  background: #694230;
-  color: #f7f1e6;
+.wallet-modal__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: 1.5rem 1.8rem;
+  padding-top: calc(1.5rem + 100px);
+}
+
+.wallet-modal__text {
+  margin: 0;
+  background: #5a1a2a;
+  border: 2px solid #8b3a4a;
+  border-radius: 4px;
+  color: #f7d0d8;
   font-family: monospace;
-  font-size: clamp(1.2rem, 2vw, 1.75rem);
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
   font-weight: 700;
-  letter-spacing: 0.03em;
-  padding: 0.5rem 0;
+  line-height: 1.4;
+  padding: 0.5rem 0.75rem;
   text-align: center;
-  text-shadow: 0 2px 0 rgba(52, 29, 20, 0.45);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  width: 75%;
+  box-sizing: border-box;
+}
+
+.wallet-modal__btn {
+  cursor: pointer;
+}
+
+.wallet-modal__btn .button-shell__inner {
+  min-width: 5rem;
+  font-size: 1rem;
 }
 
 .character-screen {
@@ -255,11 +308,21 @@
   cursor: pointer;
 }
 
-.title-screen__start:hover {
+.title-screen__error {
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ff6060;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.title-screen__menu-btn:hover {
   transform: translateY(-1px);
 }
 
-.title-screen__start:active {
+.title-screen__menu-btn:active {
   transform: translateY(1px);
 }
 

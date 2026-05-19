@@ -4,6 +4,7 @@ import MultiplayerManager from "../MultiplayerManager";
 import { createPlayerAnimations } from "../assets";
 import { ensureHud } from "./UIScene";
 import TutorialController from "../objects/TutorialController";
+import gameState from "../gameState";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 1.5;
@@ -82,6 +83,8 @@ export default class StarterAreaScene extends Phaser.Scene {
 
     init(data) {
         this.spawnSide = data?.spawnSide || "left";
+        this.spawnX    = data?.spawnX    ?? null;
+        this.spawnY    = data?.spawnY    ?? null;
     }
 
     create() {
@@ -144,8 +147,9 @@ export default class StarterAreaScene extends Phaser.Scene {
         });
 
             createPlayerAnimations(this);
-        const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 150;
-        this.player = new Player(this, spawnX, groundY - 60);
+        const spawnX = this.spawnX ?? (this.spawnSide === "right" ? WORLD_WIDTH - 200 : 150);
+        const spawnY = this.spawnY ?? (groundY - 60);
+        this.player = new Player(this, spawnX, spawnY);
         this.player.setFlipX(this.spawnSide !== "right");
 
         this.physics.add.collider(this.player, this.groundGroup);
@@ -157,8 +161,11 @@ export default class StarterAreaScene extends Phaser.Scene {
         this.multiplayer = new MultiplayerManager(this, "StarterAreaScene");
         this.multiplayer.create(this.player);
 
-        // hardcoded true for now — swap for a backend/save check later
-        const isNewPlayer = true;
+        this.events.once("shutdown", () => {
+            if (this.player) gameState.savePosition("StarterAreaScene", this.player.x, this.player.y);
+        });
+
+        const isNewPlayer = gameState.lastScene === null;
         this.tutorial = null;
         if (isNewPlayer) {
             this.tutorial = new TutorialController(this, this.player, groundY);

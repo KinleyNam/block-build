@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets, preloadCommercialAssets } from "../assets";
+import gameState from "../gameState";
 
 // Map of loaderKey → asset loader function
 const LOADERS = {
@@ -7,6 +8,13 @@ const LOADERS = {
   village:    preloadVillageAssets,
   market:     preloadMarketplaceAssets,
   commercial: preloadCommercialAssets,
+};
+
+const SCENE_LOADERS = {
+  StarterAreaScene:     "world",
+  VillageOutskirtsScene: "village",
+  MarketPlace:          "market",
+  ComDistrictScene:     "commercial",
 };
 
 // Map of loaderKey → flavour text shown during loading
@@ -24,9 +32,21 @@ export default class LoadingScene extends Phaser.Scene {
 
   /** Receives data passed by scene.start("LoadingScene", data) */
   init(data) {
-    this.nextScene  = data?.nextScene  || "MarketPlace";
-    this.loaderKey  = data?.loaderKey  || "market";
-    this.spawnSide  = data?.spawnSide  || "left";
+    if (data?.nextScene) {
+      // Normal scene transition
+      this.nextScene = data.nextScene;
+      this.loaderKey = data.loaderKey || "world";
+      this.spawnSide = data.spawnSide || "left";
+      this.spawnX    = data.spawnX    ?? null;
+      this.spawnY    = data.spawnY    ?? null;
+    } else {
+      // First boot — use saved position if available
+      this.nextScene = gameState.lastScene || "StarterAreaScene";
+      this.loaderKey = SCENE_LOADERS[this.nextScene] || "world";
+      this.spawnSide = "left";
+      this.spawnX    = gameState.lastX;
+      this.spawnY    = gameState.lastY;
+    }
   }
 
   preload() {
@@ -88,7 +108,7 @@ export default class LoadingScene extends Phaser.Scene {
     this.load.once("complete", () => {
       statusText.setText("Ready!");
       this.time.delayedCall(150, () => {
-        this.scene.start(this.nextScene, { spawnSide: this.spawnSide });
+        this.scene.start(this.nextScene, { spawnSide: this.spawnSide, spawnX: this.spawnX, spawnY: this.spawnY });
       });
     });
 

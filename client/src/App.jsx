@@ -6,8 +6,10 @@ import titleBackgroundImg from "./assets/UIElement/title-background.png";
 import userCreationBackgroundImg from "./assets/UIElement/user-creation-background.png";
 import malePreviewImg from "./assets/player/male-player-character.png";
 import femalePreviewImg from "./assets/player/female-player-character.png";
-import { createUser, getSkills } from "./api";
+import { createUser, getSkills, getUserByWallet } from "./api";
 import gameState from "./game/gameState";
+import { connectWallet } from "./game/wallet";
+import { getGoldBalance, claimFaucet } from "./game/contractService";
 import "./App.css";
 
 const GENDERS = [
@@ -16,11 +18,50 @@ const GENDERS = [
 ];
 
 function App() {
-  const [screen,      setScreen]      = useState("title");
-  const [username,    setUsername]    = useState("");
-  const [genderIndex, setGenderIndex] = useState(0);
-  const [loading,     setLoading]     = useState(false);
-  const [error,       setError]       = useState("");
+  const [screen,        setScreen]        = useState("title");
+  const [username,      setUsername]      = useState("");
+  const [genderIndex,   setGenderIndex]   = useState(0);
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [walletModal,   setWalletModal]   = useState(false);
+
+  async function handleConnectWallet() {
+    setWalletLoading(true);
+    setError("");
+    try {
+      const address = await connectWallet();
+      setWalletAddress(address);
+      gameState.walletAddress = address;
+
+      // Sync gold balance from chain
+      try {
+        const balance = await getGoldBalance(address);
+        gameState.gold = balance;
+        gameState._emit();
+      } catch {
+        console.warn("Could not reach contracts — are they deployed on this network?");
+      }
+
+      // Check for a returning player by wallet address
+      try {
+        const existing = await getUserByWallet(address);
+        const skills   = await getSkills(existing.username);
+        gameState.setUser(existing, skills);
+        gameState.lastScene = existing.lastScene || null;
+        gameState.lastX     = existing.lastX     ?? null;
+        gameState.lastY     = existing.lastY     ?? null;
+        setScreen("game"); // skip character creation
+      } catch {
+        // No existing account — user will click Start to create one
+      }
+    } catch (err) {
+      setError(err.message || "Wallet connection failed.");
+    } finally {
+      setWalletLoading(false);
+    }
+  }
 
   async function handleStart() {
     if (!username.trim()) { setError("Please enter a username."); return; }
@@ -28,9 +69,18 @@ function App() {
     setError("");
     try {
       const gender   = GENDERS[genderIndex].label;
-      const userData = await createUser(username.trim(), gender);
+      const userData = await createUser(username.trim(), gender, walletAddress);
       const skills   = await getSkills(userData.username);
       gameState.setUser(userData, skills);
+
+      // New player — claim starting gold from faucet
+      try {
+        await claimFaucet();
+        const balance = await getGoldBalance(walletAddress);
+        gameState.gold = balance;
+        gameState._emit();
+      } catch { /* contracts not deployed yet */ }
+
       setScreen("game");
     } catch (err) {
       setError(err.message || "Something went wrong.");
@@ -122,23 +172,67 @@ function App() {
     );
   }
 
+  // Title screen
   return (
     <div className="title-screen">
       <img className="title-screen__background" src={titleBackgroundImg} alt="" />
 
       <div className="title-screen__ground" />
 
+      {walletModal && (
+        <div className="wallet-modal__overlay" onClick={() => setWalletModal(false)}>
+          <div className="wallet-modal" onClick={e => e.stopPropagation()}>
+            <img className="wallet-modal__panel" src={menuPanelImg} alt="" />
+            <div className="wallet-modal__content">
+              <p className="wallet-modal__text">Please connect your wallet</p>
+              <button
+                className="button-shell wallet-modal__btn"
+                type="button"
+                onClick={() => setWalletModal(false)}
+              >
+                <span className="button-shell__inner">Okay</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="title-screen__content">
         <img className="title-screen__logo" src={logoImg} alt="Block Build" />
+
         <div className="title-screen__panel-wrap">
           <img className="title-screen__panel" src={menuPanelImg} alt="" />
-          <button
-            className="title-screen__start"
-            type="button"
-            onClick={() => setScreen("character")}
-          >
-            <span className="title-screen__start-inner" />
-          </button>
+
+          <div className="title-screen__buttons">
+            <button
+              className="button-shell title-screen__menu-btn"
+              type="button"
+              onClick={() => walletAddress ? setScreen("character") : setWalletModal(true)}
+            >
+              <span className="button-shell__inner">Start</span>
+            </button>
+
+            {walletAddress ? (
+              <div className="button-shell title-screen__menu-btn">
+                <span className="button-shell__inner">
+                  {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+                </span>
+              </div>
+            ) : (
+              <button
+                className="button-shell title-screen__menu-btn"
+                type="button"
+                onClick={handleConnectWallet}
+                disabled={walletLoading}
+              >
+                <span className="button-shell__inner">
+                  {walletLoading ? "Connecting..." : "Connect Wallet"}
+                </span>
+              </button>
+            )}
+
+            {error && <p className="title-screen__error">{error}</p>}
+          </div>
         </div>
       </div>
     </div>

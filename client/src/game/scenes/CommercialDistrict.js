@@ -5,6 +5,8 @@ import { createPlayerAnimations, preloadCommercialAssets } from "../assets";
 import { ensureHud } from "./UIScene";
 import gameState, { LAND_PARCELS } from "../gameState";
 import LandSignboard from "../objects/LandSignboard";
+import { getAllLandOwners } from "../contractService";
+import { isConnected } from "../wallet";
 
 
 const WORLD_WIDTH = 3000;
@@ -84,6 +86,8 @@ export default class ComDistrictScene extends Phaser.Scene {
 
   init(data) {
     this.spawnSide = data?.spawnSide || "left";
+    this.spawnX    = data?.spawnX    ?? null;
+    this.spawnY    = data?.spawnY    ?? null;
   }
 
  create() {
@@ -166,8 +170,9 @@ export default class ComDistrictScene extends Phaser.Scene {
     this.spawnRockPattern({ startX: 0, endX: WORLD_WIDTH, y: groundY+1, spacing: 100, scale: 0.75 });
 
     createPlayerAnimations(this);
-    const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200;
-    this.player = new Player(this, spawnX, groundY - 60);
+    const spawnX = this.spawnX ?? (this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200);
+    const spawnY = this.spawnY ?? (groundY - 60);
+    this.player = new Player(this, spawnX, spawnY);
     this.player.setFlipX(this.spawnSide !== "right");
     this.physics.add.collider(this.player, this.groundGroup);
     camera.startFollow(this.player, true);
@@ -177,8 +182,15 @@ export default class ComDistrictScene extends Phaser.Scene {
     this.multiplayer.create(this.player);
 
     // ── Land signboards ───────────────────────────────────────────
-    this._groundY   = groundY;
+    this._groundY    = groundY;
     this._signboards = {};
+
+    // Read ownership from the contract, then spawn signboards
+    if (isConnected()) {
+      getAllLandOwners()
+        .then(owners => gameState.setLandOwnership(owners))
+        .catch(err => console.warn("[ComDistrict] contract read failed:", err));
+    }
     this._spawnSignboards();
 
     const ui = this.scene.get("UIScene");
@@ -189,7 +201,10 @@ export default class ComDistrictScene extends Phaser.Scene {
       this.scene.get("UIScene")?.setGold(gameState.gold);
     };
     gameState.on(this._onStateChange);
-    this.events.once("shutdown", () => gameState.off(this._onStateChange));
+    this.events.once("shutdown", () => {
+      gameState.off(this._onStateChange);
+      if (this.player) gameState.savePosition("ComDistrictScene", this.player.x, this.player.y);
+    });
 }
 
   _spawnSignboards() {

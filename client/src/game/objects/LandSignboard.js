@@ -32,9 +32,12 @@ export default class LandSignboard {
     this._ePrompt.setVisible(near && !this._dialogue.isOpen);
 
     if (near && !this._dialogue.isOpen && Phaser.Input.Keyboard.JustDown(this._eKey)) {
+      const display = this.ownerName.startsWith("0x")
+        ? `${this.ownerName.slice(0, 6)}…${this.ownerName.slice(-4)}`
+        : this.ownerName;
       this._dialogue.show(
         `Land ${this.landId}`,
-        [`Owner: ${this.ownerName}`],
+        [`Owner: ${display}`],
       );
     } else if (this._dialogue.isOpen && Phaser.Input.Keyboard.JustDown(this._eKey)) {
       this._dialogue.advance();

@@ -311,3 +311,67 @@
   color: #000;
   background: #cc3a5a;
 }
+
+/* ── Section title in right panel ───────────────────────────── */
+.buy-sell-screen__section-title {
+  font-family: monospace;
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+  font-weight: 700;
+  color: #ffe8a0;
+  text-align: center;
+  margin: 0 0 0.4rem 0;
+  flex-shrink: 0;
+}
+
+/* ── Status / empty messages ────────────────────────────────── */
+.buy-sell-screen__status {
+  color: #d8c99a;
+  font-family: monospace;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+/* ── My land card (fully visible, not greyed out) ───────────── */
+.buy-sell-screen__item--mine {
+  opacity: 1;
+  cursor: default;
+}
+
+/* ── Small inline button inside a land card ─────────────────── */
+.buy-sell-screen__mini-btn {
+  margin-top: 0.15rem;
+  padding: 0.15rem 0.4rem;
+  background: #8b6914;
+  border: 1px solid #c8960a;
+  border-radius: 2px;
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.buy-sell-screen__mini-btn:hover {
+  background: #c8960a;
+  color: #000;
+}
+
+/* ── Price input field in List NFT flow ─────────────────────── */
+.buy-sell-screen__price-input {
+  width: 70%;
+  padding: 0.3rem 0.5rem;
+  background: #1a1208;
+  border: 2px solid #8b6914;
+  border-radius: 3px;
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  outline: none;
+}
+
+.buy-sell-screen__price-input:focus {
+  border-color: #e8a830;
+}

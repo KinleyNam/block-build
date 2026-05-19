@@ -117,6 +117,8 @@ export default class MarketPlace extends Phaser.Scene {
 
   init(data) {
     this.spawnSide = data?.spawnSide || "left";
+    this.spawnX    = data?.spawnX    ?? null;
+    this.spawnY    = data?.spawnY    ?? null;
   }
 
   preload() {
@@ -157,8 +159,9 @@ export default class MarketPlace extends Phaser.Scene {
     this.buildStable(groundY);
     this.buildTownHall(groundY);
 
-    const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200;
-    this.player = new Player(this, spawnX, groundY - 60);
+    const spawnX = this.spawnX ?? (this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200);
+    const spawnY = this.spawnY ?? (groundY - 60);
+    this.player = new Player(this, spawnX, spawnY);
     this.player.setFlipX(this.spawnSide !== "right");
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
@@ -172,7 +175,10 @@ export default class MarketPlace extends Phaser.Scene {
     ui?.setGold(gameState.gold);
     this._onStateChange = () => this.scene.get("UIScene")?.setGold(gameState.gold);
     gameState.on(this._onStateChange);
-    this.events.once("shutdown", () => gameState.off(this._onStateChange));
+    this.events.once("shutdown", () => {
+      gameState.off(this._onStateChange);
+      if (this.player) gameState.savePosition("MarketPlace", this.player.x, this.player.y);
+    });
 
     this.ePrompt = this.add.image(0, 0, "eKeyPrompt")
       .setScale(1)

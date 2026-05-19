@@ -13,8 +13,7 @@ async function request(path, options = {}) {
   return data;
 }
 
-export function createUser(username, gender) {
-  const walletAddress = crypto.randomUUID();
+export function createUser(username, gender, walletAddress) {
   return request("/users", {
     method: "POST",
     body: JSON.stringify({ username, walletAddress, gender }),
@@ -25,6 +24,10 @@ export function getUser(username) {
   return request(`/users/${username}`);
 }
 
+export function getUserByWallet(address) {
+  return request(`/users/by-wallet/${address.toLowerCase()}`);
+}
+
 export function getSkills(username) {
   return request(`/users/${username}/skills`);
 }
@@ -33,5 +36,12 @@ export function addExp(username, skill, amount) {
   return request(`/users/${username}/skills/${skill}/exp`, {
     method: "PATCH",
     body: JSON.stringify({ amount }),
+  });
+}
+
+export function savePosition(username, scene, x, y) {
+  return request(`/users/${username}/position`, {
+    method: "PATCH",
+    body: JSON.stringify({ scene, x, y }),
   });
 }

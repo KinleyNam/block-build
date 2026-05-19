@@ -5,6 +5,7 @@ import { createPlayerAnimations, createVillageAnimations, preloadVillageAssets }
 import DialogueBox from "../objects/NpcInteraction";
 import DIALOGUES from "../dialouge/villageDialogue";
 import { ensureHud } from "./UIScene";
+import gameState from "../gameState";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -143,6 +144,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
 
   init(data) {
     this.spawnSide = data?.spawnSide || "left";
+    this.spawnX    = data?.spawnX    ?? null;
+    this.spawnY    = data?.spawnY    ?? null;
   }
 
   preload() {
@@ -208,8 +211,9 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.buildTavernArea(groundY);
     this.buildStableArea(groundY);
 
-    const spawnX = this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200;
-    this.player = new Player(this, spawnX, groundY - 60);
+    const spawnX = this.spawnX ?? (this.spawnSide === "right" ? WORLD_WIDTH - 200 : 200);
+    const spawnY = this.spawnY ?? (groundY - 60);
+    this.player = new Player(this, spawnX, spawnY);
     this.player.setFlipX(this.spawnSide !== "right");
     this.player.setDepth(5);
     this.physics.add.collider(this.player, this.groundGroup);
@@ -226,6 +230,10 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
 
     this.multiplayer = new MultiplayerManager(this, "VillageOutskirtsScene");
     this.multiplayer.create(this.player);
+
+    this.events.once("shutdown", () => {
+      if (this.player) gameState.savePosition("VillageOutskirtsScene", this.player.x, this.player.y);
+    });
 
     this.music = null;
     if (this.cache.audio.has("ciaccona")) {
