@@ -28,6 +28,14 @@ export async function getUserByWallet(req, res) {
   res.json(user);
 }
 
+export async function getLeaderboard(req, res) {
+  const users = await User.find({}, "username pvpWins")
+    .sort({ pvpWins: -1 })
+    .limit(3)
+    .lean();
+  res.json(users.map((u, i) => `${i + 1}. ${u.username} (${u.pvpWins ?? 0}W)`));
+}
+
 export async function savePosition(req, res) {
   const { scene, x, y } = req.body;
   if (!scene || x == null || y == null) {

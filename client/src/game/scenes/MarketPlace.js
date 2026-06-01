@@ -6,6 +6,7 @@ import DialogueBox from "../objects/NpcInteraction";
 import DIALOGUES from "../dialouge/marketPlaceDialogue";
 import { ensureHud } from "./UIScene";
 import gameState from "../gameState";
+import EmojiPicker from "../objects/EmojiPicker";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -171,6 +172,8 @@ export default class MarketPlace extends Phaser.Scene {
     this.multiplayer = new MultiplayerManager(this, "MarketPlace");
     this.multiplayer.create(this.player);
 
+    this.emojiPicker = new EmojiPicker(this, this.player, "MarketPlace");
+
     const ui = this.scene.get("UIScene");
     ui?.setGold(gameState.gold);
     this._onStateChange = () => this.scene.get("UIScene")?.setGold(gameState.gold);
@@ -294,6 +297,8 @@ export default class MarketPlace extends Phaser.Scene {
     } else {
       this.player?.update();
     }
+
+    this.emojiPicker?.update();
 
     if (this.player && this.npcs?.length) {
       const px = this.player.x;

@@ -1,0 +1,174 @@
+.pvp-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.60);
+  z-index: 300;
+}
+
+.pvp-panel {
+  background: #1a1208;
+  border: 2px solid #8b6914;
+  border-radius: 6px;
+  padding: 28px 36px;
+  min-width: 320px;
+  text-align: center;
+  color: #efe2b7;
+  font-family: Georgia, serif;
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.7);
+}
+
+.pvp-title {
+  font-size: 1.3rem;
+  color: #ffe066;
+  margin: 0 0 14px;
+  letter-spacing: 1px;
+}
+
+.pvp-text {
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+}
+
+.pvp-name {
+  color: #ffcc44;
+  font-weight: bold;
+}
+
+.pvp-bet {
+  font-size: 1rem;
+  margin: 8px 0 6px;
+}
+
+.pvp-gold {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.pvp-subtext {
+  font-size: 0.75rem;
+  color: #a89060;
+  margin: 0 0 18px;
+}
+
+.pvp-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #d8c99a;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.pvp-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 1rem;
+  font-family: Georgia, serif;
+  background: #2a1a0a;
+  border: 1px solid #8b6914;
+  border-radius: 4px;
+  color: #ffe0a0;
+  margin-bottom: 6px;
+  outline: none;
+}
+
+.pvp-input:focus {
+  border-color: #ffd700;
+}
+
+.pvp-input::-webkit-inner-spin-button,
+.pvp-input::-webkit-outer-spin-button {
+  opacity: 0.4;
+}
+
+.pvp-error {
+  color: #ff6666;
+  font-size: 0.8rem;
+  margin: 0 0 10px;
+}
+
+.pvp-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.pvp-btn {
+  padding: 9px 22px;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pvp-btn-send {
+  background: #8b6914;
+  color: #ffe0a0;
+}
+
+.pvp-btn-send:hover {
+  background: #c8960a;
+}
+
+.pvp-btn-cancel {
+  background: #3a2a10;
+  color: #a89060;
+  border: 1px solid #5a4020;
+}
+
+.pvp-btn-cancel:hover {
+  background: #4a3a20;
+  color: #d8c99a;
+}
+
+/* ── PvP toast notification ─────────────────────────────────────── */
+.pvp-toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1208;
+  border: 2px solid #8b1414;
+  border-radius: 6px;
+  padding: 14px 24px;
+  color: #efe2b7;
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  text-align: center;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.75);
+  z-index: 400;
+  pointer-events: none;
+  animation: pvp-toast-in 0.25s ease forwards;
+}
+
+.pvp-toast.pvp-toast-fade-out {
+  animation: pvp-toast-out 0.4s ease forwards;
+}
+
+.pvp-toast-icon {
+  display: block;
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+
+.pvp-toast-name {
+  color: #ffcc44;
+  font-weight: bold;
+}
+
+@keyframes pvp-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes pvp-toast-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to   { opacity: 0; transform: translateX(-50%) translateY(14px); }
+}

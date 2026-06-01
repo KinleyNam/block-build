@@ -1,4 +1,6 @@
 {
-  "BlockBuildModule#Gold": "0xCD516e3449f02b428b035fD85eF1293d907A9f0F",
-  "BlockBuildModule#LandNFT": "0xb55ABd3A0A38fEaF45Fb09F8600E7bb19f4567a6"
+  "BlockBuildModule#Gold": "0x23e1148D683Dae5f9a39E046Efbaa11c57bBC569",
+  "BlockBuildModule#LandNFT": "0x8112eECfca4a78e82876275B1925FE87A67534e6",
+  "BlockBuildModule#PvPEscrow": "0x3Ab093c4629dEf685CDA40bE064CAe58b675DC77",
+  "BlockBuildModule#BuildingNFT": "0xa5C25Cf3b83C2eCa0AaDB9eb342004BaFA326b9a"
 }

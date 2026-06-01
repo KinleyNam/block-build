@@ -1,4 +1,35 @@
 import ciaccona from "../assets/music/ciaccona.mp3";
+import buttonGImg   from "../assets/intereaction/ButtonG.png";
+import pvpAttackImg   from "../assets/player/PvP/male-attack.png";
+import pvpDeathImg    from "../assets/player/PvP/male-death.png";
+import pvpSlideImg    from "../assets/player/PvP/male-slide.png";
+import pvpHeartImg    from "../assets/player/PvP/HeartSpriteSheet.png";
+import pvpHpEmptyImg  from "../assets/player/PvP/Health-Bar-Empty.png";
+import pvpHpFullImg   from "../assets/player/PvP/Health-Bar-Full.png";
+import pvpStEmptyImg  from "../assets/player/PvP/Stamina-Bar-Empty.png";
+import pvpStFullImg   from "../assets/player/PvP/Stamina-Bar-Full.png";
+
+import emojiAngry          from "../assets/emoji/AngryEmoji.png";
+import emojiCrying         from "../assets/emoji/CryingEmoji.png";
+import emojiDisappointed   from "../assets/emoji/DisappointedEmoji.png";
+import emojiLoveeyes       from "../assets/emoji/LoveEyesEmoji.png";
+import emojiQuestion       from "../assets/emoji/QuestionEmoji.png";
+import emojiRaisedeyebrow  from "../assets/emoji/RaisedEyebrow.png";
+import emojiSkull          from "../assets/emoji/SkullEmoji.png";
+import emojiSmiling        from "../assets/emoji/SmilingEmoji.png";
+import emojiYawning        from "../assets/emoji/YawningEmoji.png";
+
+const EMOJI_ASSETS = [
+  ["emoji_angry",         emojiAngry],
+  ["emoji_crying",        emojiCrying],
+  ["emoji_disappointed",  emojiDisappointed],
+  ["emoji_loveeyes",      emojiLoveeyes],
+  ["emoji_question",      emojiQuestion],
+  ["emoji_raisedeyebrow", emojiRaisedeyebrow],
+  ["emoji_skull",         emojiSkull],
+  ["emoji_smiling",       emojiSmiling],
+  ["emoji_yawning",       emojiYawning],
+];
 import goddessWalkImg from "../assets/tutorial/godess-walk.png";
 import eKeyPrompt from "../assets/intereaction/ButtonE.png";
 import escapeKeyImg from "../assets/UIElement/Escape-key.png";
@@ -82,6 +113,29 @@ import helmetDog from "../assets/VillageOutskirtsAssets/Animals/Helmet-doggy-idl
 
 import pussInBoots from "../assets/VillageOutskirtsAssets/Animals/Puss-in-Boots-idle.png";
 
+// ── Building sprites (placed on land in CommercialDistrict) ──────────────────
+import bldgBlacksmith1 from "../assets/work Buildings/Buildings/BlacksmithLvl1.png";
+import bldgBlacksmith2 from "../assets/work Buildings/Buildings/BlacksmithLvl2.png";
+import bldgBlacksmith3 from "../assets/work Buildings/Buildings/BlacksmithLvl3.png";
+import bldgCarpentry1  from "../assets/work Buildings/Buildings/Carpentrylvl1.png";
+import bldgCarpentry2  from "../assets/work Buildings/Buildings/CarpentryLvl2.png";
+import bldgCarpentry3  from "../assets/work Buildings/Buildings/Carpentrylvl3.png";
+import bldgMagic1      from "../assets/work Buildings/Buildings/MagicResearchLvl1.png";
+import bldgMagic2      from "../assets/work Buildings/Buildings/MagicResearchLvl2.png";
+import bldgMagic3      from "../assets/work Buildings/Buildings/MagicResearchlvl3.png";
+
+export const BUILDING_SPRITE_ASSETS = [
+  ["bldg_blacksmith_1", bldgBlacksmith1],
+  ["bldg_blacksmith_2", bldgBlacksmith2],
+  ["bldg_blacksmith_3", bldgBlacksmith3],
+  ["bldg_carpentry_1",  bldgCarpentry1],
+  ["bldg_carpentry_2",  bldgCarpentry2],
+  ["bldg_carpentry_3",  bldgCarpentry3],
+  ["bldg_magicresearch_1", bldgMagic1],
+  ["bldg_magicresearch_2", bldgMagic2],
+  ["bldg_magicresearch_3", bldgMagic3],
+];
+
 import grassyMountains from "../assets/CommercialDistrict/backgrounds/grassy_mountains.png";
 import cdHill from "../assets/CommercialDistrict/backgrounds/hill.png";
 import cloudsMid from "../assets/CommercialDistrict/backgrounds/clouds_mid.png";
@@ -136,9 +190,31 @@ function createIdleAnimation(scene, animationKey, textureKey, endFrame, frameRat
   }
 }
 
+function preloadEmojiAssets(scene) {
+  EMOJI_ASSETS.forEach(([key, path]) => {
+    if (!scene.textures.exists(key)) {
+      scene.load.spritesheet(key, path, { frameWidth: 16, frameHeight: 17 });
+    }
+  });
+}
+
+function createEmojiAnimations(scene) {
+  EMOJI_ASSETS.forEach(([key]) => {
+    if (!scene.anims.exists(key)) {
+      scene.anims.create({
+        key,
+        frames: scene.anims.generateFrameNumbers(key, { start: 0, end: 18 }),
+        frameRate: 12,
+        repeat: -1,
+      });
+    }
+  });
+}
+
 export function preloadWorldAssets(scene) {
   scene.load.audio("ciaccona", ciaccona);
   scene.load.image("eKeyPrompt", eKeyPrompt);
+  scene.load.image("buttonG", buttonGImg);
   scene.load.image("uiEscapeKey", escapeKeyImg);
   scene.load.image("uiGoldHolder", goldHolderImg);
   scene.load.image("uiLeaderBoard", leaderBoardImg);
@@ -186,6 +262,11 @@ export function preloadWorldAssets(scene) {
     frameWidth: 24,
     frameHeight: 49,
   });
+
+  scene.load.spritesheet("pvpAttack", pvpAttackImg, { frameWidth: 74, frameHeight: 63 });
+  scene.load.spritesheet("pvpDeath",  pvpDeathImg,  { frameWidth: 46, frameHeight: 44 });
+
+  preloadEmojiAssets(scene);
 }
 
 export function preloadVillageAssets(scene) {
@@ -309,6 +390,7 @@ export function preloadVillageAssets(scene) {
 }
 
 export function createPlayerAnimations(scene) {
+  createEmojiAnimations(scene);
   createIdleAnimation(scene, "idle", "playerIdle", 4, 6);
 
   if (!scene.anims.exists("walk")) {
@@ -355,6 +437,24 @@ export function createPlayerAnimations(scene) {
         end: 3,
       }),
       frameRate: 10,
+      repeat: 0,
+    });
+  }
+
+  if (!scene.anims.exists("pvpAttack")) {
+    scene.anims.create({
+      key: "pvpAttack",
+      frames: scene.anims.generateFrameNumbers("pvpAttack", { start: 0, end: 5 }),
+      frameRate: 12,
+      repeat: 0,
+    });
+  }
+
+  if (!scene.anims.exists("pvpDeath")) {
+    scene.anims.create({
+      key: "pvpDeath",
+      frames: scene.anims.generateFrameNumbers("pvpDeath", { start: 0, end: 7 }),
+      frameRate: 8,
       repeat: 0,
     });
   }
@@ -495,6 +595,11 @@ export function preloadCommercialAssets(scene) {
 
   scene.load.image("ownerSignboard", ownerSignboard);
   scene.load.image("grassy_mountains", grassyMountains);
+
+  // Building sprites for placing on land parcels
+  BUILDING_SPRITE_ASSETS.forEach(([key, path]) => {
+    if (!scene.textures.exists(key)) scene.load.image(key, path);
+  });
   scene.load.image("hill", cdHill);
   scene.load.image("clouds_mid", cloudsMid);
   scene.load.image("clouds_front", cloudsFront);
@@ -505,6 +610,36 @@ export function preloadCommercialAssets(scene) {
   scene.load.image("small_rocks", cdSmallRocks);
   scene.load.image("medium_rocks", cdMediumRocks);
   scene.load.image("big_rock", cdBigRock);
+}
+
+export function preloadPvPAssets(scene) {
+  preloadCommercialAssets(scene);
+  scene.load.spritesheet("pvpSlide",   pvpSlideImg,   { frameWidth: 50,  frameHeight: 25 });
+  scene.load.spritesheet("pvpHeart",   pvpHeartImg,   { frameWidth: 90,  frameHeight: 28 });
+  scene.load.image("pvpHpEmpty",  pvpHpEmptyImg);
+  scene.load.image("pvpHpFull",   pvpHpFullImg);
+  scene.load.image("pvpStEmpty",  pvpStEmptyImg);
+  scene.load.image("pvpStFull",   pvpStFullImg);
+}
+
+export function createPvPAnimations(scene) {
+  createPlayerAnimations(scene);
+  if (!scene.anims.exists("pvpSlide")) {
+    scene.anims.create({
+      key: "pvpSlide",
+      frames: scene.anims.generateFrameNumbers("pvpSlide", { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: -1,
+    });
+  }
+  if (!scene.anims.exists("pvpHeart")) {
+    scene.anims.create({
+      key: "pvpHeart",
+      frames: scene.anims.generateFrameNumbers("pvpHeart", { start: 0, end: 1 }),
+      frameRate: 2,
+      repeat: -1,
+    });
+  }
 }
 
 export function createMarketAnimations(scene) {

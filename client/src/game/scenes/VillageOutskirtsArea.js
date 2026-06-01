@@ -6,6 +6,7 @@ import DialogueBox from "../objects/NpcInteraction";
 import DIALOGUES from "../dialouge/villageDialogue";
 import { ensureHud } from "./UIScene";
 import gameState from "../gameState";
+import EmojiPicker from "../objects/EmojiPicker";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 2;
@@ -231,6 +232,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     this.multiplayer = new MultiplayerManager(this, "VillageOutskirtsScene");
     this.multiplayer.create(this.player);
 
+    this.emojiPicker = new EmojiPicker(this, this.player, "VillageOutskirtsScene");
+
     this.events.once("shutdown", () => {
       if (this.player) gameState.savePosition("VillageOutskirtsScene", this.player.x, this.player.y);
     });
@@ -339,6 +342,8 @@ export default class VillageOutskirtsScene extends Phaser.Scene {
     } else {
       this.player?.update();
     }
+
+    this.emojiPicker?.update();
 
     if (this.player && this.npcs?.length) {
       const px = this.player.x;

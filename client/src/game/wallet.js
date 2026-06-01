@@ -1,7 +1,7 @@
 import { BrowserProvider } from "ethers";
 
 // Switch between "localhost" and "sepolia" to match your deployment target
-const TARGET_NETWORK = "localhost";
+const TARGET_NETWORK = "sepolia";
 
 const NETWORKS = {
   localhost: {

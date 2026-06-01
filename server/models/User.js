@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
     lastScene: { type: String,  default: null },
     lastX:     { type: Number,  default: null },
     lastY:     { type: Number,  default: null },
+    pvpWins:   { type: Number,  default: 0 },
   },
   { timestamps: true }
 );

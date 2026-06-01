@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets, preloadCommercialAssets } from "../assets";
+import { preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets, preloadCommercialAssets, preloadPvPAssets } from "../assets";
 import gameState from "../gameState";
 
 // Map of loaderKey → asset loader function
@@ -8,13 +8,15 @@ const LOADERS = {
   village:    preloadVillageAssets,
   market:     preloadMarketplaceAssets,
   commercial: preloadCommercialAssets,
+  pvpArena:   preloadPvPAssets,
 };
 
 const SCENE_LOADERS = {
-  StarterAreaScene:     "world",
+  StarterAreaScene:      "world",
   VillageOutskirtsScene: "village",
-  MarketPlace:          "market",
-  ComDistrictScene:     "commercial",
+  MarketPlace:           "market",
+  ComDistrictScene:      "commercial",
+  PvPArena:              "pvpArena",
 };
 
 // Map of loaderKey → flavour text shown during loading
@@ -23,6 +25,7 @@ const LOADER_TEXT = {
   village:    { title: "VILLAGE OUTSKIRTS",   subtitle: "Entering the village..."      },
   market:     { title: "Nokstella",           subtitle: "Entering the Market Place..." },
   commercial: { title: "COMMERCIAL DISTRICT", subtitle: "Entering the district..."    },
+  pvpArena:   { title: "PvP ARENA",           subtitle: "Entering the arena..."        },
 };
 
 export default class LoadingScene extends Phaser.Scene {
@@ -45,7 +48,7 @@ export default class LoadingScene extends Phaser.Scene {
       this.loaderKey = SCENE_LOADERS[this.nextScene] || "world";
       this.spawnSide = "left";
       this.spawnX    = gameState.lastX;
-      this.spawnY    = gameState.lastY;
+      this.spawnY    = null; // always recalculate Y from ground level; saved Y is window-height-relative
     }
   }
 

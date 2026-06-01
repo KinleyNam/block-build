@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import gameState from "../gameState";
+import { getLeaderboard } from "../../api";
 
 // ── Dialogue box constants ──────────────────────────────────────
 const BOX_H      = 110;
@@ -87,6 +88,13 @@ export default class UIScene extends Phaser.Scene {
     };
     window.addEventListener("escape-menu", this._onEscapeMenu);
 
+    // ── Leaderboard polling ───────────────────────────────────────
+    this._fetchLeaderboard();
+    this._lbTimer = this.time.addEvent({
+      delay: 30000, loop: true,
+      callback: this._fetchLeaderboard, callbackScope: this,
+    });
+
     // ── Layout ────────────────────────────────────────────────
     this._layout();
     this.scale.on("resize", this._layout, this);
@@ -94,7 +102,15 @@ export default class UIScene extends Phaser.Scene {
       this.scale.off("resize", this._layout, this);
       window.removeEventListener("escape-menu", this._onEscapeMenu);
       gameState.off(this._onGoldChange);
+      this._lbTimer?.remove();
     });
+  }
+
+  async _fetchLeaderboard() {
+    try {
+      const lines = await getLeaderboard();
+      if (lines?.length) this.setLeaderboard(lines);
+    } catch { /* network error — keep current display */ }
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -143,6 +159,14 @@ export default class UIScene extends Phaser.Scene {
   setLeaderboard(lines) {
     this.leaderboardText.setText(lines.join("\n"));
     this._layout();
+  }
+
+  setOverworldHudVisible(visible) {
+    this.escapeKeyImage.setVisible(visible);
+    this.goldHolderImage.setVisible(visible);
+    this.leaderBoardImage.setVisible(visible);
+    this.goldText.setVisible(visible);
+    this.leaderboardText.setVisible(visible);
   }
 
   // ─────────────────────────────────────────────────────────────

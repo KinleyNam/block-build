@@ -45,3 +45,7 @@ export function savePosition(username, scene, x, y) {
     body: JSON.stringify({ scene, x, y }),
   });
 }
+
+export function getLeaderboard() {
+  return request("/users/leaderboard");
+}

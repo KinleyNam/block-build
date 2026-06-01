@@ -5,8 +5,10 @@ import { createPlayerAnimations, preloadCommercialAssets } from "../assets";
 import { ensureHud } from "./UIScene";
 import gameState, { LAND_PARCELS } from "../gameState";
 import LandSignboard from "../objects/LandSignboard";
-import { getAllLandOwners } from "../contractService";
+import { getAllLandOwners, getAllPlacedBuildings } from "../contractService";
 import { isConnected } from "../wallet";
+import { BUILDING_TYPES } from "../gameState";
+import EmojiPicker from "../objects/EmojiPicker";
 
 
 const WORLD_WIDTH = 3000;
@@ -181,23 +183,31 @@ export default class ComDistrictScene extends Phaser.Scene {
     this.multiplayer = new MultiplayerManager(this, "ComDistrictScene");
     this.multiplayer.create(this.player);
 
-    // ── Land signboards ───────────────────────────────────────────
-    this._groundY    = groundY;
-    this._signboards = {};
+    this.emojiPicker = new EmojiPicker(this, this.player, "ComDistrictScene");
 
-    // Read ownership from the contract, then spawn signboards
+    // ── Land signboards + building sprites ───────────────────────
+    this._groundY         = groundY;
+    this._signboards      = {};
+    this._buildingSprites = {};
+
+    // Read land ownership and placed buildings independently — failures in one must not block the other
     if (isConnected()) {
       getAllLandOwners()
         .then(owners => gameState.setLandOwnership(owners))
-        .catch(err => console.warn("[ComDistrict] contract read failed:", err));
+        .catch(err => console.warn("[ComDistrict] land owners read failed:", err));
+      getAllPlacedBuildings()
+        .then(placed => gameState.setPlacedBuildings(placed))
+        .catch(err => console.warn("[ComDistrict] placed buildings read failed:", err));
     }
     this._spawnSignboards();
+    this._spawnBuildingSprites();
 
     const ui = this.scene.get("UIScene");
     ui?.setGold(gameState.gold);
 
     this._onStateChange = () => {
       this._spawnSignboards();
+      this._spawnBuildingSprites();
       this.scene.get("UIScene")?.setGold(gameState.gold);
     };
     gameState.on(this._onStateChange);
@@ -213,9 +223,40 @@ export default class ComDistrictScene extends Phaser.Scene {
       if (owner && !this._signboards[parcel.id]) {
         const centerX = (parcel.startX + parcel.endX) / 2;
         this._signboards[parcel.id] = new LandSignboard(
-          this, centerX, this._groundY, parcel.id, owner,
+          this, centerX, this._groundY, parcel.id, owner, parcel.tokenId,
         );
       }
+    });
+  }
+
+  _spawnBuildingSprites() {
+    // Destroy existing building sprites
+    Object.values(this._buildingSprites).forEach(s => s?.destroy());
+    this._buildingSprites = {};
+
+    const MAX_WORLD_W = 235; // 470px at camera zoom 2
+
+    LAND_PARCELS.forEach(parcel => {
+      const building = gameState.placedBuildings[parcel.tokenId];
+      if (!building) return;
+
+      const type = BUILDING_TYPES[building.buildingType];
+      if (!type) return;
+
+      const key     = `bldg_${type.key}_${building.level}`;
+      const centerX = (parcel.startX + parcel.endX) / 2;
+
+      if (!this.textures.exists(key)) return;
+
+      const baseScale = Math.min(1, MAX_WORLD_W / this.textures.get(key).getSourceImage().width);
+      const scale     = building.level >= 2 ? baseScale * 2.4 : baseScale;
+
+      const sprite = this.add.image(centerX, this._groundY, key)
+        .setOrigin(0.5, 1)
+        .setDepth(3)
+        .setScale(scale);
+
+      this._buildingSprites[parcel.id] = sprite;
     });
   }
 
@@ -223,6 +264,7 @@ export default class ComDistrictScene extends Phaser.Scene {
     this.multiplayer?.update(delta);
     this.multiplayer?.emitMove(this.player, time);
     this.player?.update();
+    this.emojiPicker?.update();
     Object.values(this._signboards ?? {}).forEach(sb => sb.update(this.player));
 
     if (!this.transitioning && this.player && this.player.x < 150) {

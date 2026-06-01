@@ -15,6 +15,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setGravityY(800);
     this.setScale(1.75);
     this.setFlipX(true);
+    this.setDepth(5);
 
     this.keys = scene.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,

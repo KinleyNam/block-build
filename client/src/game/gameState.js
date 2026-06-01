@@ -1,5 +1,12 @@
 import { savePosition as savePositionAPI } from "../api";
 
+// 0 = Blacksmith, 1 = Carpentry, 2 = MagicResearch
+export const BUILDING_TYPES = [
+  { id: 0, name: "Blacksmith",     key: "blacksmith" },
+  { id: 1, name: "Carpentry",      key: "carpentry" },
+  { id: 2, name: "Magic Research", key: "magicresearch" },
+];
+
 export const LAND_PARCELS = [
   { id: "A1", label: "A-1", startX: 0,    endX: 500,  price: 100, tokenId: 1 },
   { id: "A2", label: "A-2", startX: 500,  endX: 1000, price: 120, tokenId: 2 },
@@ -20,8 +27,12 @@ const gameState = {
   gold:          1000,
   walletAddress: "",
   skills:        { ...DEFAULT_SKILLS },
-  landOwnership: {},   // parcelId → owner wallet address (lowercased)
-  lastScene:     null, // persisted spawn scene
+  landOwnership:   {},  // parcelId ("A1"…"A5") → owner wallet address (lowercased)
+  placedBuildings: {},  // parcelId (1–5 numeric) → { tokenId, buildingType, level }
+  myBuildings:     [],  // { tokenId, buildingType, level, placed, parcelId }
+  isWorking:       false,
+  hiredAtParcel:   null, // parcelId (1-5) where player is currently hired
+  lastScene:       null, // persisted spawn scene
   lastX:         null,
   lastY:         null,
   _listeners:    [],
@@ -53,6 +64,19 @@ const gameState = {
         this.landOwnership[parcel.id] = addr.toLowerCase();
       }
     });
+    this._emit();
+  },
+
+  // Called after reading getAllPlacedBuildings() from the contract.
+  // data: { [parcelId 1-5]: { tokenId, buildingType, level } }
+  setPlacedBuildings(data) {
+    this.placedBuildings = { ...data };
+    this._emit();
+  },
+
+  // Called after reading getBuildingsByOwner() from the contract.
+  setMyBuildings(buildings) {
+    this.myBuildings = buildings;
     this._emit();
   },
 

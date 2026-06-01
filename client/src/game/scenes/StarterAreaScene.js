@@ -5,6 +5,7 @@ import { createPlayerAnimations } from "../assets";
 import { ensureHud } from "./UIScene";
 import TutorialController from "../objects/TutorialController";
 import gameState from "../gameState";
+import EmojiPicker from "../objects/EmojiPicker";
 
 const WORLD_WIDTH = 3000;
 const CAMERA_ZOOM = 1.5;
@@ -161,6 +162,8 @@ export default class StarterAreaScene extends Phaser.Scene {
         this.multiplayer = new MultiplayerManager(this, "StarterAreaScene");
         this.multiplayer.create(this.player);
 
+        this.emojiPicker = new EmojiPicker(this, this.player, "StarterAreaScene");
+
         this.events.once("shutdown", () => {
             if (this.player) gameState.savePosition("StarterAreaScene", this.player.x, this.player.y);
         });
@@ -184,6 +187,8 @@ export default class StarterAreaScene extends Phaser.Scene {
         if (!this.tutorial?.inputLocked) {
             this.player?.update();
         }
+
+        this.emojiPicker?.update();
 
         // Cap player position after player.update() so it overrides player-set velocity
         this.tutorial?.postUpdate();

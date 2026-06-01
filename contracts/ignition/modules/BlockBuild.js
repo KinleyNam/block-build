@@ -11,13 +11,15 @@ const TOKEN_URIS = [
 module.exports = buildModule("BlockBuildModule", (m) => {
   const deployer = m.getAccount(0);
 
-  const gold   = m.contract("Gold",    [deployer]);
-  const landNFT = m.contract("LandNFT", [gold, deployer]);
+  const gold        = m.contract("Gold",        [deployer]);
+  const landNFT     = m.contract("LandNFT",     [gold, deployer]);
+  const pvpEscrow   = m.contract("PvPEscrow",   [gold, deployer]);
+  const buildingNFT = m.contract("BuildingNFT", [gold, landNFT]);
 
   // Set Pinata IPFS metadata URI for each parcel after deployment
   TOKEN_URIS.forEach((uri, i) => {
     m.call(landNFT, "setTokenURI", [i + 1, uri], { id: `setURI_${i + 1}` });
   });
 
-  return { gold, landNFT };
+  return { gold, landNFT, pvpEscrow, buildingNFT };
 });
