@@ -4,8 +4,6 @@ const TOKEN_URIS = [
   "ipfs://QmU7uJAyw8sQ33XKUK8Rj8r5WGcFm8LdEa59J5o2S6kjU7", // A1
   "ipfs://QmYNU96gYD3omuunC7xzwiwwTP6jH2sS16HrZmQTjjBm47",  // A2
   "ipfs://QmbJENwjN63RugrN358UV4yzZWGPghQC9ohTJRwyy4WfLZ",  // A3
-  "ipfs://QmbaKpGC27k2mzHS11TnKZ4d5UGv7rCe1VMAmdXhLuzhks", // A4
-  "ipfs://QmWbKWbWSVfVB2kpesA9KsQnsU3tB5Yvs58wq9tC5kvejL",  // A5
 ];
 
 module.exports = buildModule("BlockBuildModule", (m) => {

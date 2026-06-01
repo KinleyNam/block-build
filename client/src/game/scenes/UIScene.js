@@ -162,11 +162,11 @@ export default class UIScene extends Phaser.Scene {
   }
 
   setOverworldHudVisible(visible) {
-    this.escapeKeyImage.setVisible(visible);
-    this.goldHolderImage.setVisible(visible);
-    this.leaderBoardImage.setVisible(visible);
-    this.goldText.setVisible(visible);
-    this.leaderboardText.setVisible(visible);
+    this.escapeKeyImage?.setVisible(visible);
+    this.goldHolderImage?.setVisible(visible);
+    this.leaderBoardImage?.setVisible(visible);
+    this.goldText?.setVisible(visible);
+    this.leaderboardText?.setVisible(visible);
   }
 
   // ─────────────────────────────────────────────────────────────

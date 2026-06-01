@@ -8,11 +8,9 @@ export const BUILDING_TYPES = [
 ];
 
 export const LAND_PARCELS = [
-  { id: "A1", label: "A-1", startX: 0,    endX: 500,  price: 100, tokenId: 1 },
-  { id: "A2", label: "A-2", startX: 500,  endX: 1000, price: 120, tokenId: 2 },
-  { id: "A3", label: "A-3", startX: 1000, endX: 1500, price: 140, tokenId: 3 },
-  { id: "A4", label: "A-4", startX: 1500, endX: 2000, price: 160, tokenId: 4 },
-  { id: "A5", label: "A-5", startX: 2000, endX: 2500, price: 180, tokenId: 5 },
+  { id: "A1", label: "A-1", startX: 0,    endX: 750,  price: 100, tokenId: 1 },
+  { id: "A2", label: "A-2", startX: 750,  endX: 1500, price: 140, tokenId: 2 },
+  { id: "A3", label: "A-3", startX: 1500, endX: 2250, price: 180, tokenId: 3 },
 ];
 
 const DEFAULT_SKILLS = {
@@ -21,13 +19,16 @@ const DEFAULT_SKILLS = {
   magicResearch: { exp: 0, level: 1 },
 };
 
+const DEFAULT_CUSTOMIZATION = { skinIndex: 1, hairIndex: 1, outfitIndex: 0, weaponTier: 0, weaponType: 0 };
+
 const gameState = {
   username:      "",
   gender:        "Male",
   gold:          1000,
   walletAddress: "",
   skills:        { ...DEFAULT_SKILLS },
-  landOwnership:   {},  // parcelId ("A1"…"A5") → owner wallet address (lowercased)
+  customization: { ...DEFAULT_CUSTOMIZATION },
+  landOwnership:   {},  // parcelId ("A1"…"A3") → owner wallet address (lowercased)
   placedBuildings: {},  // parcelId (1–5 numeric) → { tokenId, buildingType, level }
   myBuildings:     [],  // { tokenId, buildingType, level, placed, parcelId }
   isWorking:       false,
@@ -46,6 +47,7 @@ const gameState = {
     this.gender   = userData.gender;
     if (userData.walletAddress) this.walletAddress = userData.walletAddress;
     if (skillsData) this.skills = skillsData;
+    if (userData.customization) this.customization = { ...DEFAULT_CUSTOMIZATION, ...userData.customization };
     this._emit();
   },
 

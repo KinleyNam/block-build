@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 contract LandNFT is ERC721, Ownable, ReentrancyGuard {
     IERC20 public immutable goldToken;
 
-    uint256[5] private _prices = [100, 120, 140, 160, 180];
+    uint256[3] private _prices = [100, 140, 180];
 
     // IPFS metadata URIs per tokenId — set after Pinata upload
     mapping(uint256 => string) private _tokenURIs;
@@ -36,7 +36,7 @@ contract LandNFT is ERC721, Ownable, ReentrancyGuard {
     // ── Owner: set Pinata metadata URIs after deployment ─────────────────────
 
     function setTokenURI(uint256 tokenId, string calldata uri) external onlyOwner {
-        require(tokenId >= 1 && tokenId <= 5, "Invalid parcel");
+        require(tokenId >= 1 && tokenId <= 3, "Invalid parcel");
         _tokenURIs[tokenId] = uri;
     }
 
@@ -54,12 +54,12 @@ contract LandNFT is ERC721, Ownable, ReentrancyGuard {
     // ── Primary sale ──────────────────────────────────────────────────────────
 
     function landPrice(uint256 tokenId) external view returns (uint256) {
-        require(tokenId >= 1 && tokenId <= 5, "Invalid parcel");
+        require(tokenId >= 1 && tokenId <= 3, "Invalid parcel");
         return _prices[tokenId - 1];
     }
 
     function buyLand(uint256 tokenId) external nonReentrant {
-        require(tokenId >= 1 && tokenId <= 5, "Invalid parcel");
+        require(tokenId >= 1 && tokenId <= 3, "Invalid parcel");
         require(_ownerOf(tokenId) == address(0), "Land already owned");
 
         uint256 price = _prices[tokenId - 1];
@@ -108,8 +108,8 @@ contract LandNFT is ERC721, Ownable, ReentrancyGuard {
 
     // ── View helpers ──────────────────────────────────────────────────────────
 
-    function getAllOwners() external view returns (address[5] memory owners) {
-        for (uint256 i = 1; i <= 5; i++) {
+    function getAllOwners() external view returns (address[3] memory owners) {
+        for (uint256 i = 1; i <= 3; i++) {
             owners[i - 1] = _ownerOf(i);
         }
     }
@@ -120,7 +120,7 @@ contract LandNFT is ERC721, Ownable, ReentrancyGuard {
         uint256[]  memory prices
     ) {
         uint256 count = 0;
-        for (uint256 i = 1; i <= 5; i++) {
+        for (uint256 i = 1; i <= 3; i++) {
             if (listings[i].active) count++;
         }
 
@@ -129,7 +129,7 @@ contract LandNFT is ERC721, Ownable, ReentrancyGuard {
         prices   = new uint256[](count);
 
         uint256 idx = 0;
-        for (uint256 i = 1; i <= 5; i++) {
+        for (uint256 i = 1; i <= 3; i++) {
             if (listings[i].active) {
                 tokenIds[idx] = i;
                 sellers[idx]  = listings[i].seller;

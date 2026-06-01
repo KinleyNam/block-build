@@ -1,4 +1,109 @@
-import ciaccona from "../assets/music/ciaccona.mp3";
+// ── Character Asset Pack (800×448, 100×64 frames, 8 cols × 7 rows) ────────────
+// All layers share the same frame layout so they stack pixel-perfectly.
+// Row 0: Idle (frames 0-4)  Row 1: Walk (8-15)  Row 2: Run (16-23)
+// Row 3: JumpUp (24-27)     Row 4: JumpDown (32-35)
+export const CHAR_FRAME_W   = 80;  // confirmed via pixel analysis: 10 cols × 80px = 800
+export const CHAR_FRAME_H   = 64;  // 7 rows × 64px = 448
+export const CHAR_PACK_COLS = 10;
+
+const _cpUrls = import.meta.glob(
+  "../assets/Character Asset Pack/**/*.png",
+  { eager: true, as: "url" },
+);
+function cpUrl(rel) {
+  return _cpUrls[`../assets/Character Asset Pack/${rel}`];
+}
+
+const _range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => i + a);
+
+// Ordered arrays — index 0-4 for skins, 0-N for hair, 0-4 for outfits
+export const MALE_SKIN_URLS   = [1,2,3,4,5].map(i => cpUrl(`Character skin colors/Male Skin${i}.png`));
+export const FEMALE_SKIN_URLS = [1,2,3,4,5].map(i => cpUrl(`Character skin colors/Female Skin${i}.png`));
+
+// Hair styles from new "MaleHair/" / "FemaleHair/" folders only (6-30 / 6-35)
+export const MALE_HAIR_URLS   = _range(6, 30).map(i => cpUrl(`MaleHair/Male Hair${i}.png`));   // 25 styles
+export const FEMALE_HAIR_URLS = _range(6, 30).map(i => cpUrl(`FemaleHair/Female Hair${i}.png`)); // 25 styles
+
+export const MALE_HAIR_COUNT   = 25;
+export const FEMALE_HAIR_COUNT = 25;
+
+// Male outfit tops (white/blue/green/orange/purple)
+export const MALE_TOP_URLS = [
+  cpUrl("Male Clothing/Shirt v2.png"),
+  cpUrl("Male Clothing/Blue Shirt v2.png"),
+  cpUrl("Male Clothing/Green Shirt v2.png"),
+  cpUrl("Male Clothing/orange Shirt v2.png"),
+  cpUrl("Male Clothing/Purple Shirt v2.png"),
+];
+// Male outfit bottoms (matching colours)
+export const MALE_BOT_URLS = [
+  cpUrl("Male Clothing/Pants.png"),
+  cpUrl("Male Clothing/Blue Pants.png"),
+  cpUrl("Male Clothing/Green Pants.png"),
+  cpUrl("Male Clothing/Orange Pants.png"),
+  cpUrl("Male Clothing/Purple Pants.png"),
+];
+export const MALE_BOOTS_URL  = cpUrl("Male Clothing/Boots.png");
+export const MALE_UNDER_URL  = cpUrl("Male Clothing/Underwear.png");
+
+// Female outfit tops (white/blue/green/orange/purple corsets)
+export const FEMALE_TOP_URLS = [
+  cpUrl("Female Clothing/Corset v2.png"),
+  cpUrl("Female Clothing/Blue Corset v2.png"),
+  cpUrl("Female Clothing/Green Corset v2.png"),
+  cpUrl("Female Clothing/Orange Corset v2.png"),
+  cpUrl("Female Clothing/Purple Corset v2.png"),
+];
+export const FEMALE_BOT_URL   = cpUrl("Female Clothing/Skirt.png");
+export const FEMALE_BOOTS_URL = cpUrl("Female Clothing/Boots.png");
+export const FEMALE_UNDER_URL = cpUrl("Female Clothing/Blue Panties and Bra.png");
+
+// ── Weapon URLs (for in-game equip system) ───────────────────────────────────
+const WEAPON_TIERS  = ["Wooden", "Bronze", "Iron", "Golden", "Diamond"];
+const WEAPON_TYPES  = ["Sword", "Axe", "Pickaxe"];
+export const MALE_WEAPON_URLS = Object.fromEntries(
+  WEAPON_TIERS.flatMap(t => WEAPON_TYPES.map(w => [`${t} ${w}`, cpUrl(`MaleWeapon/${t} ${w}.png`)]))
+);
+export const FEMALE_WEAPON_URLS = Object.fromEntries(
+  WEAPON_TIERS.flatMap(t => WEAPON_TYPES.map(w => [`${t} ${w}`, cpUrl(`FemaleWeapon/${t} ${w}.png`)]))
+);
+export const WEAPON_TIERS_LIST = WEAPON_TIERS;
+export const WEAPON_TYPES_LIST = WEAPON_TYPES;
+
+export function getWeaponUrl(gender, tierIndex, typeIndex) {
+  const tier = WEAPON_TIERS[tierIndex] ?? WEAPON_TIERS[0];
+  const type = WEAPON_TYPES[typeIndex] ?? WEAPON_TYPES[0];
+  const urls = gender === "Female" ? FEMALE_WEAPON_URLS : MALE_WEAPON_URLS;
+  return urls[`${tier} ${type}`];
+}
+
+// Phaser texture key for a weapon (used in-game as a spritesheet layer)
+export function getWeaponTextureKey(gender, tierIndex, typeIndex) {
+  const g = gender === "Female" ? "f" : "m";
+  return `cWpn_${g}_${tierIndex ?? 0}_${typeIndex ?? 0}`;
+}
+
+// ── Derive texture keys from customization ────────────────────────────────────
+export function getCharacterKeys(gender, { skinIndex = 1, hairIndex = 1, outfitIndex = 0 } = {}) {
+  const g   = gender === "Female" ? "f" : "m";
+  const bot = g === "f" ? "cBot_f" : `cBot_m_${outfitIndex}`; // female has 1 skirt
+  return {
+    skin:  `cSkin_${g}_${skinIndex}`,
+    hair:  `cHair_${g}_${hairIndex}`,
+    top:   `cTop_${g}_${outfitIndex}`,
+    bot,
+    boots: `cBoots_${g}`,
+    under: `cUnder_${g}`,
+  };
+}
+
+import ciaccona        from "../assets/music/ciaccona.mp3";
+import starterSong     from "../assets/music/Tutorial-starter-area-song.mp3";
+import commercialSong  from "../assets/music/Commercial-song.mp3";
+import marketplaceSong from "../assets/music/Marketplace-song.mp3";
+import fightSound      from "../assets/music/FIGHT!-sound.MP3";
+import pvpSong         from "../assets/music/PvP-Song.mp3";
+import koSound         from "../assets/music/KO!-sound.MP3";
 import buttonGImg   from "../assets/intereaction/ButtonG.png";
 import pvpAttackImg   from "../assets/player/PvP/male-attack.png";
 import pvpDeathImg    from "../assets/player/PvP/male-death.png";
@@ -212,7 +317,8 @@ function createEmojiAnimations(scene) {
 }
 
 export function preloadWorldAssets(scene) {
-  scene.load.audio("ciaccona", ciaccona);
+  scene.load.audio("ciaccona",     ciaccona);
+  scene.load.audio("starter_song", starterSong);
   scene.load.image("eKeyPrompt", eKeyPrompt);
   scene.load.image("buttonG", buttonGImg);
   scene.load.image("uiEscapeKey", escapeKeyImg);
@@ -391,7 +497,8 @@ export function preloadVillageAssets(scene) {
 
 export function createPlayerAnimations(scene) {
   createEmojiAnimations(scene);
-  createIdleAnimation(scene, "idle", "playerIdle", 4, 6);
+  createAllCharacterAnimations(scene);
+  createIdleAnimation(scene, "idle", "playerIdle", 4, 6); // kept for any legacy refs
 
   if (!scene.anims.exists("walk")) {
     scene.anims.create({
@@ -487,6 +594,7 @@ export function createVillageAnimations(scene) {
 
 export function preloadMarketplaceAssets(scene) {
   preloadWorldAssets(scene);
+  scene.load.audio("marketplace_song", marketplaceSong);
 
   scene.load.image("wall", wallImg);
 
@@ -592,6 +700,7 @@ export function preloadMarketplaceAssets(scene) {
 
 export function preloadCommercialAssets(scene) {
   preloadWorldAssets(scene);
+  scene.load.audio("commercial_song", commercialSong);
 
   scene.load.image("ownerSignboard", ownerSignboard);
   scene.load.image("grassy_mountains", grassyMountains);
@@ -614,6 +723,9 @@ export function preloadCommercialAssets(scene) {
 
 export function preloadPvPAssets(scene) {
   preloadCommercialAssets(scene);
+  scene.load.audio("fight_sound", fightSound);
+  scene.load.audio("pvp_song",    pvpSong);
+  scene.load.audio("ko_sound",    koSound);
   scene.load.spritesheet("pvpSlide",   pvpSlideImg,   { frameWidth: 50,  frameHeight: 25 });
   scene.load.spritesheet("pvpHeart",   pvpHeartImg,   { frameWidth: 90,  frameHeight: 28 });
   scene.load.image("pvpHpEmpty",  pvpHpEmptyImg);
@@ -662,4 +774,85 @@ export function createMarketAnimations(scene) {
   createIdleAnimation(scene, "goddess", "goddess", 4, 6);
   createIdleAnimation(scene, "helmetDog", "helmetDog", 4, 6);
   createIdleAnimation(scene, "shieldKnight", "shieldKnight", 4, 6);
+}
+
+// ── Character Pack loading ─────────────────────────────────────────────────────
+
+function cpSpritesheet(scene, key, url) {
+  if (!scene.textures.exists(key)) {
+    scene.load.spritesheet(key, url, { frameWidth: CHAR_FRAME_W, frameHeight: CHAR_FRAME_H });
+  }
+}
+
+export function preloadCharacterPackAssets(scene) {
+  if (scene.textures.exists("cSkin_m_1")) return; // already loaded
+
+  // Skins
+  for (let i = 0; i < 5; i++) {
+    cpSpritesheet(scene, `cSkin_m_${i + 1}`, MALE_SKIN_URLS[i]);
+    cpSpritesheet(scene, `cSkin_f_${i + 1}`, FEMALE_SKIN_URLS[i]);
+  }
+  // Hair — all 30 male styles and 35 female styles
+  MALE_HAIR_URLS.forEach((url, i)   => cpSpritesheet(scene, `cHair_m_${i + 1}`, url));
+  FEMALE_HAIR_URLS.forEach((url, i) => cpSpritesheet(scene, `cHair_f_${i + 1}`, url));
+  // Male tops, bottoms, boots, underwear
+  for (let i = 0; i < 5; i++) {
+    cpSpritesheet(scene, `cTop_m_${i}`,  MALE_TOP_URLS[i]);
+    cpSpritesheet(scene, `cBot_m_${i}`,  MALE_BOT_URLS[i]);
+  }
+  cpSpritesheet(scene, "cBoots_m", MALE_BOOTS_URL);
+  cpSpritesheet(scene, "cUnder_m", MALE_UNDER_URL);
+  // Female tops, bottom, boots, underwear
+  for (let i = 0; i < 5; i++) {
+    cpSpritesheet(scene, `cTop_f_${i}`, FEMALE_TOP_URLS[i]);
+  }
+  cpSpritesheet(scene, "cBot_f",    FEMALE_BOT_URL);
+  cpSpritesheet(scene, "cBoots_f",  FEMALE_BOOTS_URL);
+  cpSpritesheet(scene, "cUnder_f",  FEMALE_UNDER_URL);
+
+  // Weapons — 5 tiers × 3 types × 2 genders = 30 textures
+  [["m", MALE_WEAPON_URLS], ["f", FEMALE_WEAPON_URLS]].forEach(([g, urls]) => {
+    WEAPON_TIERS.forEach((tier, ti) => {
+      WEAPON_TYPES.forEach((type, wi) => {
+        cpSpritesheet(scene, `cWpn_${g}_${ti}_${wi}`, urls[`${tier} ${type}`]);
+      });
+    });
+  });
+}
+
+// Create animation keys for a specific skin texture (e.g. "cSkin_m_1").
+// Keys follow the pattern: "<skinKey>_idle", "_walk", "_run", "_jumpUp", "_jumpDown".
+export function createCharacterSkinAnimations(scene, skinKey) {
+  // Frame indices confirmed via pixel analysis (10 cols × 7 rows, frame width 80px):
+  //  Row 0 → col 0..9 = frames  0.. 9  | Row 1 → 10..19 | Row 2 → 20..29
+  //  Row 3 → 30..39 | Row 4 → 40..49  | Row 5 → 50..59 | Row 6 → 60..69
+  const ANIMS = [
+    { suffix: "_idle",     start:  0, end:  4, fps:  6, repeat: -1 },
+    { suffix: "_walk",     start: 10, end: 17, fps: 10, repeat: -1 },
+    { suffix: "_run",      start: 20, end: 27, fps: 14, repeat: -1 },
+    { suffix: "_jumpUp",   start: 30, end: 33, fps: 10, repeat:  0 },
+    { suffix: "_jumpDown", start: 40, end: 43, fps: 10, repeat:  0 },
+    { suffix: "_attack",   start: 50, end: 55, fps: 10, repeat:  0 },
+    { suffix: "_death",    start: 60, end: 69, fps:  8, repeat:  0 },
+  ];
+  ANIMS.forEach(({ suffix, start, end, fps, repeat }) => {
+    const key = skinKey + suffix;
+    if (!scene.anims.exists(key)) {
+      scene.anims.create({
+        key,
+        frames: scene.anims.generateFrameNumbers(skinKey, { start, end }),
+        frameRate: fps,
+        repeat,
+      });
+    }
+  });
+}
+
+// Create animations for ALL 10 skins so remote players with any skin work.
+export function createAllCharacterAnimations(scene) {
+  for (const g of ["m", "f"]) {
+    for (let i = 1; i <= 5; i++) {
+      createCharacterSkinAnimations(scene, `cSkin_${g}_${i}`);
+    }
+  }
 }

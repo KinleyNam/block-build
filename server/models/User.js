@@ -32,6 +32,13 @@ const userSchema = new mongoose.Schema(
     lastX:     { type: Number,  default: null },
     lastY:     { type: Number,  default: null },
     pvpWins:   { type: Number,  default: 0 },
+    customization: {
+      skinIndex:   { type: Number, default: 1,  min: 1, max: 5 },
+      hairIndex:   { type: Number, default: 1,  min: 1, max: 25 },
+      outfitIndex: { type: Number, default: 0,  min: 0, max: 4 },
+      weaponTier:  { type: Number, default: 0,  min: 0, max: 4 },
+      weaponType:  { type: Number, default: 0,  min: 0, max: 2 },
+    },
   },
   { timestamps: true }
 );

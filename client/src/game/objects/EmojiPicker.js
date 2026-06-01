@@ -113,11 +113,11 @@ export default class EmojiPicker {
 
     if (qDown) {
       const topY = p.y - p.displayHeight * 0.5;
-      this.container.setPosition(p.x, topY - this._pickerH * 0.5 - 3);
+      this.container.setPosition(p.x, topY - this._pickerH * 0.5 + 32);
     }
 
     if (this.displaySprite.visible) {
-      this.displaySprite.setPosition(p.x, p.y - p.displayHeight * 0.5 - 8);
+      this.displaySprite.setPosition(p.x, p.y - p.displayHeight * 0.5 + 12);
     }
   }
 

@@ -159,10 +159,13 @@ export default class StarterAreaScene extends Phaser.Scene {
 
         this.transitioning = false;
 
-        this.multiplayer = new MultiplayerManager(this, "StarterAreaScene");
-        this.multiplayer.create(this.player);
-
         this.emojiPicker = new EmojiPicker(this, this.player, "StarterAreaScene");
+
+        // ── Background music ──────────────────────────────────────────────────
+        if (this.cache.audio.has("starter_song")) {
+            this.music = this.sound.add("starter_song", { loop: true, volume: 0.5 });
+            this.music.play();
+        }
 
         this.events.once("shutdown", () => {
             if (this.player) gameState.savePosition("StarterAreaScene", this.player.x, this.player.y);
@@ -171,8 +174,13 @@ export default class StarterAreaScene extends Phaser.Scene {
         const isNewPlayer = gameState.lastScene === null;
         this.tutorial = null;
         if (isNewPlayer) {
+            // No multiplayer during tutorial — players should not see each other
+            this.multiplayer = null;
             this.tutorial = new TutorialController(this, this.player, groundY);
             this.tutorial.start();
+        } else {
+            this.multiplayer = new MultiplayerManager(this, "StarterAreaScene");
+            this.multiplayer.create(this.player);
         }
     }
 

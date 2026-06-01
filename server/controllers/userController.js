@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 
 export async function createUser(req, res) {
-  const { username, walletAddress, gender } = req.body;
+  const { username, walletAddress, gender, customization } = req.body;
 
   if (!username || !walletAddress || !gender) {
     return res.status(400).json({ error: "username, walletAddress, and gender are required" });
@@ -12,8 +12,25 @@ export async function createUser(req, res) {
     return res.status(409).json({ error: "Username already taken" });
   }
 
-  const user = await User.create({ username, walletAddress: walletAddress.toLowerCase(), gender });
+  const user = await User.create({
+    username,
+    walletAddress: walletAddress.toLowerCase(),
+    gender,
+    customization: customization ?? { skinIndex: 1, hairIndex: 1, outfitIndex: 0 },
+  });
   res.status(201).json(user);
+}
+
+export async function saveCustomization(req, res) {
+  const { customization } = req.body;
+  if (!customization) return res.status(400).json({ error: "customization required" });
+  const user = await User.findOneAndUpdate(
+    { username: req.params.username },
+    { customization },
+    { new: true }
+  );
+  if (!user) return res.status(404).json({ error: "User not found" });
+  res.json({ ok: true });
 }
 
 export async function getUser(req, res) {

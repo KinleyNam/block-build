@@ -1,5 +1,8 @@
 import Phaser from "phaser";
-import { preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets, preloadCommercialAssets, preloadPvPAssets } from "../assets";
+import {
+  preloadWorldAssets, preloadVillageAssets, preloadMarketplaceAssets,
+  preloadCommercialAssets, preloadPvPAssets, preloadCharacterPackAssets,
+} from "../assets";
 import gameState from "../gameState";
 
 // Map of loaderKey → asset loader function
@@ -118,5 +121,7 @@ export default class LoadingScene extends Phaser.Scene {
     // Run the appropriate asset loader
     const loader = LOADERS[this.loaderKey] ?? preloadWorldAssets;
     loader(this);
+    // Load character pack textures (all scenes need them for players)
+    preloadCharacterPackAssets(this);
   }
 }

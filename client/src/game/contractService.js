@@ -46,7 +46,7 @@ export async function getPendingOwnerEarnings(address) {
   return Number(amt);
 }
 
-// Owner calls this from the signpost to claim all accumulated building earnings
+// Owner claims all accumulated building earnings from the contract
 export async function claimOwnerEarnings() {
   const gold = goldContract(getSigner());
   const tx   = await gold.claimOwnerEarnings();
@@ -55,7 +55,7 @@ export async function claimOwnerEarnings() {
 
 // ── Primary land sale ─────────────────────────────────────────────────────────
 
-// Returns array of 5 owner addresses (address(0) = unowned) for parcels A1–A5
+// Returns array of 3 owner addresses (address(0) = unowned) for parcels A1–A3
 export async function getAllLandOwners() {
   const land   = landContract(getProvider());
   const owners = await land.getAllOwners();
@@ -63,7 +63,7 @@ export async function getAllLandOwners() {
 }
 
 // Approves Gold spend then buys the land NFT from the contract.
-// tokenId: 1–5 (A1=1 … A5=5)
+// tokenId: 1–3 (A1=1 … A3=3)
 export async function buyLandOnChain(tokenId) {
   const signer = getSigner();
   const gold   = goldContract(signer);
@@ -170,7 +170,7 @@ export async function getAllPlacedBuildings() {
   const bldg = buildingContract(getProvider());
   const [tokenIds, types, levels] = await bldg.getAllPlacedBuildings();
   const result = {};
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     const tid = Number(tokenIds[i]);
     if (tid !== 0) {
       result[i + 1] = {

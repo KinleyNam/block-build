@@ -126,7 +126,7 @@ export default function Game() {
       sk.exp  += data.expGain;
       sk.level = Math.floor(sk.exp / 100) + 1;
     }
-    gameState.isWorking    = false;
+    gameState.isWorking     = false;
     gameState.hiredAtParcel = null;
     gameState._emit();
     setWorkSession(null);
@@ -316,8 +316,10 @@ export default function Game() {
       targetId,
       betAmount,
       escrowId,
-      challengerWallet:   gameState.walletAddress,
-      challengerUsername: gameState.username,
+      challengerWallet:        gameState.walletAddress,
+      challengerUsername:      gameState.username,
+      challengerGender:        gameState.gender,
+      challengerCustomization: gameState.customization,
     });
 
     setPvpChallengeOpen(false);
@@ -352,9 +354,11 @@ export default function Game() {
     }
 
     socket.emit("pvpAccepted", {
-      challengerId:   data.challengerId,
-      targetWallet:   gameState.walletAddress,
-      targetUsername: gameState.username,
+      challengerId:     data.challengerId,
+      targetWallet:     gameState.walletAddress,
+      targetUsername:   gameState.username,
+      targetGender:     gameState.gender,
+      targetCustomization: gameState.customization,
     });
 
     setPvpReceiveOpen(false);

@@ -124,6 +124,8 @@ io.on("connection", (socket) => {
       players[socket.id].scene         = data.scene;
       if (data.username)      players[socket.id].username      = data.username;
       if (data.walletAddress) players[socket.id].walletAddress = data.walletAddress;
+      if (data.gender)        players[socket.id].gender        = data.gender;
+      if (data.customization) players[socket.id].customization = data.customization;
       // isWorking is server-authoritative — never overwritten from client
       socket.broadcast.emit("playerMoved", players[socket.id]);
     }
@@ -147,7 +149,8 @@ io.on("connection", (socket) => {
   // ── PvP ────────────────────────────────────────────────────────────────────
 
   socket.on("pvpRequest", (data) => {
-    const { targetId, betAmount, escrowId, challengerWallet, challengerUsername } = data;
+    const { targetId, betAmount, escrowId, challengerWallet, challengerUsername,
+            challengerGender, challengerCustomization } = data;
 
     // Block PvP against a player who is in a work session
     if (players[targetId]?.isWorking) {
@@ -166,7 +169,13 @@ io.on("connection", (socket) => {
       }
     }, 10000);
 
-    pvpRequests[socket.id] = { targetId, betAmount, escrowId, challengerWallet, challengerUsername, timeout };
+    pvpRequests[socket.id] = {
+      targetId, betAmount, escrowId,
+      challengerWallet, challengerUsername,
+      challengerGender:        challengerGender        ?? "Male",
+      challengerCustomization: challengerCustomization ?? {},
+      timeout,
+    };
 
     io.to(targetId).emit("pvpRequest", {
       challengerId: socket.id,
@@ -196,7 +205,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("pvpAccepted", ({ challengerId, targetWallet, targetUsername }) => {
+  socket.on("pvpAccepted", ({ challengerId, targetWallet, targetUsername, targetGender, targetCustomization }) => {
     console.log(`[PvP] pvpAccepted from ${socket.id}, challengerId=${challengerId}, requestExists=${!!pvpRequests[challengerId]}`);
     const request = pvpRequests[challengerId];
     if (!request) { console.log("[PvP] request not found — match may have timed out"); return; }
@@ -209,21 +218,47 @@ io.on("connection", (socket) => {
       p2:           { id: socket.id,   wallet: targetWallet,             username: targetUsername,             hp: 100 },
       betAmount:    request.betAmount,
       escrowId:     request.escrowId,
-      state:        "fighting",
+      state:        "waiting",
       hitCooldowns: {},
+      readyPlayers: new Set(),
     };
 
     console.log(`[PvP] emitting pvpStart to p1=${challengerId} and p2=${socket.id}`);
+    // P1 (challenger/Kami) sees P2 (target/Euclid) as opponent
     io.to(challengerId).emit("pvpStart", {
       matchId, role: "p1",
-      opponent:  { id: socket.id,   wallet: targetWallet,             username: targetUsername },
+      opponent: {
+        id:            socket.id,
+        wallet:        targetWallet,
+        username:      targetUsername,
+        gender:        targetGender        ?? players[socket.id]?.gender        ?? "Male",
+        customization: targetCustomization ?? players[socket.id]?.customization ?? {},
+      },
       betAmount: request.betAmount,
     });
+    // P2 (target/Euclid) sees P1 (challenger/Kami) as opponent
     io.to(socket.id).emit("pvpStart", {
       matchId, role: "p2",
-      opponent:  { id: challengerId, wallet: request.challengerWallet, username: request.challengerUsername },
+      opponent: {
+        id:            challengerId,
+        wallet:        request.challengerWallet,
+        username:      request.challengerUsername,
+        gender:        request.challengerGender,
+        customization: request.challengerCustomization,
+      },
       betAmount: request.betAmount,
     });
+  });
+
+  socket.on("pvpArenaReady", ({ matchId }) => {
+    const match = pvpMatches[matchId];
+    if (!match || match.state !== "waiting") return;
+    match.readyPlayers.add(socket.id);
+    if (match.readyPlayers.size >= 2) {
+      match.state = "fighting";
+      io.to(match.p1.id).emit("pvpBothReady");
+      io.to(match.p2.id).emit("pvpBothReady");
+    }
   });
 
   socket.on("pvpArenaMove", ({ matchId, x, y, flipX, anim, isAttacking, isSliding, stamina }) => {
@@ -480,6 +515,7 @@ io.on("connection", (socket) => {
         });
       }
 
+      // Notify owner if online — gold is stored in the smart contract either way
       const ownerSid = getSocketIdByUsername(workerInfo.ownerUsername);
       if (ownerSid) {
         io.to(ownerSid).emit("workerSessionComplete", {

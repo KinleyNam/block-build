@@ -13,10 +13,17 @@ async function request(path, options = {}) {
   return data;
 }
 
-export function createUser(username, gender, walletAddress) {
+export function createUser(username, gender, walletAddress, customization) {
   return request("/users", {
     method: "POST",
-    body: JSON.stringify({ username, walletAddress, gender }),
+    body: JSON.stringify({ username, walletAddress, gender, customization }),
+  });
+}
+
+export function saveCustomization(username, customization) {
+  return request(`/users/${username}/customization`, {
+    method: "PATCH",
+    body: JSON.stringify({ customization }),
   });
 }
 

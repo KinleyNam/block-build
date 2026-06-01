@@ -208,8 +208,8 @@
 }
 
 .character-screen__input {
-  width: min(14rem, 52vw);
-  margin-top: 0.5rem;
+  width: min(13rem, 45vw);
+  margin-top: 0.4rem;
   border: 0;
   border-radius: 5px;
   background: #694230;
@@ -306,6 +306,204 @@
   right: 2.25rem;
   bottom: 4.25rem;
   cursor: pointer;
+}
+
+/* ── Character creation page ───────────────────────────────────────────────── */
+.cs-page {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+/* ── Left panel ── */
+.cs-panel {
+  width: 270px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 1.4rem 1.2rem 1.2rem;
+  background:
+    linear-gradient(to bottom, rgba(10,5,2,0.93), rgba(15,8,3,0.90));
+  border-right: 2px solid #6b4a20;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+  overflow-y: auto;
+}
+
+.cs-panel__title {
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #e8c97a;
+  text-align: center;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+}
+.cs-panel__title-deco { font-size: 0.65rem; opacity: 0.7; }
+
+.cs-panel__divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #8b6914 40%, #8b6914 60%, transparent);
+  margin: 0.5rem 0 0.9rem;
+}
+.cs-panel__divider--spacer { flex: 1; background: none; }
+
+/* ── Sections ── */
+.cs-section { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.85rem; }
+
+.cs-section__label {
+  font-family: Georgia, serif;
+  font-size: 0.68rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c9a85c;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+
+/* Input */
+.cs-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 5px;
+  background: #2e1a0a;
+  box-shadow: 0 0 0 2px #6b4a20 inset;
+  color: #f7f1e6;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.55rem 0.8rem;
+  text-align: center;
+}
+.cs-input::placeholder { color: #7a5535; opacity: 1; }
+.cs-input:focus { outline: 2px solid #c9a85c; outline-offset: 1px; }
+
+.cs-error {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #ff7070;
+  font-family: monospace;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+
+/* Gender row */
+.cs-gender-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.cs-gender-value {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f5efdc;
+  min-width: 4.5rem;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #6b4a20;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+}
+.cs-arrow {
+  border: 0;
+  background: transparent;
+  color: #c9a85c;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.1s;
+}
+.cs-arrow:hover { transform: scale(1.2); color: #f5efdc; }
+
+/* Swatches grid */
+.cs-swatches { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+
+.cs-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  flex-shrink: 0;
+}
+.cs-swatch:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.4); }
+.cs-swatch--active {
+  border-color: #e8c97a !important;
+  box-shadow: 0 0 0 2px #8b6914, 0 0 8px rgba(232,201,122,0.4);
+}
+
+.cs-hair-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: #3a1f08;
+  color: #c9a85c;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s;
+  flex-shrink: 0;
+}
+.cs-hair-btn:hover { background: #5a3010; transform: scale(1.1); }
+.cs-hair-btn.cs-swatch--active {
+  background: #6b4a20;
+  border-color: #e8c97a !important;
+  box-shadow: 0 0 0 2px #8b6914;
+  color: #f5efdc;
+}
+
+/* Play/Begin button */
+.cs-play-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(to bottom, #7a5520, #4a3010);
+  border: 2px solid #c9a85c;
+  border-radius: 6px;
+  color: #f5efdc;
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+.cs-play-btn:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #9a7030, #5a3a18);
+  transform: translateY(-1px);
+}
+.cs-play-btn:active:not(:disabled) { transform: translateY(1px); }
+.cs-play-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Right stage — character preview sits at the ground line ── */
+.cs-stage {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0;
+  margin-bottom: 60px;
+  min-width: 0;
+  pointer-events: none;
+  overflow: visible;
 }
 
 .title-screen__error {

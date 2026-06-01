@@ -24,7 +24,7 @@ contract BuildingNFT is ERC721Enumerable, Ownable {
         uint8   buildingType;
         uint8   level;
         bool    placed;
-        uint256 parcelId;   // 1–5, 0 if not placed
+        uint256 parcelId;   // 1–3, 0 if not placed
     }
 
     mapping(uint256 => BuildingData) public buildingData;
@@ -135,13 +135,13 @@ contract BuildingNFT is ERC721Enumerable, Ownable {
 
     // ── Read functions ────────────────────────────────────────────────────────
 
-    // Returns placed building info for all 5 parcels (index 0 = parcel 1)
+    // Returns placed building info for all 3 parcels (index 0 = parcel 1)
     function getAllPlacedBuildings() external view returns (
-        uint256[5] memory tokenIds,
-        uint8[5]   memory types,
-        uint8[5]   memory levels
+        uint256[3] memory tokenIds,
+        uint8[3]   memory types,
+        uint8[3]   memory levels
     ) {
-        for (uint256 i = 1; i <= 5; i++) {
+        for (uint256 i = 1; i <= 3; i++) {
             uint256 tid = landBuilding[i];
             if (tid != 0) {
                 tokenIds[i - 1] = tid;

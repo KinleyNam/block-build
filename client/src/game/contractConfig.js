@@ -1,7 +1,7 @@
 
-export const GOLD_ADDRESS     = "0x23e1148D683Dae5f9a39E046Efbaa11c57bBC569";
-export const LAND_NFT_ADDRESS = "0x8112eECfca4a78e82876275B1925FE87A67534e6";
-export const ESCROW_ADDRESS   = "0x3Ab093c4629dEf685CDA40bE064CAe58b675DC77";
+export const GOLD_ADDRESS     = "0x3eb7287D441620E90261CD8905d6153801BAb912";
+export const LAND_NFT_ADDRESS = "0x48F02B81202d0462d0d4DA9C4108d3CBe08E4018";
+export const ESCROW_ADDRESS   = "0xf82f1FAf9fB8e1fe892B7fB93139D70ef34f78d5";
 
 export const PINATA_GATEWAY = "https://plum-blank-crow-445.mypinata.cloud";
 
@@ -29,7 +29,7 @@ export const LAND_NFT_ABI = [
   // Primary sale
   "function buyLand(uint256 tokenId)",
   "function landPrice(uint256 tokenId) view returns (uint256)",
-  "function getAllOwners() view returns (address[5])",
+  "function getAllOwners() view returns (address[3])",
   "function ownerOf(uint256 tokenId) view returns (address)",
   "function tokenURI(uint256 tokenId) view returns (string)",
 
@@ -54,7 +54,7 @@ export const ESCROW_ABI = [
 
 // ── Building NFT ─────────────────────────────────────────────────────────────
 // TODO: replace with deployed address after running: npx hardhat ignition deploy
-export const BUILDING_NFT_ADDRESS = "0xa5C25Cf3b83C2eCa0AaDB9eb342004BaFA326b9a";
+export const BUILDING_NFT_ADDRESS = "0x58fB02d9a2fd3Aa1C8DdC094C201075B4a0b1875";
 
 export const BUILDING_NFT_ABI = [
   // Primary sale
@@ -76,7 +76,7 @@ export const BUILDING_NFT_ABI = [
   "function buyListedBuilding(uint256 tokenId)",
 
   // Read
-  "function getAllPlacedBuildings() view returns (uint256[5] tokenIds, uint8[5] types, uint8[5] levels)",
+  "function getAllPlacedBuildings() view returns (uint256[3] tokenIds, uint8[3] types, uint8[3] levels)",
   "function getBuildingsByOwner(address owner) view returns (uint256[] tokenIds, uint8[] types, uint8[] levels, bool[] placed, uint256[] parcelIds)",
   "function getAllListings() view returns (uint256[] tokenIds, address[] sellers, uint256[] prices, uint8[] types, uint8[] levels)",
   "function buildingData(uint256 tokenId) view returns (uint8 buildingType, uint8 level, bool placed, uint256 parcelId)",

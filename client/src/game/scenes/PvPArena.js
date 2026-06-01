@@ -1,22 +1,22 @@
 import Phaser from "phaser";
 import Player from "../objects/Player";
 import RemotePlayer from "../objects/RemotePlayer";
-import { createPvPAnimations } from "../assets";
+import { createPvPAnimations, getWeaponTextureKey } from "../assets";
 import socket from "../socket";
 import gameState from "../gameState";
 import { getGoldBalance } from "../contractService";
+import EmojiPicker from "../objects/EmojiPicker";
 
 const CAMERA_ZOOM    = 2;
 const GROUND_OVERLAP = 1;
 const ATTACK_COOL    = 700;
-const SWORD_FRAME    = 4;
-const SLIDE_SPEED    = 420;
-const SLIDE_DURATION = 450;
-const SLIDE_COOL     = 900;
+// Frame 54 = 5th frame of the character pack attack row (frames 50-55), the sword contact frame
+const SWORD_FRAME    = 54;
+const TELEPORT_COOL  = 1500;
 
 const MAX_STAMINA       = 100;
 const ATTACK_ST_COST    = 25;
-const SLIDE_ST_COST     = 35;
+const TELEPORT_ST_COST  = 35;
 const ST_REGEN_RATE     = 27;   // per second — moderate (0→100 in ~3.7s)
 const ST_REGEN_DELAY    = 1000; // ms before regen starts
 const BAR_W             = 90;   // natural image width
@@ -79,50 +79,72 @@ export default class PvPArena extends Phaser.Scene {
     // ── Players ───────────────────────────────────────────────────────────────
     const md      = this.matchData;
     const isP1    = md.role === "p1";
-    const spawnY  = groundY - 50;
+    const spawnY  = groundY - 220;
     const localX  = isP1 ? Math.floor(arenaW * 0.25) : Math.floor(arenaW * 0.75);
     const remoteX = isP1 ? Math.floor(arenaW * 0.75) : Math.floor(arenaW * 0.25);
 
     // Same Player class used in every overworld scene
     this.localPlayer = new Player(this, localX, spawnY);
-    this.localPlayer.setScale(2);
     this.localPlayer.setFlipX(isP1 ? true : false);
 
     // Same RemotePlayer class used in every overworld scene
     this.remotePlayer = new RemotePlayer(this, {
-      x: remoteX, y: spawnY,
-      flipX: isP1 ? false : true,
-      anim: "idle",
+      x:             remoteX,
+      y:             spawnY,
+      flipX:         isP1 ? false : true,
+      anim:          "idle",
+      gender:        md.opponent?.gender        ?? "Male",
+      customization: md.opponent?.customization ?? {},
     });
-    this.remotePlayer.setScale(2);
 
-    // Attack/slide visuals — separate non-physics sprites so frame-size changes
-    // never affect the Player body or the RemotePlayer visual position
-    this.attackSprite = this.add.sprite(localX, spawnY, "pvpAttack")
-      .setScale(2).setDepth(6).setVisible(false);
-    this.remoteAttackSprite = this.add.sprite(remoteX, spawnY, "pvpAttack")
-      .setScale(2).setDepth(6).setVisible(false);
-    this.slideSprite = this.add.sprite(localX, spawnY, "pvpSlide")
-      .setScale(2).setDepth(6).setVisible(false);
-    this.remoteSlideSprite = this.add.sprite(remoteX, spawnY, "pvpSlide")
-      .setScale(2).setDepth(6).setVisible(false);
+    // Weapon layers — added on top of character layers for PvP only
+    const myWpnKey = getWeaponTextureKey(
+      gameState.gender,
+      gameState.customization?.weaponTier ?? 0,
+      gameState.customization?.weaponType ?? 0,
+    );
+    this.localPlayer.addWeaponLayer(myWpnKey);
 
-    // ── Attack state ──────────────────────────────────────────────────────────
+    const opCustom = md.opponent?.customization;
+    const opGender = md.opponent?.gender ?? "Male";
+    if (opCustom) {
+      const opWpnKey = getWeaponTextureKey(opGender, opCustom.weaponTier ?? 0, opCustom.weaponType ?? 0);
+      this.remotePlayer.addWeaponLayer(opWpnKey);
+    }
+
+    // ── Attack / teleport state ───────────────────────────────────────────────
     this._attackKey         = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-    this._slideKey          = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this._spaceKey          = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this._matchStarted      = false;
+    this._countdownStarted  = false;
     this._isAttacking       = false;
-    this._isSliding         = false;
     this._hitEmitted        = false;
     this._lastAttackTime    = 0;
-    this._lastSlideTime     = 0;
-    this._slideStartTime    = 0;
+    this._lastTeleportTime  = 0;
     this._isDead            = false;
     this._isWinner          = false;
     this._remoteIsDead      = false;
-    this._remoteIsAttacking = false;
-    this._remoteIsSliding   = false;
     this._stamina           = MAX_STAMINA;
     this._lastStaminaAction = -ST_REGEN_DELAY;
+
+    // ── Emoji picker (Q key) ──────────────────────────────────────────────────
+    this._emojiPicker = new EmojiPicker(this, this.localPlayer, "PvPArena");
+
+    // ── Teleport click listener ───────────────────────────────────────────────
+    this.input.on("pointerdown", (pointer) => {
+      if (
+        this._matchStarted &&
+        !this._isAttacking &&
+        !this._isDead &&
+        !this._isWinner &&
+        !this._matchOver &&
+        this._spaceKey.isDown &&
+        this._stamina >= TELEPORT_ST_COST &&
+        this.time.now - this._lastTeleportTime > TELEPORT_COOL
+      ) {
+        this._teleport(pointer.worldX);
+      }
+    });
 
     // ── Physics ───────────────────────────────────────────────────────────────
     this.physics.add.collider(this.localPlayer, this.groundGroup);
@@ -144,7 +166,7 @@ export default class PvPArena extends Phaser.Scene {
       this.swordHitbox,
       this.remoteBodyHitbox,
       () => {
-        if (!this._matchOver && !this._hitEmitted && !this._remoteIsSliding) {
+        if (!this._matchOver && !this._hitEmitted) {
           this._hitEmitted = true;
           socket.emit("pvpHit", { matchId: md.matchId });
         }
@@ -164,8 +186,8 @@ export default class PvPArena extends Phaser.Scene {
     this._localTagBounce  = 0;
     this._remoteTagBounce = 0;
 
-    this._localTag  = this.add.text(localX,  spawnY - 56, myName, tagStyle).setOrigin(0.5, 1).setScale(0.5).setDepth(8);
-    this._remoteTag = this.add.text(remoteX, spawnY - 56, opName, tagStyle).setOrigin(0.5, 1).setScale(0.5).setDepth(8);
+    this._localTag  = this.add.text(localX,  spawnY - 21, myName, tagStyle).setOrigin(0.5, 1).setScale(0.5).setDepth(8);
+    this._remoteTag = this.add.text(remoteX, spawnY - 21, opName, tagStyle).setOrigin(0.5, 1).setScale(0.5).setDepth(8);
 
     // ── Hide overworld HUD ────────────────────────────────────────────────────
     const uiScene = this.scene.get("UIScene");
@@ -179,12 +201,24 @@ export default class PvPArena extends Phaser.Scene {
     // ── Socket ────────────────────────────────────────────────────────────────
     this._setupSocketListeners(isP1);
 
+    // ── Teleport particle texture (generated, no asset needed) ───────────────
+    if (!this.textures.exists("tpParticle")) {
+      const g = this.add.graphics();
+      g.fillStyle(0xcc88ff, 1);
+      g.fillCircle(5, 5, 5);
+      g.generateTexture("tpParticle", 10, 10);
+      g.destroy();
+    }
+
     this._groundY      = groundY;
     this.transitioning = false;
     this._matchOver    = false;
     this._lastEmit     = 0;
     this._localHp      = 100;
     this._remoteHp     = 100;
+
+    // Tell server this player is ready — countdown starts when both arrive
+    socket.emit("pvpArenaReady", { matchId: md.matchId });
   }
 
   update(time, delta) {
@@ -198,7 +232,8 @@ export default class PvPArena extends Phaser.Scene {
 
     // ── Attack input ──────────────────────────────────────────────────────────
     if (
-      !this._isAttacking && !this._isSliding && !this._isDead && !this._isWinner && !this._matchOver &&
+      this._matchStarted &&
+      !this._isAttacking && !this._isDead && !this._isWinner && !this._matchOver &&
       this.localPlayer.body.blocked.down &&
       this._stamina >= ATTACK_ST_COST &&
       Phaser.Input.Keyboard.JustDown(this._attackKey) &&
@@ -207,58 +242,33 @@ export default class PvPArena extends Phaser.Scene {
       this._startAttack(time);
     }
 
-    // ── Sword hitbox — enabled only on the contact frame of attackSprite ──────
+    // ── Sword hitbox — enabled only on the contact frame of the attack animation ─
     if (this._isAttacking) {
-      const frame = this.attackSprite.anims.currentFrame?.textureFrame ?? -1;
+      const frame = this.localPlayer.anims.currentFrame?.textureFrame ?? -1;
       this.swordHitbox.body.enable = (frame === SWORD_FRAME);
     } else {
       this.swordHitbox.body.enable = false;
     }
 
-    // ── Slide input ───────────────────────────────────────────────────────────
-    if (
-      !this._isSliding && !this._isAttacking && !this._isDead && !this._isWinner && !this._matchOver &&
-      this.localPlayer.body.blocked.down &&
-      this._stamina >= SLIDE_ST_COST &&
-      Phaser.Input.Keyboard.JustDown(this._slideKey) &&
-      time - this._lastSlideTime > SLIDE_COOL
-    ) {
-      this._startSlide(time);
-    }
-
-    // ── End slide after duration ──────────────────────────────────────────────
-    if (this._isSliding && time - this._slideStartTime >= SLIDE_DURATION) {
-      this._endSlide();
-    }
-
-    // ── Track slide sprite X each frame; Y is fixed at ground level ───────────
-    if (this._isSliding) {
-      this.slideSprite.setPosition(this.localPlayer.x, this._groundY - 25);
-    }
-
     // ── Local player movement — same Player.update() as overworld ─────────────
-    if (!this._isAttacking && !this._isSliding && !this._isDead && !this._isWinner) {
+    if (this._matchStarted && !this._isAttacking && !this._isDead && !this._isWinner) {
       this.localPlayer.update();
     }
+
+    // ── Emoji picker ──────────────────────────────────────────────────────────
+    this._emojiPicker?.update();
 
     // ── Remote player lerp — same RemotePlayer.update() as overworld ──────────
     this.remotePlayer.update(delta);
 
-    // ── Track remote slide sprite — same offset logic as attack (-18 up / +20 down)
-    if (this._remoteIsSliding) {
-      this.remoteSlideSprite.setPosition(this.remotePlayer.x, this.remotePlayer.y + 20);
-    }
+    // ── Floating name tags follow sprites ─────────────────────────────────────
+    const lx = Math.round(this.localPlayer.x);
+    const ly = Math.round(this.localPlayer.y);
+    const rx = Math.round(this.remotePlayer.x);
+    const ry = Math.round(this.remotePlayer.y);
 
-    // ── Floating name tags + HP bar follow sprites ────────────────────────────
-    const localRef  = this.attackSprite.visible ? this.attackSprite : this.localPlayer;
-    const remoteRef = this.remoteAttackSprite.visible ? this.remoteAttackSprite : this.remotePlayer;
-    const lx = Math.round(localRef.x);
-    const ly = Math.round(localRef.y);
-    const rx = Math.round(remoteRef.x);
-    const ry = Math.round(remoteRef.y);
-
-    this._localTag.setPosition(lx,  ly - 56 + this._localTagBounce);
-    this._remoteTag.setPosition(rx, ry - 56 + this._remoteTagBounce);
+    this._localTag.setPosition(lx,  ly - 21 + this._localTagBounce);
+    this._remoteTag.setPosition(rx, ry - 21 + this._remoteTagBounce);
 
     // ── Sync hitbox positions ─────────────────────────────────────────────────
     this._syncHitboxes();
@@ -266,18 +276,13 @@ export default class PvPArena extends Phaser.Scene {
     // ── Emit position at 20 Hz ───────────────────────────────────────────────
     if (time - this._lastEmit > 50 && !this._matchOver) {
       this._lastEmit = time;
-      const anim = this._isAttacking ? "pvpAttack"
-                 : this._isSliding   ? "pvpSlide"
-                 : (this.localPlayer.anims.currentAnim?.key ?? "idle");
       socket.emit("pvpArenaMove", {
-        matchId:     this.matchData.matchId,
-        x:           this.localPlayer.x,
-        y:           this.localPlayer.y,
-        flipX:       this.localPlayer.flipX,
-        anim,
-        isAttacking: this._isAttacking,
-        isSliding:   this._isSliding,
-        stamina:     this._stamina,
+        matchId:   this.matchData.matchId,
+        x:         this.localPlayer.x,
+        y:         this.localPlayer.y,
+        flipX:     this.localPlayer.flipX,
+        anim:      this.localPlayer._baseAnim ?? "idle",
+        stamina:   this._stamina,
       });
     }
   }
@@ -291,84 +296,181 @@ export default class PvPArena extends Phaser.Scene {
     this._lastStaminaAction = time;
     this._updateStaminaBars();
 
-    // Bounce local name tag up on attack
-    this._localTagBounce = 0;
     this.tweens.add({
       targets: this, _localTagBounce: -10,
       duration: 130, ease: "Sine.easeOut",
       yoyo: true, onComplete: () => { this._localTagBounce = 0; },
     });
 
-    // Freeze position at attack start — attackSprite stays here for the full swing.
-    // Y offset -18: pvpAttack frame is 63px tall vs idle 45px; at scale 2 that's
-    // 18 extra world-pixels below center, so shift up to keep feet at ground level.
-    this._attackX = Math.round(this.localPlayer.x);
-    this._attackY = Math.round(this.localPlayer.y) - 18;
-
     this.localPlayer.body.setVelocityX(0);
-    this.localPlayer.setVisible(false);
+    this.localPlayer.playAnimation("attack");
 
-    this.attackSprite.setPosition(this._attackX, this._attackY);
-    this.attackSprite.setFlipX(this.localPlayer.flipX);
-    this.attackSprite.setVisible(true);
-    this.attackSprite.play("pvpAttack");
-
-    this.attackSprite.once("animationcomplete-pvpAttack", () => {
+    this.localPlayer.once("animationcomplete", () => {
+      if (!this._isAttacking) return;
       this._isAttacking = false;
       this._hitEmitted  = false;
-      this.attackSprite.setVisible(false);
-      if (!this._isDead) {
-        this.localPlayer.setVisible(true);
-        this.localPlayer.anims.play("idle", true);
-      }
+      if (!this._isDead) this.localPlayer.playAnimation("idle");
     });
   }
 
-  _startSlide(time) {
-    this._isSliding      = true;
-    this._slideStartTime = time;
-    this._lastSlideTime  = time;
+  _teleport(worldX) {
+    const arenaW   = this.physics.world.bounds.width;
+    const clampedX = Phaser.Math.Clamp(worldX, 20, arenaW - 20);
+    const targetY  = this._groundY - 150;
 
-    this._stamina -= SLIDE_ST_COST;
-    this._lastStaminaAction = time;
+    this._lastTeleportTime  = this.time.now;
+    this._stamina          -= TELEPORT_ST_COST;
+    this._lastStaminaAction = this.time.now;
     this._updateStaminaBars();
 
-    const dir = this.localPlayer.flipX ? 1 : -1;
-    this.localPlayer.body.setVelocityX(dir * SLIDE_SPEED);
-    this.localPlayer.setVisible(false);
+    this._spawnTeleportEffect(this.localPlayer.x, this.localPlayer.y);
+    this.localPlayer.setAlpha(0);
 
-    this.slideSprite.setFlipX(this.localPlayer.flipX);
-    this.slideSprite.setPosition(this.localPlayer.x, this._groundY - 25);
-    this.slideSprite.setVisible(true);
-    this.slideSprite.play("pvpSlide", true);
+    this.time.delayedCall(80, () => {
+      this.localPlayer.setPosition(clampedX, targetY);
+      this.localPlayer.body.setVelocityX(0);
+      this.localPlayer.body.setVelocityY(0);
+      this.localPlayer.playAnimation("idle");
+      this._spawnTeleportEffect(clampedX, targetY);
+      this.tweens.add({
+        targets: this.localPlayer,
+        alpha: 1,
+        duration: 120,
+        ease: "Power2.easeOut",
+      });
+    });
   }
 
-  _endSlide() {
-    this._isSliding = false;
-    this.localPlayer.body.setVelocityX(0);
-    this.slideSprite.setVisible(false);
-    if (!this._isDead) {
-      this.localPlayer.setVisible(true);
-      this.localPlayer.anims.play("idle", true);
-    }
+  _spawnTeleportEffect(x, y) {
+    // Expanding ring
+    const ring = this.add.graphics().setDepth(10).setPosition(x, y);
+    ring.lineStyle(2, 0xcc44ff, 1);
+    ring.strokeCircle(0, 0, 8);
+    this.tweens.add({
+      targets: ring,
+      scaleX: 6, scaleY: 6,
+      alpha: 0,
+      duration: 380,
+      ease: "Power2.easeOut",
+      onComplete: () => ring.destroy(),
+    });
+
+    // Particle burst
+    const emitter = this.add.particles(x, y, "tpParticle", {
+      speed:    { min: 30, max: 110 },
+      scale:    { start: 0.9, end: 0 },
+      alpha:    { start: 1,   end: 0 },
+      lifespan: 380,
+      quantity: 14,
+      angle:    { min: 0, max: 360 },
+      gravityY: 60,
+    });
+    emitter.setDepth(10);
+    emitter.explode();
+    this.time.delayedCall(500, () => emitter.destroy());
   }
 
   _syncHitboxes() {
-    // Sword hitbox uses frozen attack position during swing, live position otherwise
-    if (this._isAttacking) {
-      const dir = this.attackSprite.flipX ? 1 : -1;
-      this.swordHitbox.body.reset(this._attackX + dir * 35, this._attackY - 6);
-    } else {
-      const dir = this.localPlayer.flipX ? 1 : -1;
-      this.swordHitbox.body.reset(
-        Math.round(this.localPlayer.x) + dir * 35,
-        Math.round(this.localPlayer.y) - 6,
-      );
-    }
+    const dir = this.localPlayer.flipX ? 1 : -1;
+    this.swordHitbox.body.reset(
+      Math.round(this.localPlayer.x) + dir * 35,
+      Math.round(this.localPlayer.y) - 6,
+    );
     this.remoteBodyHitbox.body.reset(
       Math.round(this.remotePlayer.x),
       Math.round(this.remotePlayer.y),
     );
+  }
+
+  // ── Countdown + FIGHT! ────────────────────────────────────────────────────────
+  _startCountdown() {
+    const cx = Math.floor(this.scale.width  / CAMERA_ZOOM / 2);
+    const cy = Math.floor(this.scale.height / CAMERA_ZOOM / 2);
+
+    const numStyle = {
+      fontFamily: "Georgia", fontSize: "200px", fontStyle: "bold",
+      color: "#ffffff", stroke: "#111111", strokeThickness: 18,
+    };
+
+    let count = 3;
+    const txt = this.add.text(cx, cy, "3", numStyle)
+      .setOrigin(0.5).setDepth(70).setScale(0.5);
+
+    const tick = () => {
+      txt.setText(String(count));
+      txt.setScale(0.7);
+      this.tweens.add({
+        targets: txt, scaleX: 0.5, scaleY: 0.5,
+        duration: 800, ease: "Power2.easeIn",
+      });
+      count--;
+      if (count > 0) {
+        this.time.delayedCall(1000, tick);
+      } else {
+        this.time.delayedCall(1000, () => {
+          txt.destroy();
+          const fight = this.add.text(cx, cy, "FIGHT!", {
+            fontFamily: "Georgia", fontSize: "180px", fontStyle: "bold",
+            color: "#ffe066", stroke: "#8b4900", strokeThickness: 16,
+          }).setOrigin(0.5).setDepth(70).setScale(0.35);
+          this.tweens.add({
+            targets: fight, scaleX: 0.5, scaleY: 0.5,
+            duration: 250, ease: "Back.easeOut",
+          });
+
+          // FIGHT! sound → PvP song starts when it ends
+          if (this.cache.audio.has("fight_sound")) {
+            const fightSfx = this.sound.add("fight_sound", { loop: false, volume: 0.9 });
+            fightSfx.play();
+            fightSfx.once("complete", () => {
+              if (!this._matchOver && this.cache.audio.has("pvp_song")) {
+                this._pvpMusic = this.sound.add("pvp_song", { loop: true, volume: 0.5 });
+                this._pvpMusic.play();
+              }
+            });
+          }
+
+          this.time.delayedCall(1500, () => {
+            fight.destroy();
+            this._matchStarted = true;
+          });
+        });
+      }
+    };
+    tick();
+  }
+
+  // ── KO! splash ────────────────────────────────────────────────────────────────
+  _showKO() {
+    // Stop PvP music and play KO sound
+    this._pvpMusic?.stop();
+    this._pvpMusic = null;
+    if (this.cache.audio.has("ko_sound")) {
+      this.sound.add("ko_sound", { loop: false, volume: 0.9 }).play();
+    }
+
+    const cx = Math.floor(this.scale.width  / CAMERA_ZOOM / 2);
+    const cy = Math.floor(this.scale.height / CAMERA_ZOOM / 2);
+    const ko = this.add.text(cx, cy, "KO!", {
+      fontFamily: "Georgia", fontSize: "240px", fontStyle: "bold",
+      color: "#ff2200", stroke: "#000000", strokeThickness: 22,
+    }).setOrigin(0.5).setDepth(75).setScale(0.7);
+    this.tweens.add({
+      targets: ko, scaleX: 0.5, scaleY: 0.5,
+      duration: 400, ease: "Back.easeIn",
+    });
+    this.time.delayedCall(2000, () => { ko.destroy(); });
+  }
+
+  // ── HP bar shake ─────────────────────────────────────────────────────────────
+  _shakeHpBar(bar) {
+    if (!bar) return;
+    const origX = bar.x;
+    this.tweens.add({
+      targets: bar, x: origX + 6,
+      duration: 40, yoyo: true, repeat: 4, ease: "Linear",
+      onComplete: () => { bar.x = origX; },
+    });
   }
 
   // ── Background ────────────────────────────────────────────────────────────────
@@ -378,17 +480,17 @@ export default class PvPArena extends Phaser.Scene {
 
     const mountW = this.textures.get("grassy_mountains").getSourceImage().width;
     for (let x = 0; x < W; x += mountW) {
-      this.add.image(x, groundY - 60, "grassy_mountains").setOrigin(0, 1);
+      this.add.image(x, groundY - 30, "grassy_mountains").setOrigin(0, 1);
     }
     const cloudMidW = this.textures.get("clouds_mid").getSourceImage().width;
     for (let x = 0; x < W; x += cloudMidW) {
-      this.add.image(x, groundY - 40, "clouds_mid").setOrigin(0, 1);
+      this.add.image(x, groundY - 10, "clouds_mid").setOrigin(0, 1);
     }
     this.add.image(Math.floor(W * 0.1),  groundY - 10, "hill").setOrigin(0, 1).setScale(0.5);
     this.add.image(Math.floor(W * 0.55), groundY - 10, "hill").setOrigin(0, 1).setScale(0.55).setFlipX(true);
     const cloudFrontW = this.textures.get("clouds_front").getSourceImage().width;
     for (let x = 0; x < W; x += cloudFrontW) {
-      this.add.image(x, groundY - 25, "clouds_front").setOrigin(0, 1);
+      this.add.image(x, groundY, "clouds_front").setOrigin(0, 1);
     }
   }
 
@@ -465,92 +567,79 @@ export default class PvPArena extends Phaser.Scene {
   // ── Socket ────────────────────────────────────────────────────────────────────
   _setupSocketListeners(isP1) {
     this._onArenaMove = (data) => {
+      // First move from opponent confirms both players are in the arena → start countdown
+      if (!this._countdownStarted) {
+        this._countdownStarted = true;
+        this._startCountdown();
+      }
+
       this.remotePlayer.targetX = data.x;
       this.remotePlayer.targetY = data.y;
       this.remotePlayer.setFlipX(data.flipX ?? true);
 
-      // Sync remote player's stamina bar
+      // Sync remote stamina bar
       if (data.stamina !== undefined) {
-        const ratio    = Math.max(0, data.stamina / MAX_STAMINA);
+        const ratio     = Math.max(0, data.stamina / MAX_STAMINA);
         const remoteBar = isP1 ? this._p2StFull : this._p1StFull;
         if (remoteBar) remoteBar.setCrop(0, 0, HEART_OPAQUE_W + BAR_CONTENT_W * ratio, BAR_H);
       }
 
-      if (data.isAttacking && !this._remoteIsAttacking) {
-        this._remoteIsAttacking = true;
-        // Bounce remote name tag up on attack
-        this._remoteTagBounce = 0;
+      // Bounce remote name tag on attack start
+      if (data.anim === "attack" && this.remotePlayer.anims.currentAnim?.key.endsWith("_attack") === false) {
         this.tweens.add({
           targets: this, _remoteTagBounce: -10,
           duration: 130, ease: "Sine.easeOut",
           yoyo: true, onComplete: () => { this._remoteTagBounce = 0; },
         });
-        const rx = Math.round(this.remotePlayer.x);
-        const ry = Math.round(this.remotePlayer.y) - 18;
-        this.remotePlayer.setVisible(false);
-        this.remoteAttackSprite.setPosition(rx, ry);
-        this.remoteAttackSprite.setFlipX(data.flipX ?? true);
-        this.remoteAttackSprite.setVisible(true);
-        this.remoteAttackSprite.play("pvpAttack");
-        this.remoteAttackSprite.once("animationcomplete-pvpAttack", () => {
-          this._remoteIsAttacking = false;
-          this.remoteAttackSprite.setVisible(false);
-          if (!this._remoteIsDead && !this._matchOver) {
-            this.remotePlayer.setVisible(true);
-            this.remotePlayer.anims.play("idle", true);
-          }
-        });
-      } else if (data.isSliding && !this._remoteIsSliding && !this._remoteIsAttacking) {
-        this._remoteIsSliding = true;
-        this.remotePlayer.setVisible(false);
-        this.remoteSlideSprite.setFlipX(data.flipX ?? true);
-        this.remoteSlideSprite.setPosition(this.remotePlayer.x, this.remotePlayer.y + 20);
-        this.remoteSlideSprite.setVisible(true);
-        this.remoteSlideSprite.play("pvpSlide", true);
-      } else if (!data.isSliding && this._remoteIsSliding) {
-        this._remoteIsSliding = false;
-        this.remoteSlideSprite.setVisible(false);
-        if (!this._remoteIsDead && !this._matchOver) {
-          this.remotePlayer.setVisible(true);
-        }
-      } else if (!data.isAttacking && !this._remoteIsAttacking && !this._remoteIsSliding && data.anim) {
-        const curAnim = this.remotePlayer.anims.currentAnim?.key;
-        if (curAnim !== data.anim) this.remotePlayer.anims.play(data.anim, true);
+      }
+
+      if (data.anim && !this._remoteIsDead) {
+        this.remotePlayer._playAnim(data.anim);
       }
     };
 
     this._onHpUpdate = (data) => {
+      const prevLocal  = this._localHp;
+      const prevRemote = this._remoteHp;
       this._localHp  = isP1 ? data.p1hp : data.p2hp;
       this._remoteHp = isP1 ? data.p2hp : data.p1hp;
       this._updateHUD();
+      if (this._localHp  < prevLocal)  this._shakeHpBar(isP1 ? this._p1HpFull : this._p2HpFull);
+      if (this._remoteHp < prevRemote) this._shakeHpBar(isP1 ? this._p2HpFull : this._p1HpFull);
     };
 
     this._onResult = async (data) => {
       if (this._matchOver) return;
       this._matchOver = true;
 
-      const iWon = (isP1 && data.winner === "p1") || (!isP1 && data.winner === "p2");
+      const iWon  = (isP1 && data.winner === "p1") || (!isP1 && data.winner === "p2");
       const prize = (data.betAmount ?? 0) * 2;
 
+      // Play end animations immediately
+      this.localPlayer.body.setVelocityX(0);
       if (iWon) {
         this._isWinner     = true;
         this._remoteIsDead = true;
-        this.localPlayer.body.setVelocityX(0);
-        this.localPlayer.anims.play("idle", true);
-        this.remotePlayer.anims.play("pvpDeath");
-
-        const title = data.disconnected ? "OPPONENT LEFT — WIN!" : "⚔  YOU WIN!";
-        // Server pays via escrow — show pending then update when pvpPaid arrives
-        this._goldStatusText = prize > 0
-          ? this._showEndScreen(title, "#ffe066", "Gold transferring…")
-          : this._showEndScreen(title, "#ffe066");
+        this.localPlayer.playAnimation("idle");
+        this.remotePlayer._playAnim("death");
       } else {
         this._isDead = true;
-        this.localPlayer.body.setVelocityX(0);
-        this.localPlayer.anims.play("pvpDeath");
-        this.remotePlayer.anims.play("idle", true);
-        this._showEndScreen("✝  YOU LOSE", "#ff6666");
+        this.localPlayer.playAnimation("death");
+        this.remotePlayer._playAnim("idle");
       }
+
+      // Show KO! for 2 seconds, then show end screen
+      this._showKO();
+      this.time.delayedCall(2000, () => {
+        if (iWon) {
+          const title = data.disconnected ? "OPPONENT LEFT — WIN!" : "⚔  YOU WIN!";
+          this._goldStatusText = prize > 0
+            ? this._showEndScreen(title, "#ffe066", "Gold transferring…")
+            : this._showEndScreen(title, "#ffe066");
+        } else {
+          this._showEndScreen("✝  YOU LOSE", "#ff6666");
+        }
+      });
     };
 
     this._onAbort = () => {
@@ -558,7 +647,7 @@ export default class PvPArena extends Phaser.Scene {
       this._matchOver = true;
       this._isWinner = true;
       this.localPlayer.body.setVelocityX(0);
-      this.localPlayer.anims.play("idle", true);
+      this.localPlayer.playAnimation("idle");
       this._showEndScreen("OPPONENT DISCONNECTED", "#aaaaaa");
     };
 
@@ -571,11 +660,16 @@ export default class PvPArena extends Phaser.Scene {
       } catch { /* balance will refresh on next scene load */ }
     };
 
+    this._onPlayerEmoji = ({ scene, emoji }) => {
+      if (scene === "PvPArena") this.remotePlayer.showEmoji(emoji);
+    };
+
     socket.on("pvpArenaMove", this._onArenaMove);
     socket.on("pvpHpUpdate",  this._onHpUpdate);
     socket.on("pvpResult",    this._onResult);
     socket.on("pvpAbort",     this._onAbort);
     socket.on("pvpPaid",      this._onPaid);
+    socket.on("playerEmoji",  this._onPlayerEmoji);
 
     this.events.once("shutdown", () => {
       socket.off("pvpArenaMove", this._onArenaMove);
@@ -583,6 +677,7 @@ export default class PvPArena extends Phaser.Scene {
       socket.off("pvpResult",    this._onResult);
       socket.off("pvpAbort",     this._onAbort);
       socket.off("pvpPaid",      this._onPaid);
+      socket.off("playerEmoji",  this._onPlayerEmoji);
     });
   }
 

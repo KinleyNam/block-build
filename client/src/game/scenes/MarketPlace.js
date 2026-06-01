@@ -174,6 +174,12 @@ export default class MarketPlace extends Phaser.Scene {
 
     this.emojiPicker = new EmojiPicker(this, this.player, "MarketPlace");
 
+    // ── Background music (continues even when marketplace overlay opens) ──────
+    if (this.cache.audio.has("marketplace_song")) {
+      this.music = this.sound.add("marketplace_song", { loop: true, volume: 0.5 });
+      this.music.play();
+    }
+
     const ui = this.scene.get("UIScene");
     ui?.setGold(gameState.gold);
     this._onStateChange = () => this.scene.get("UIScene")?.setGold(gameState.gold);

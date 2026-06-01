@@ -147,7 +147,7 @@ export default class ComDistrictScene extends Phaser.Scene {
     ]);
 
     // 5. Front clouds
-    this.addRepeatedLayer("clouds_front", height - 180, 1.0, 0.60);
+    this.addRepeatedLayer("clouds_front", height - 175, 1.0, 0.60);
 
     // Ground
     this.groundGroup = this.physics.add.staticGroup();
@@ -202,6 +202,12 @@ export default class ComDistrictScene extends Phaser.Scene {
     this._spawnSignboards();
     this._spawnBuildingSprites();
 
+    // ── Background music ──────────────────────────────────────────────────────
+    if (this.cache.audio.has("commercial_song")) {
+      this.music = this.sound.add("commercial_song", { loop: true, volume: 0.5 });
+      this.music.play();
+    }
+
     const ui = this.scene.get("UIScene");
     ui?.setGold(gameState.gold);
 
@@ -249,7 +255,14 @@ export default class ComDistrictScene extends Phaser.Scene {
       if (!this.textures.exists(key)) return;
 
       const baseScale = Math.min(1, MAX_WORLD_W / this.textures.get(key).getSourceImage().width);
-      const scale     = building.level >= 2 ? baseScale * 2.4 : baseScale;
+      // [level-1][buildingType] — Blacksmith=0, Carpentry=1, MagicResearch=2
+      const MULT = [
+        [1.9,  1.35, 2.5],  // level 1
+        [1.8,  1.8,  1.75],  // level 2
+        [2.5,  2.65, 2.5],  // level 3
+      ];
+      const row   = MULT[(building.level - 1)] ?? MULT[0];
+      const scale = baseScale * (row[building.buildingType] ?? 1);
 
       const sprite = this.add.image(centerX, this._groundY, key)
         .setOrigin(0.5, 1)

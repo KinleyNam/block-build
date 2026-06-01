@@ -50,6 +50,8 @@ export default class MultiplayerManager {
         scene:         this.sceneName,
         username:      gameState.username,
         walletAddress: gameState.walletAddress,
+        gender:        gameState.gender,
+        customization: gameState.customization,
       });
 
       // Local player name tag
@@ -86,21 +88,27 @@ export default class MultiplayerManager {
 
     if (this.player && this._localNameTag) {
       const p = this.player;
-      this._localNameTag.setPosition(p.x, p.y - p.displayHeight * 0.5 - 6);
+      this._localNameTag.setPosition(p.x, p.y - p.displayHeight * 0.5 + 29);
     }
   }
 
   emitMove(player, time) {
     if (time - this._lastEmit < 50) return;
     this._lastEmit = time;
+    // Send the short base animation name (e.g. "idle", "walk") so remote players
+    // can map it to their own skin-specific animation key.
+    const rawAnim = player.anims?.currentAnim?.key ?? "idle";
+    const baseAnim = player._baseAnim ?? rawAnim.replace(/^cSkin_[mf]_\d+_/, "");
     socket.emit("playerMoved", {
       x:             player.x,
       y:             player.y,
-      anim:          player.anims?.currentAnim?.key ?? "idle",
+      anim:          baseAnim,
       flipX:         player.flipX,
       scene:         this.sceneName,
       username:      gameState.username,
       walletAddress: gameState.walletAddress,
+      gender:        gameState.gender,
+      customization: gameState.customization,
     });
   }
 
@@ -130,7 +138,7 @@ export default class MultiplayerManager {
     if (inRange) {
       this._buttonGImg
         .setVisible(true)
-        .setPosition(nearest.x, nearest.y - nearest.displayHeight * 0.5 - 22);
+        .setPosition(nearest.x, nearest.y - nearest.displayHeight * 0.5 + 13);
       this._nearestTarget = { rp: nearest, id: nearestId };
     } else {
       this._buttonGImg.setVisible(false);
@@ -236,7 +244,7 @@ export default class MultiplayerManager {
   _showBusyMessage(rp, message) {
     if (this._pvpBusyMsg) return; // debounce — only one at a time
     this._pvpBusyMsg = this.scene.add.text(
-      rp.x, rp.y - 60,
+      rp.x, rp.y - 25,
       message,
       {
         fontFamily:      "Georgia",
@@ -271,6 +279,7 @@ export default class MultiplayerManager {
   _add(data) {
     if (this.remotePlayers[data.id]) return;
     console.log(`[MP] spawning RemotePlayer at x=${data.x} y=${data.y}`);
+    // data includes gender + customization relayed from server
     const rp = new RemotePlayer(this.scene, data);
     rp._scene = data.scene;
     this.remotePlayers[data.id] = rp;
