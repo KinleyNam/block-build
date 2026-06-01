@@ -161,15 +161,6 @@
   background: #3a8e3a;
 }
 
-.bm-btn-downgrade {
-  background: #5a4820;
-  color: #d8c070;
-}
-
-.bm-btn-downgrade:not(:disabled):hover {
-  background: #7a6830;
-}
-
 .bm-btn-remove {
   background: #6e2a2a;
   color: #f0b8b8;

@@ -88,7 +88,7 @@ export default function CharacterPreview({ gender, skinIndex, hairIndex, outfitI
       s.cancelled = true;
       if (s.timer) { clearInterval(s.timer); s.timer = null; }
     };
-  }, [gender, skinIndex, hairIndex, outfitIndex, weaponTier, weaponType]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [gender, skinIndex, hairIndex, outfitIndex, weaponTier, weaponType]);
 
   return (
     <canvas

@@ -305,7 +305,7 @@ export default function Game() {
       setPvpSendPending(true);
       try {
         escrowId = await depositToEscrow(betAmount);
-      } catch (e) {
+      } catch {
         setPvpSendPending(false);
         return; // user cancelled MetaMask — stay on panel
       }
@@ -343,7 +343,7 @@ export default function Game() {
       setPvpAcceptError("");
       try {
         await joinEscrow(data.escrowId, data.betAmount);
-      } catch (e) {
+      } catch {
         // User cancelled MetaMask — decline so server refunds the challenger
         setPvpAcceptPending(false);
         setPvpAcceptError("Approval cancelled. Match declined.");

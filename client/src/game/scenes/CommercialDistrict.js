@@ -17,13 +17,6 @@ const GROUND_TILE_OVERLAP = 1;
 const ROCK_PATTERN = ["medium_rocks", "medium_rocks", "small_rocks", "big_rock", "medium_rocks" ]
 const BUSH_PATTERN = ["small_bush", "small_bush", "bushes", "big_bush", "bushes"]
 
-const DECORATIONS = [
-  {},
-  {},
-  {},
-]
-
-
 export default class ComDistrictScene extends Phaser.Scene {
 
   constructor() {

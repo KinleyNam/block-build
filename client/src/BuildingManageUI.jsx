@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import "./BuildingManageUI.css";
-import gameState, { BUILDING_TYPES, LAND_PARCELS } from "./game/gameState";
+import gameState, { BUILDING_TYPES } from "./game/gameState";
 import socket from "./game/socket";
 import {
   getMyBuildings,
@@ -8,7 +8,6 @@ import {
   placeBuildingOnChain,
   removeBuildingOnChain,
   upgradeBuildingOnChain,
-  downgradeBuildingOnChain,
   getGoldBalance,
   getPendingOwnerEarnings,
   claimOwnerEarnings,
@@ -188,21 +187,7 @@ export default function BuildingManageUI({ parcelId, parcelLabel, onClose }) {
     }
   }
 
-  async function handleDowngrade() {
-    if (!placed) return;
-    setPending(true); setError("");
-    try {
-      await downgradeBuildingOnChain(placed.tokenId);
-      await refresh();
-    } catch (e) {
-      setError(e?.reason || e?.message || "Transaction failed.");
-    } finally {
-      setPending(false);
-    }
-  }
-
   const unplacedBuildings = myBuildings.filter(b => !b.placed);
-  const parcel = LAND_PARCELS.find(p => p.tokenId === parcelId);
 
   return (
     <div className="bm-overlay">
@@ -326,13 +311,6 @@ export default function BuildingManageUI({ parcelId, parcelLabel, onClose }) {
                     disabled={placed.level >= 3}
                   >
                     Upgrade → Lv.{placed.level + 1} ({BUILDING_UPGRADE_COST}G)
-                  </button>
-                  <button
-                    className="bm-btn bm-btn-downgrade"
-                    onClick={handleDowngrade}
-                    disabled={placed.level <= 1}
-                  >
-                    Downgrade → Lv.{placed.level - 1} ({BUILDING_UPGRADE_COST}G)
                   </button>
                   <button className="bm-btn bm-btn-remove" onClick={handleRemove}>
                     Remove from Land

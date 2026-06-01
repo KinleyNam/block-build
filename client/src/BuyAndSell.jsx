@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import menuPanelImg from "./assets/UIElement/main-menu-with-Chains.png";
 import titleBackgroundImg from "./assets/UIElement/title-background.png";
-import PlaceHolder from "./assets/UIElement/land-Image.png";
 import "./BuyAndSell.css";
 import gameState, { LAND_PARCELS } from "./game/gameState";
 import {
@@ -750,31 +749,6 @@ export default function BuyAndSell({ onBack }) {
               <span>{listing.price}G</span>
               <span className="buy-sell-screen__item-owned-label">{shortAddr(listing.seller)}</span>
             </button>
-          );
-        })}
-      </div>
-    );
-  }
-
-  function renderMyNFTs() {
-    const myParcels = LAND_PARCELS.filter(p => isMyParcel(p));
-
-    if (myParcels.length === 0) {
-      return <p className="buy-sell-screen__status">You don't own any land NFTs yet.</p>;
-    }
-
-    return (
-      <div className="buy-sell-screen__grid">
-        {myParcels.map(parcel => {
-          const listing = listingOf(parcel);
-          return (
-            <div key={parcel.id} className="buy-sell-screen__item buy-sell-screen__item--mine">
-              <img className="buy-sell-screen__item-thumb" src={LAND_IMAGE_URL} alt={parcel.label} />
-              <span>{parcel.label}</span>
-              <span className="buy-sell-screen__item-owned-label">
-                {listing ? `Listed: ${listing.price}G` : "Owned"}
-              </span>
-            </div>
           );
         })}
       </div>
