@@ -1,0 +1,120 @@
+.worker-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 300;
+}
+
+.worker-panel {
+  background: #1a1208;
+  border: 2px solid #8b6914;
+  border-radius: 6px;
+  padding: 28px 32px;
+  width: min(400px, 90vw);
+  text-align: center;
+  color: #efe2b7;
+  font-family: Georgia, serif;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.worker-title {
+  font-size: 1.25rem;
+  color: #ffe066;
+  margin: 0 0 4px;
+  letter-spacing: 1px;
+}
+
+.worker-subtitle {
+  font-size: 0.85rem;
+  color: #ffcc44;
+  font-weight: bold;
+  margin: 0 0 10px;
+}
+
+.worker-info {
+  font-size: 0.88rem;
+  color: #a89060;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+
+.worker-status {
+  font-size: 0.88rem;
+  color: #a89060;
+  margin: 12px 0;
+  line-height: 1.5;
+}
+
+.worker-hired {
+  font-size: 0.95rem;
+  color: #66dd88;
+  font-weight: bold;
+  margin: 8px 0 14px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.worker-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 18px;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 8px;
+}
+
+.worker-btn-apply {
+  background: #2a6e2a;
+  color: #b8f0b8;
+}
+
+.worker-btn-apply:hover {
+  background: #3a8e3a;
+}
+
+.worker-btn-work {
+  background: #8b6914;
+  color: #ffe0a0;
+}
+
+.worker-btn-work:hover {
+  background: #c8960a;
+}
+
+.worker-btn-resign {
+  background: #6e2a2a;
+  color: #f0b8b8;
+}
+
+.worker-btn-resign:hover {
+  background: #8e3a3a;
+}
+
+.worker-btn-secondary {
+  background: #5a4820;
+  color: #d8c070;
+}
+
+.worker-btn-secondary:hover {
+  background: #7a6830;
+}
+
+.worker-btn-close {
+  background: #3a2a10;
+  color: #a89060;
+  border: 1px solid #5a4020;
+  margin-top: 14px;
+}
+
+.worker-btn-close:hover {
+  background: #4a3a20;
+  color: #d8c99a;
+}
+

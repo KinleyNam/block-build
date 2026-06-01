@@ -1,0 +1,102 @@
+import { savePosition as savePositionAPI } from "../api";
+
+// 0 = Blacksmith, 1 = Carpentry, 2 = MagicResearch
+export const BUILDING_TYPES = [
+  { id: 0, name: "Blacksmith",     key: "blacksmith" },
+  { id: 1, name: "Carpentry",      key: "carpentry" },
+  { id: 2, name: "Magic Research", key: "magicresearch" },
+];
+
+export const LAND_PARCELS = [
+  { id: "A1", label: "A-1", startX: 0,    endX: 750,  price: 100, tokenId: 1 },
+  { id: "A2", label: "A-2", startX: 750,  endX: 1500, price: 140, tokenId: 2 },
+  { id: "A3", label: "A-3", startX: 1500, endX: 2250, price: 180, tokenId: 3 },
+];
+
+const DEFAULT_SKILLS = {
+  carpentry:     { exp: 0, level: 1 },
+  blacksmithing: { exp: 0, level: 1 },
+  magicResearch: { exp: 0, level: 1 },
+};
+
+const DEFAULT_CUSTOMIZATION = { skinIndex: 1, hairIndex: 1, outfitIndex: 0, weaponTier: 0, weaponType: 0 };
+
+const gameState = {
+  username:      "",
+  gender:        "Male",
+  gold:          1000,
+  walletAddress: "",
+  skills:        { ...DEFAULT_SKILLS },
+  customization: { ...DEFAULT_CUSTOMIZATION },
+  landOwnership:   {},  // parcelId ("A1"…"A3") → owner wallet address (lowercased)
+  placedBuildings: {},  // parcelId (1–5 numeric) → { tokenId, buildingType, level }
+  myBuildings:     [],  // { tokenId, buildingType, level, placed, parcelId }
+  isWorking:       false,
+  hiredAtParcel:   null, // parcelId (1-5) where player is currently hired
+  lastScene:       null, // persisted spawn scene
+  lastX:         null,
+  lastY:         null,
+  _listeners:    [],
+
+  on(fn)  { this._listeners.push(fn); },
+  off(fn) { this._listeners = this._listeners.filter(f => f !== fn); },
+  _emit() { this._listeners.forEach(fn => fn()); },
+
+  setUser(userData, skillsData) {
+    this.username = userData.username;
+    this.gender   = userData.gender;
+    if (userData.walletAddress) this.walletAddress = userData.walletAddress;
+    if (skillsData) this.skills = skillsData;
+    if (userData.customization) this.customization = { ...DEFAULT_CUSTOMIZATION, ...userData.customization };
+    this._emit();
+  },
+
+  setSkills(skillsData) {
+    this.skills = skillsData;
+    this._emit();
+  },
+
+  // Called after reading getAllOwners() from the contract.
+  // owners: array of 5 addresses in parcel order (address(0) = unowned).
+  setLandOwnership(owners) {
+    this.landOwnership = {};
+    LAND_PARCELS.forEach((parcel, i) => {
+      const addr = owners[i];
+      if (addr && addr !== "0x0000000000000000000000000000000000000000") {
+        this.landOwnership[parcel.id] = addr.toLowerCase();
+      }
+    });
+    this._emit();
+  },
+
+  // Called after reading getAllPlacedBuildings() from the contract.
+  // data: { [parcelId 1-5]: { tokenId, buildingType, level } }
+  setPlacedBuildings(data) {
+    this.placedBuildings = { ...data };
+    this._emit();
+  },
+
+  // Called after reading getBuildingsByOwner() from the contract.
+  setMyBuildings(buildings) {
+    this.myBuildings = buildings;
+    this._emit();
+  },
+
+  // Local-only update called after a successful on-chain buyLand tx.
+  markLandOwned(parcelId, walletAddress) {
+    this.landOwnership[parcelId] = walletAddress.toLowerCase();
+    this._emit();
+  },
+
+  // Called by scenes on shutdown — persists spawn point to DB.
+  savePosition(scene, x, y) {
+    this.lastScene = scene;
+    this.lastX     = Math.round(x);
+    this.lastY     = Math.round(y);
+    if (this.username) {
+      savePositionAPI(this.username, scene, this.lastX, this.lastY).catch(() => {});
+    }
+  },
+};
+
+export default gameState;
