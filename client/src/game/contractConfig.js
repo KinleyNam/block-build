@@ -1,7 +1,7 @@
 
-export const GOLD_ADDRESS     = "0xeaEc1AF08FBfDe69A71ae25735e88824f4924663";
-export const LAND_NFT_ADDRESS = "0x7249F57e6baB2602e8B53bC94FfFB1cB3E60b20E";
-export const ESCROW_ADDRESS   = "0x86957EB9Cc00a2F5D1CC66818F8918A3119Df8EE";
+export const GOLD_ADDRESS     = "0x2744B7D05A0cd8c630C6009e1A2D749AA6Ff8f18";
+export const LAND_NFT_ADDRESS = "0xC91005f0a8867B080648Fa0310b107bd659F6a1a";
+export const ESCROW_ADDRESS   = "0xCd8D416864A55F06502539986269E179Ebd6C297";
 
 export const PINATA_GATEWAY = "https://plum-blank-crow-445.mypinata.cloud";
 
@@ -54,7 +54,7 @@ export const ESCROW_ABI = [
 
 // ── Building NFT ─────────────────────────────────────────────────────────────
 // TODO: replace with deployed address after running: npx hardhat ignition deploy
-export const BUILDING_NFT_ADDRESS = "0xEc246Cf0599b11aefb14e6395148149aBc793c9D";
+export const BUILDING_NFT_ADDRESS = "0xea1379C973Ffdc82DaA8fcde73a4A9746C32f09A";
 
 export const BUILDING_NFT_ABI = [
   // Primary sale

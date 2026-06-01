@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 // Set to false to re-enable MetaMask/escrow for PvP gold
-const SKIP_ESCROW = true;
+const SKIP_ESCROW = false;
 import Phaser from "phaser";
 import EscapeMenu from "../EscapeMenu";
 import MarketplaceChoice from "../MarketplaceChoice";

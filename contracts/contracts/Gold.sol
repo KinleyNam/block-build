@@ -16,13 +16,11 @@ contract Gold is ERC20, Ownable {
         return 0;
     }
 
-    // One-time faucet — new players claim 400–500 Gold once per wallet
+    // One-time faucet — new players claim 910 Gold once per wallet
     function faucet() external {
         require(!_faucetClaimed[msg.sender], "Already claimed");
         _faucetClaimed[msg.sender] = true;
-        uint256 rand   = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, msg.sender)));
-        uint256 amount = 400 + (rand % 101);
-        _mint(msg.sender, amount);
+        _mint(msg.sender, 910);
     }
 
     // Owner-only mint for controlled distribution

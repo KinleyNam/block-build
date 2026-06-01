@@ -493,7 +493,7 @@ io.on("connection", (socket) => {
         skillLevel  = user?.skills?.[skillName]?.level ?? 1;
         await User.findOneAndUpdate(
           { username: myUsername },
-          { $inc: { [`skills.${skillName}.exp`]: 5 } }
+          { $inc: { [`skills.${skillName}.exp`]: 10 } }
         );
       } catch (e) { console.error("[Work] DB error:", e.message); }
 
@@ -511,7 +511,7 @@ io.on("connection", (socket) => {
       if (currentSid) {
         io.to(currentSid).emit("workSessionComplete", {
           parcelId, workerGold, ownerGold,
-          skillType: skillName, expGain: 5, skillLevel,
+          skillType: skillName, expGain: 10, skillLevel,
         });
       }
 
