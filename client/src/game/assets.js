@@ -196,7 +196,7 @@ import horseImg from "../assets/VillageOutskirtsAssets/Animals/horse.png";
 import blackHorseImg from "../assets/VillageOutskirtsAssets/Animals/black horse.png";
 
 import pubWaitressImg from "../assets/VillageOutskirtsAssets/npc/Pub-waitress-idle.png";
-import pubWaiterImg from "../assets/VillageOutskirtsAssets/npc/Pub-waiter-idle.png";
+import pubWaiterImg from "../assets/VillageOutskirtsAssets/npc/pub-waiter-idle.png";
 import beerManImg from "../assets/VillageOutskirtsAssets/npc/Man-holding-beer-cup-idle.png";
 import blueLadyImg from "../assets/VillageOutskirtsAssets/npc/Blue-grape-lady-idle.png";
 import ladyChefImg from "../assets/VillageOutskirtsAssets/npc/Ladychef-idle.png";
@@ -207,7 +207,7 @@ import femaleSittingCross from "../assets/VillageOutskirtsAssets/npc/Female-sitt
 import guitaristKnight from "../assets/VillageOutskirtsAssets/npc/Guitarist-Kinght-idle.png";
 import fluteGuy from "../assets/VillageOutskirtsAssets/npc/Tavern-flutist-idle.png";
 import gutaristGuy from "../assets/VillageOutskirtsAssets/npc/Tavern-Bard-idle.png";
-import lyingFemale from "../assets/VillageOutskirtsAssets/npc/Lying-lady.png";
+import lyingFemale from "../assets/VillageOutskirtsAssets/npc/lying-lady.png";
 import fatKnightBeer from "../assets/VillageOutskirtsAssets/npc/Fat-knight-beer-idle.png";
 import romanYellowGirl from "../assets/VillageOutskirtsAssets/npc/yellow-Roman-female-idle.png";
 import romanBlueGirl from "../assets/VillageOutskirtsAssets/npc/Blue-Roman-female-idle.png";
