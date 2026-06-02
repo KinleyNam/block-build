@@ -1,0 +1,260 @@
+/* ── Overlay ────────────────────────────────────────────────────── */
+.emenu {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  background: #a7dcea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emenu__bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+  z-index: 0;
+}
+
+/* ── Panels row — mirrors buy-sell-screen__panels ───────────────── */
+.emenu__panels {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* ── Shared panel image — mirrors buy-sell-screen__panel ────────── */
+.emenu__panel {
+  width: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* ── Left nav panel — mirrors buy-sell-screen__panel-wrap ───────── */
+.emenu__nav-wrap {
+  position: relative;
+  width: min(21rem, 28vw);
+  padding-bottom: 90px;
+}
+
+.emenu__nav {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 14%;
+  box-sizing: border-box;
+}
+
+.emenu__nav-btn {
+  cursor: pointer;
+  width: 80%;
+  box-sizing: border-box;
+}
+
+.emenu__nav-btn .button-shell__inner {
+  font-size: clamp(0.75rem, 1.1vw, 1rem);
+  min-width: unset;
+  width: 100%;
+  padding: 0.3rem 0.1rem;
+  box-sizing: border-box;
+  text-align: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.emenu__nav-btn--active .button-shell__inner {
+  border-color: #d4a030;
+  color: #ffe8a0;
+}
+
+.emenu__nav-btn:hover .button-shell__inner {
+  color: #000;
+  background: #e8a830;
+}
+
+/* ── Right content panel — mirrors buy-sell-screen__panel-wrap--right */
+.emenu__content-wrap {
+  position: relative;
+  width: min(30rem, 44vw);
+  padding-bottom: 90px;
+}
+
+.emenu__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 28%;
+  padding-bottom: 12%;
+  padding-left: 12%;
+  padding-right: 12%;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ── Category bar (arrows + label) ─────────────────────────────── */
+.emenu__bar {
+  position: absolute;
+  top: 167px;
+  left: 20%;
+  right: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: transparent;
+  z-index: 2;
+}
+
+.emenu__bar-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000000;
+  text-transform: capitalize;
+}
+
+.emenu__arrow {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: #000000;
+  padding: 0 8px;
+  font-weight: bold;
+  transition: color 0.1s;
+}
+
+.emenu__arrow:hover:not(:disabled) { color: #ffffff; text-shadow: 0 0 2px black; }
+.emenu__arrow:disabled { opacity: 0.3; cursor: default; }
+
+/* ── Shared tab container ───────────────────────────────────────── */
+.emenu__tab {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0.25rem 0;
+}
+
+.emenu__tab--profile {
+  flex: none;
+  margin-top: 100px;
+}
+
+.emenu__tab--profile .emenu__profile-top,
+.emenu__tab--profile .emenu__skills-box {
+  width: calc(100% - 50px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* ── NFT tab — uses BuyAndSell classes directly ─────────────────── */
+.emenu__nft-offset {
+  margin-top: 70px;
+  margin-left: 15px;
+}
+
+.emenu__nft-status {
+  margin-top: 100px;
+  text-align: center;
+  color: #e8d5b0;
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+}
+
+/* ── Profile tab ────────────────────────────────────────────────── */
+.emenu__profile-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #694230;
+  border: 2px solid #A37764;
+  box-shadow: 0 0 0 5px #694230;
+  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+  width: 100%;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+}
+
+.emenu__avatar {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: #1a0d00;
+  border: 2px solid #A37764;
+  flex-shrink: 0;
+  object-fit: cover;
+  object-position: center top;
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+
+.emenu__profile-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.emenu__stat {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #ede0c4;
+}
+
+.emenu__stat--name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.emenu__skills-box {
+  background: #694230;
+  border: 2px solid #A37764;
+  box-shadow: 0 0 0 5px #694230;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.emenu__skills-title {
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #d4a030;
+  margin-bottom: 0.5rem;
+}
+
+.emenu__skill { margin-bottom: 0.35rem; }
+
+.emenu__skill-name {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #ede0c4;
+}
+
+.emenu__skill-sub {
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: #c0a070;
+}
+
