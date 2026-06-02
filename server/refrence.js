@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import BlockBuildABI from "../contracts/artifacts/contracts/BlockBuild.sol/BlockBuild.json" assert { type: "json" };
 
 // CONFIG — pull from environment variables
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;   // deployed contract
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS; // deployed contract
 const OWNER_PRIVATE_KEY = process.env.OWNER_PRIVATE_KEY; // server wallet (owner)
 const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545"; // local hardhat or live RPC
 
@@ -14,11 +14,13 @@ export async function initBlockchain() {
   const contract = new ethers.Contract(
     CONTRACT_ADDRESS,
     BlockBuildABI.abi,
-    signer
+    signer,
   );
 
   const network = await provider.getNetwork();
-  console.log(`[Blockchain] Connected to chain ${network.chainId} at ${RPC_URL}`);
+  console.log(
+    `[Blockchain] Connected to chain ${network.chainId} at ${RPC_URL}`,
+  );
   console.log(`[Blockchain] Contract: ${CONTRACT_ADDRESS}`);
 
   return { contract, provider, signer };
@@ -29,14 +31,21 @@ export async function initBlockchain() {
  * Since ERC1155 doesn't have enumeration, the server tracks minted IDs
  * and checks balances in batch.
  */
-export async function getPlayerAssets(contract, walletAddress, mintedLandIds, mintedBuildingIds) {
+export async function getPlayerAssets(
+  contract,
+  walletAddress,
+  mintedLandIds,
+  mintedBuildingIds,
+) {
   const allIds = [...mintedLandIds, ...mintedBuildingIds];
   const addresses = allIds.map(() => walletAddress);
 
   const balances = await contract.balanceOfBatch(addresses, allIds);
 
   const ownedLands = mintedLandIds.filter((_, i) => balances[i] > 0n);
-  const ownedBuildings = mintedBuildingIds.filter((_, i) => balances[mintedLandIds.length + i] > 0n);
+  const ownedBuildings = mintedBuildingIds.filter(
+    (_, i) => balances[mintedLandIds.length + i] > 0n,
+  );
 
   return { ownedLands, ownedBuildings };
 }
@@ -74,7 +83,9 @@ export async function getListing(contract, assetId) {
 export async function mintGold(contract, toAddress, amount) {
   const tx = await contract.mintGold(toAddress, amount);
   await tx.wait();
-  console.log(`[Blockchain] Minted ${amount} GOLD to ${toAddress} | tx: ${tx.hash}`);
+  console.log(
+    `[Blockchain] Minted ${amount} GOLD to ${toAddress} | tx: ${tx.hash}`,
+  );
   return tx.hash;
 }
 
@@ -87,7 +98,9 @@ export async function mintLand(contract, toAddress) {
 
   // Read the new ID from contract state (nextLandId was incremented)
   const newId = Number(await contract.nextLandId()) - 1;
-  console.log(`[Blockchain] Minted Land #${newId} to ${toAddress} | tx: ${tx.hash}`);
+  console.log(
+    `[Blockchain] Minted Land #${newId} to ${toAddress} | tx: ${tx.hash}`,
+  );
   return { landId: newId, txHash: tx.hash };
 }
 
@@ -99,7 +112,9 @@ export async function mintBuilding(contract, toAddress, landId) {
   await tx.wait();
 
   const newId = Number(await contract.nextBuildingId()) - 1;
-  console.log(`[Blockchain] Minted Building #${newId} on Land #${landId} | tx: ${tx.hash}`);
+  console.log(
+    `[Blockchain] Minted Building #${newId} on Land #${landId} | tx: ${tx.hash}`,
+  );
   return { buildingId: newId, txHash: tx.hash };
 }
 
@@ -110,7 +125,6 @@ export async function mintBuilding(contract, toAddress, landId) {
  * This keeps every player's UI in sync without polling.
  */
 export function registerBlockchainEvents(io, contract) {
-
   // Fires on every ERC1155 single transfer: mints, buys, and sells all emit this
   contract.on("TransferSingle", (operator, from, to, id, value, event) => {
     const tokenId = Number(id);
@@ -125,7 +139,9 @@ export function registerBlockchainEvents(io, contract) {
       txHash: event.log.transactionHash,
     };
 
-    console.log(`[Blockchain] TransferSingle: token ${tokenId} from ${from} → ${to}`);
+    console.log(
+      `[Blockchain] TransferSingle: token ${tokenId} from ${from} → ${to}`,
+    );
 
     // Notify all connected clients so they can refresh their inventory/map
     io.emit("chain:transfer", payload);
@@ -158,16 +174,26 @@ export function registerBlockchainEvents(io, contract) {
  *   });
  */
 export function registerSocketHandlers(socket, io, contract) {
-
   // Client requests their on-chain assets on login
-  socket.on("player:getAssets", async ({ walletAddress, mintedLandIds, mintedBuildingIds }) => {
-    try {
-      const assets = await getPlayerAssets(contract, walletAddress, mintedLandIds, mintedBuildingIds);
-      socket.emit("player:assets", assets);
-    } catch (err) {
-      socket.emit("error", { message: "Failed to load assets", detail: err.message });
-    }
-  });
+  socket.on(
+    "player:getAssets",
+    async ({ walletAddress, mintedLandIds, mintedBuildingIds }) => {
+      try {
+        const assets = await getPlayerAssets(
+          contract,
+          walletAddress,
+          mintedLandIds,
+          mintedBuildingIds,
+        );
+        socket.emit("player:assets", assets);
+      } catch (err) {
+        socket.emit("error", {
+          message: "Failed to load assets",
+          detail: err.message,
+        });
+      }
+    },
+  );
 
   // Client requests to upgrade a building they own
   // Note: upgradeBuilding is called by the player's own wallet on the frontend.
@@ -178,20 +204,31 @@ export function registerSocketHandlers(socket, io, contract) {
       // Broadcast the new level to all clients viewing the same scene
       io.emit("chain:buildingUpdate", info);
     } catch (err) {
-      socket.emit("error", { message: "Failed to fetch building info", detail: err.message });
+      socket.emit("error", {
+        message: "Failed to fetch building info",
+        detail: err.message,
+      });
     }
   });
 
   // Client completes a quest — server rewards GOLD on-chain
-  socket.on("player:questComplete", async ({ walletAddress, questId, rewardAmount }) => {
-    try {
-      console.log(`[Quest] Player ${walletAddress} completed quest ${questId}, rewarding ${rewardAmount} GOLD`);
-      const txHash = await mintGold(contract, walletAddress, rewardAmount);
-      socket.emit("player:goldRewarded", { amount: rewardAmount, txHash });
-    } catch (err) {
-      socket.emit("error", { message: "Failed to reward GOLD", detail: err.message });
-    }
-  });
+  socket.on(
+    "player:questComplete",
+    async ({ walletAddress, questId, rewardAmount }) => {
+      try {
+        console.log(
+          `[Quest] Player ${walletAddress} completed quest ${questId}, rewarding ${rewardAmount} GOLD`,
+        );
+        const txHash = await mintGold(contract, walletAddress, rewardAmount);
+        socket.emit("player:goldRewarded", { amount: rewardAmount, txHash });
+      } catch (err) {
+        socket.emit("error", {
+          message: "Failed to reward GOLD",
+          detail: err.message,
+        });
+      }
+    },
+  );
 
   // Client requests to claim a new land parcel
   socket.on("player:claimLand", async ({ walletAddress }) => {
@@ -199,18 +236,33 @@ export function registerSocketHandlers(socket, io, contract) {
       const { landId, txHash } = await mintLand(contract, walletAddress);
       socket.emit("player:landClaimed", { landId, txHash });
     } catch (err) {
-      socket.emit("error", { message: "Failed to mint land", detail: err.message });
+      socket.emit("error", {
+        message: "Failed to mint land",
+        detail: err.message,
+      });
     }
   });
 
-  // Client builds on a land parcel
+  // Client builds a new building on their owned lands
   socket.on("player:buildOnLand", async ({ walletAddress, landId }) => {
     try {
-      const { buildingId, txHash } = await mintBuilding(contract, walletAddress, landId);
+      const { buildingId, txHash } = await mintBuilding(
+        contract,
+        walletAddress,
+        landId,
+      );
       socket.emit("player:buildingCreated", { buildingId, landId, txHash });
-      io.emit("chain:buildingUpdate", { buildingId, landId, owner: walletAddress, level: 1 });
+      io.emit("chain:buildingUpdate", {
+        buildingId,
+        landId,
+        owner: walletAddress,
+        level: 1,
+      });
     } catch (err) {
-      socket.emit("error", { message: "Failed to mint building", detail: err.message });
+      socket.emit("error", {
+        message: "Failed to mint building",
+        detail: err.message,
+      });
     }
   });
 }
