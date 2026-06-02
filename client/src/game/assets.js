@@ -8,7 +8,7 @@ export const CHAR_PACK_COLS = 10;
 
 const _cpUrls = import.meta.glob(
   "../assets/Character Asset Pack/**/*.png",
-  { eager: true, as: "url" },
+  { eager: true, query: "?url", import: "default" },
 );
 function cpUrl(rel) {
   return _cpUrls[`../assets/Character Asset Pack/${rel}`];
